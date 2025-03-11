@@ -20,7 +20,8 @@
       }
     ],
     "type": "compute",
-    "group": "perlmutter"
+    "group": "perlmutter",
+    "current_status": "up"
   },
   {
     "id": "ff415c87-6596-41c7-93fd-b772994a92d4",
@@ -43,7 +44,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "3594b493-f811-43b9-9c14-a3dd23542ffc",
@@ -66,7 +68,8 @@
       }
     ],
     "type": "service",
-    "group": "services"
+    "group": "services",
+    "current_status": "up"
   },
   {
     "id": "13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
@@ -89,7 +92,8 @@
       }
     ],
     "type": "service",
-    "group": "services"
+    "group": "services",
+    "current_status": "up"
   },
   {
     "id": "303a692d-c52b-47f0-8699-045f962650e2",
@@ -112,7 +116,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "289d38f2-e93c-4840-b037-8b78d8ec36cc",
@@ -135,7 +140,8 @@
       }
     ],
     "type": "website",
-    "group": "websites"
+    "group": "websites",
+    "current_status": "up"
   },
   {
     "id": "b06f8043-f96b-4279-8f0a-0e128a73cc32",
@@ -158,7 +164,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "72c11ef6-ff6b-409e-adfd-2f3763daac4f",
@@ -181,7 +188,8 @@
       }
     ],
     "type": "service",
-    "group": "services"
+    "group": "services",
+    "current_status": "up"
   },
   {
     "id": "d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
@@ -204,7 +212,8 @@
       }
     ],
     "type": "website",
-    "group": "websites"
+    "group": "websites",
+    "current_status": "up"
   },
   {
     "id": "29ea05ad-86de-4df8-b208-f0691aafbaa2",
@@ -227,7 +236,8 @@
       }
     ],
     "type": "storage",
-    "group": "perlmutter"
+    "group": "perlmutter",
+    "current_status": "up"
   },
   {
     "id": "43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
@@ -250,7 +260,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "29989783-bc70-4cc8-880f-f2176d6cec20",
@@ -273,14 +284,15 @@
       }
     ],
     "type": "website",
-    "group": "websites"
+    "group": "websites",
+    "current_status": "up"
   },
   {
     "id": "057c3750-4ba1-4b51-accf-b160be683d80",
     "name": "Data Transfer Nodes",
     "short_name": "dtns",
     "description": "The NERSC data transfer nodes provide access to Global Homes, Global Common, the Community File System (CFS), Perlmutter Scratch, and HPSS.",
-    "last_modified": "2025-03-03T07:51:20.672Z",
+    "last_modified": "2025-03-11T07:28:24.690Z",
     "links": [
       {
         "rel": "self",
@@ -296,7 +308,8 @@
       }
     ],
     "type": "compute",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "down"
   },
   {
     "id": "8b61b346-b53c-4a8e-83b4-776eaa14cc67",
@@ -319,7 +332,8 @@
       }
     ],
     "type": "compute",
-    "group": "perlmutter"
+    "group": "perlmutter",
+    "current_status": "up"
   },
   {
     "id": "b951a092-7f0a-4263-bc9a-700c7ceed415",
@@ -342,7 +356,8 @@
       }
     ],
     "type": "website",
-    "group": "websites"
+    "group": "websites",
+    "current_status": "up"
   },
   {
     "id": "0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
@@ -365,7 +380,8 @@
       }
     ],
     "type": "service",
-    "group": "services"
+    "group": "services",
+    "current_status": "up"
   },
   {
     "id": "097c3750-4ba1-4b51-accf-b160be683d55",
@@ -388,7 +404,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
@@ -411,7 +428,8 @@
       }
     ],
     "type": "storage",
-    "group": "storage"
+    "group": "storage",
+    "current_status": "up"
   },
   {
     "id": "f8a06086-b79b-4f45-beec-abb8bee38fa1",
@@ -434,7 +452,8 @@
       }
     ],
     "type": "compute",
-    "group": "perlmutter"
+    "group": "perlmutter",
+    "current_status": "up"
   },
   {
     "id": "a0d96526-6fd3-413e-8f9e-ff12d602539e",
@@ -457,6 +476,7 @@
       }
     ],
     "type": "service",
-    "group": "services"
+    "group": "services",
+    "current_status": "up"
   }
 ]

@@ -32,6 +32,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(description = "The current state of the incident resolution.")
 public enum ResolutionType {
+    @Schema(description = "The incident is active.")
+    UNRESOLVED("unresolved"),
     @Schema(description = "The incident was cancelled.")
     CANCELLED("cancelled"),
 
@@ -42,7 +44,7 @@ public enum ResolutionType {
     EXTENDED("extended"),
 
     @Schema(description = "The incident is pending.")
-    PENDING("pending");      // Incident is pending.
+    PENDING("pending");
 
     private final String value;
 

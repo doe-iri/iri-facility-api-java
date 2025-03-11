@@ -32,35 +32,35 @@
     }
   },
   {
-    "id": "getSite",
+    "id": "getEvent",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/sites/%7Bid%7D"
+      "href": "http://localhost:8081/api/v1/status/events/%7Bid%7D"
     }
   },
   {
-    "id": "getSite",
+    "id": "getEvent",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/facility/sites/%7Bid%7D"
+      "href": "http://localhost:8081/api/v1/status/facility/events/%7Bid%7D"
     }
   },
   {
-    "id": "getLocations",
+    "id": "getEvents",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/locations"
+      "href": "http://localhost:8081/api/v1/status/events"
     }
   },
   {
-    "id": "getLocations",
+    "id": "getEvents",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/facility/locations"
+      "href": "http://localhost:8081/api/v1/status/facility/events"
     }
   },
   {
@@ -120,35 +120,35 @@
     }
   },
   {
-    "id": "getEvents",
+    "id": "getSite",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/events"
+      "href": "http://localhost:8081/api/v1/status/sites/%7Bid%7D"
     }
   },
   {
-    "id": "getEvents",
+    "id": "getSite",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/facility/events"
+      "href": "http://localhost:8081/api/v1/status/facility/sites/%7Bid%7D"
     }
   },
   {
-    "id": "getEvent",
+    "id": "getLocations",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/events/%7Bid%7D"
+      "href": "http://localhost:8081/api/v1/status/locations"
     }
   },
   {
-    "id": "getEvent",
+    "id": "getLocations",
     "version": "v1",
     "link": {
       "rel": "self",
-      "href": "http://localhost:8081/api/v1/status/facility/events/%7Bid%7D"
+      "href": "http://localhost:8081/api/v1/status/facility/locations"
     }
   },
   {

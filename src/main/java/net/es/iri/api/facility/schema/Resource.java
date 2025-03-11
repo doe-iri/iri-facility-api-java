@@ -46,4 +46,8 @@ public class Resource extends NamedObject {
     @JsonProperty("group")
     @Schema(description = "The member resource group.", example = "PERLMUTTER")
     private String group;
+
+    @JsonProperty("current_status")
+    @Schema(description = "The current status of this resource a time of query.", example = "up")
+    private StatusType currentStatus;
 }

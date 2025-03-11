@@ -3311,6 +3311,7 @@
               "type": "string",
               "description": "The current state of the incident resolution.",
               "enum": [
+                "unresolved",
                 "cancelled",
                 "completed",
                 "extended",
@@ -3541,6 +3542,7 @@
               "type": "string",
               "description": "The current state of the incident resolution.",
               "enum": [
+                "unresolved",
                 "cancelled",
                 "completed",
                 "extended",
@@ -5522,6 +5524,17 @@
             "type": "string",
             "description": "The member resource group.",
             "example": "PERLMUTTER"
+          },
+          "current_status": {
+            "type": "string",
+            "description": "The current status of this resource a time of query.",
+            "enum": [
+              "up",
+              "degraded",
+              "down",
+              "unknown"
+            ],
+            "example": "up"
           }
         },
         "required": [
@@ -5603,6 +5616,7 @@
             "default": "pending",
             "description": "The resolution for this incident.",
             "enum": [
+              "unresolved",
               "cancelled",
               "completed",
               "extended",

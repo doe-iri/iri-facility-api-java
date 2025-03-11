@@ -50,12 +50,12 @@ public class Incident extends NamedObject {
     private IncidentType type;
 
     @JsonProperty("start")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
     @Schema(description = "The date this incident started, or is predicted to start.", example = "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)")
     private OffsetDateTime start;
 
     @JsonProperty("end")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
     @Schema(description = "The date this incident ended, or is predicted to end.", example = "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)")
     private OffsetDateTime end;
 

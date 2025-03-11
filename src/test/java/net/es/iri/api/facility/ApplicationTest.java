@@ -104,7 +104,7 @@ class ApplicationTest {
 
         // Count the total number of links.
         assertNotNull(facility.getLinks());
-        assertEquals(30, facility.getLinks().size());
+        assertEquals(32, facility.getLinks().size());
 
         UrlTransform urlTransform = new UrlTransform("(/|http://localhost:" + port + "/)");
 
@@ -184,8 +184,8 @@ class ApplicationTest {
 
         assertEquals(1, hasSelf);
         assertEquals(20, hasResource);
-        assertEquals(5, hasEvent);
-        assertEquals(2, hasIncident);
+        assertEquals(6, hasEvent);
+        assertEquals(3, hasIncident);
         assertEquals(1, hostedAt);
         assertEquals(1, others);
 
