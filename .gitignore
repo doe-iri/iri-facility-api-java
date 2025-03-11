@@ -1,0 +1,12 @@
+*/target/
+*/var/
+.classpath
+.project
+.settings/
+.idea
+*.iml
+*.swp
+*.log
+.DS_Store
+*.jks
+/target/

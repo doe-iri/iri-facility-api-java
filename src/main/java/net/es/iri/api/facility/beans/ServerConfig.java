@@ -17,3 +17,24 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
+package net.es.iri.api.facility.beans;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * ServerConfig bean contains properties for manipulating the URL of
+ * resources returned through the API.
+ *
+ * @author hacksaw
+ */
+@lombok.Data
+@lombok.NoArgsConstructor
+@Configuration
+@ConfigurationProperties(prefix = "server")
+@Validated
+public class ServerConfig {
+  private String root;
+  private String proxy;
+}

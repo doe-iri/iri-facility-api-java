@@ -1,0 +1,218 @@
+[
+  {
+    "id": "getResource",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/resources/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getResource",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/resources/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getResources",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/resources"
+    }
+  },
+  {
+    "id": "getResources",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/resources"
+    }
+  },
+  {
+    "id": "getLocationBySite",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/sites/%7Bid%7D/location"
+    }
+  },
+  {
+    "id": "getLocationBySite",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/sites/%7Bid%7D/location"
+    }
+  },
+  {
+    "id": "getEventsByIncident",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/incidents/%7Bid%7D/events"
+    }
+  },
+  {
+    "id": "getEventsByIncident",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/incidents/%7Bid%7D/events"
+    }
+  },
+  {
+    "id": "getResourceByEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/events/%7Bid%7D/resource"
+    }
+  },
+  {
+    "id": "getResourceByEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/events/%7Bid%7D/resource"
+    }
+  },
+  {
+    "id": "getIncidentByEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/events/%7Bid%7D/incident"
+    }
+  },
+  {
+    "id": "getIncidentByEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/events/%7Bid%7D/incident"
+    }
+  },
+  {
+    "id": "getEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/events/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getEvent",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/events/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getFacility",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility"
+    }
+  },
+  {
+    "id": "getSites",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/sites"
+    }
+  },
+  {
+    "id": "getSites",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/sites"
+    }
+  },
+  {
+    "id": "getSite",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/sites/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getSite",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/sites/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getLocations",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/locations"
+    }
+  },
+  {
+    "id": "getLocations",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/locations"
+    }
+  },
+  {
+    "id": "getIncidents",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/incidents"
+    }
+  },
+  {
+    "id": "getIncidents",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/incidents"
+    }
+  },
+  {
+    "id": "getIncident",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/incidents/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getIncident",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/incidents/%7Bid%7D"
+    }
+  },
+  {
+    "id": "getEvents",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/events"
+    }
+  },
+  {
+    "id": "getEvents",
+    "version": "v1",
+    "link": {
+      "rel": "self",
+      "href": "http://localhost:8081/api/v1/status/facility/events"
+    }
+  }
+]

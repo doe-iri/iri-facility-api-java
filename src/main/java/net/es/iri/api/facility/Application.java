@@ -17,3 +17,29 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
+package net.es.iri.api.facility;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * The IRI Facility Status application.
+ *
+ * @author hacksaw
+ */
+@Slf4j
+@SpringBootApplication
+public class Application {
+
+    /**
+     * Start up the IRI Facility Status API server.
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        log.info("Starting IRI Facility API demo...");
+        SpringApplication.run(Application.class, args);
+        log.info("Demo started successfully.");
+    }
+}

@@ -17,3 +17,33 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
+package net.es.iri.api.facility.datastore;
+
+import net.es.iri.api.facility.schema.NamedObject;
+
+/**
+ * A simple Example class implementation for this prototype.
+ *
+ * @author hacksaw
+ */
+public class Example<S extends NamedObject> {
+    private final S probe;
+    private final Class<S> type;
+
+    public Example(S probe, Class<S> type) {
+        this.probe = probe;
+        this.type = type;
+    }
+
+    public S getProbe() {
+        return probe;
+    }
+
+    public Class<S> getType() {
+        return type;
+    }
+
+    public static <S extends NamedObject> Example<S> of(S probe, Class<S> type) {
+        return new Example<>(probe, type);
+    }
+}

@@ -17,3 +17,25 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
+package net.es.iri.api.facility.beans;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * Configuration bean for IRI Facility Status application.  Runtime configuration
+ * properties will be captured here as needed.
+ *
+ * @author hacksaw
+ */
+@Data
+@NoArgsConstructor
+@Configuration
+@ConfigurationProperties(prefix = "iri")
+@Validated
+public class IriConfig {
+    private ServerConfig server;
+}

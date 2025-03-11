@@ -1,0 +1,112 @@
+[
+  {
+    "id": "f9d6e700-1807-45bd-9a52-e81c32d40c5a",
+    "name": "service_now",
+    "description": "service_now is up.",
+    "last_modified": "2023-10-17T11:02:31.690Z",
+    "links": [
+      {
+        "rel": "self",
+        "href": "/api/v1/status/events/f9d6e700-1807-45bd-9a52-e81c32d40c5a"
+      },
+      {
+        "rel": "impacts",
+        "href": "/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc"
+      },
+      {
+        "rel": "memberOf",
+        "href": "/api/v1/status/incidents/686efb0a-0f85-4cc9-86a3-f5713ee6ea44"
+      }
+    ],
+    "status": "up",
+    "occurred_at": "2023-10-18T11:02:31.690Z"
+  },
+  {
+    "id": "633b476e-9a5a-45a6-9e5a-3b099d879596",
+    "name": "gitlab",
+    "description": "Gitlab has been restored to normal operations.",
+    "last_modified": "2024-08-12T23:02:31.690Z",
+    "links": [
+      {
+        "rel": "self",
+        "href": "/api/v1/status/events/633b476e-9a5a-45a6-9e5a-3b099d879596"
+      },
+      {
+        "rel": "impacts",
+        "href": "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f"
+      },
+      {
+        "rel": "memberOf",
+        "href": "/api/v1/status/incidents/a585fd0f-62b8-4eb3-a751-bf60dc5e8101"
+      }
+    ],
+    "status": "up",
+    "occurred_at": "2024-08-12T23:02:31.690Z"
+  },
+  {
+    "id": "b1313a09-caa0-4755-b9a1-00d5cff59ac7",
+    "name": "regent",
+    "description": "regent is up.",
+    "last_modified": "2023-10-17T11:02:31.690Z",
+    "links": [
+      {
+        "rel": "self",
+        "href": "/api/v1/status/events/b1313a09-caa0-4755-b9a1-00d5cff59ac7"
+      },
+      {
+        "rel": "impacts",
+        "href": "/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1"
+      },
+      {
+        "rel": "memberOf",
+        "href": "/api/v1/status/incidents/686efb0a-0f85-4cc9-86a3-f5713ee6ea44"
+      }
+    ],
+    "status": "up",
+    "occurred_at": "2023-10-18T11:02:31.690Z"
+  },
+  {
+    "id": "a867806a-f130-40b3-93f3-a2aa05ec7cda",
+    "name": "global_common",
+    "description": "global_common is up.",
+    "last_modified": "2023-10-17T11:02:31.690Z",
+    "links": [
+      {
+        "rel": "self",
+        "href": "/api/v1/status/events/a867806a-f130-40b3-93f3-a2aa05ec7cda"
+      },
+      {
+        "rel": "impacts",
+        "href": "/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
+      },
+      {
+        "rel": "memberOf",
+        "href": "/api/v1/status/incidents/686efb0a-0f85-4cc9-86a3-f5713ee6ea44"
+      }
+    ],
+    "status": "up",
+    "occurred_at": "2023-10-18T11:02:31.690Z"
+  },
+  {
+    "id": "83a8cf0f-e85b-4f32-acbe-031af26b234a",
+    "name": "gitlab",
+    "description": "May experience slow processing.",
+    "last_modified": "2024-08-12T11:02:31.690Z",
+    "links": [
+      {
+        "rel": "self",
+        "href": "/api/v1/status/events/83a8cf0f-e85b-4f32-acbe-031af26b234a"
+      },
+      {
+        "rel": "impacts",
+        "href": "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f"
+      },
+      {
+        "rel": "memberOf",
+        "href": "/api/v1/status/incidents/a585fd0f-62b8-4eb3-a751-bf60dc5e8101"
+      }
+    ],
+    "status": "down",
+    "occurred_at": "2024-08-12T11:02:31.690Z"
+  }
+]

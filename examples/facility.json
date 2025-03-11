@@ -1,0 +1,130 @@
+{
+  "id": "09a22593-2be8-46f6-ae54-2904b04e13a4",
+  "name": "National Energy Research Scientific Computing Center",
+  "short_name": "NERSC",
+  "description": "NERSC is the mission scientific computing facility for the U.S. Department of Energy Office of Science, the nation’s single largest supporter of basic research in the physical sciences.",
+  "last_modified": "2025-03-03T20:57:49.690Z",
+  "links": [
+    {
+      "rel": "self",
+      "href": "/api/v1/status/facility"
+    },
+    {
+      "rel": "hasSupportURL",
+      "href": "https://help.nersc.gov/"
+    },
+    {
+      "rel": "hostedAt",
+      "href": "/api/v1/status/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources//0918ad2e-b318-4fd1-ac8f-56a55abf8e8d"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d"
+    },
+    {
+      "rel": "hasResource",
+      "href": "/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415"
+    },
+    {
+      "rel": "hasIncident",
+      "href": "/api/v1/status/incidents/686efb0a-0f85-4cc9-86a3-f5713ee6ea44"
+    },
+    {
+      "rel": "hasIncident",
+      "href": "/api/v1/status/incidents/a585fd0f-62b8-4eb3-a751-bf60dc5e8101"
+    },
+    {
+      "rel": "hasEvent",
+      "href": "/api/v1/status/events/f9d6e700-1807-45bd-9a52-e81c32d40c5a"
+    },
+    {
+      "rel": "hasEvent",
+      "href": "/api/v1/status/events/a867806a-f130-40b3-93f3-a2aa05ec7cda"
+    },
+    {
+      "rel": "hasEvent",
+      "href": "/api/v1/status/events/b1313a09-caa0-4755-b9a1-00d5cff59ac7"
+    },
+    {
+      "rel": "hasEvent",
+      "href": "/api/v1/status/events/83a8cf0f-e85b-4f32-acbe-031af26b234a"
+    },
+    {
+      "rel": "hasEvent",
+      "href": "/api/v1/status/events/633b476e-9a5a-45a6-9e5a-3b099d879596"
+    }
+  ],
+  "organization_name": "Lawrence Berkeley National Laboratory"
+}

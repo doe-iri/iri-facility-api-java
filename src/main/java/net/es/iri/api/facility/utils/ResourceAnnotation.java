@@ -17,3 +17,23 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
+package net.es.iri.api.facility.utils;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * A custom annotation to help document REST API meta-data.  Used in concert with the spring
+ * @RequestMapping annotation.
+ *
+ * @author hacksaw
+ */
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ResourceAnnotation
+{
+    String name();
+    String version();
+}
