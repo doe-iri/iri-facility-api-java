@@ -285,6 +285,16 @@ class ApplicationTest {
         assertNotNull(response.getBody());
         assertEquals(19, response.getBody().size());
 
+        // Query resources for a specific resource with shortName
+        String resource_url = "http://localhost:" + port + "/api/v1/status/resources?short_name=scratch";
+        ResponseEntity<List<Resource>> scratch = restTemplate.exchange(
+            resource_url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+        assertEquals(HttpStatus.OK, scratch.getStatusCode());
+        assertNotNull(scratch.getBody());
+        List<Resource> scratches = scratch.getBody();
+        assertEquals(1, scratches.size());
+        assertEquals("29ea05ad-86de-4df8-b208-f0691aafbaa2", scratches.get(0).getId());
+
         log.debug("[ApplicationTest::testGetResources] end test.");
     }
 

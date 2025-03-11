@@ -515,7 +515,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince) {
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -554,6 +556,14 @@ public class FacilityController {
                     log.debug("[FacilityController::getSites] returning NOT_MODIFIED");
                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
+            }
+
+            // Apply the shortName filter if requested.
+            if (shortName != null && !shortName.isBlank()) {
+                // Filter resources with the specified shortName.
+                results = results.stream()
+                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                    .collect(Collectors.toList());
             }
 
             // We have success so return the models we have found.
@@ -694,7 +704,7 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1201,7 +1211,9 @@ public class FacilityController {
         @RequestParam(value = OpenApiDescriptions.GROUP_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.GROUP_MSG) String group,
         @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.RESOURCE_TYPE_MSG) String type) {
+        @Parameter(description = OpenApiDescriptions.RESOURCE_TYPE_MSG) String type,
+        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1245,6 +1257,14 @@ public class FacilityController {
                 // Now compute those resources that have changed since the If-Modified-Since time.
                 results = results.stream()
                     .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the shortName filter if requested.
+            if (shortName != null && !shortName.isBlank()) {
+                // Filter resources with the specified shortName.
+                results = results.stream()
+                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -1573,7 +1593,9 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.RESOLUTION_TYPE_MSG,
             schema = @Schema(implementation = ResolutionType.class)) String resolution,
         @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time) {
+        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
+        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1617,6 +1639,14 @@ public class FacilityController {
                 // Now add resources that have changed since the If-Modified-Since time.
                 results = results.stream()
                     .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the shortName filter if requested.
+            if (shortName != null && !shortName.isBlank()) {
+                // Filter resources with the specified shortName.
+                results = results.stream()
+                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -1975,7 +2005,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2023,6 +2055,14 @@ public class FacilityController {
                     // Now add resources that have changed since the If-Modified-Since time.
                     events = events.stream()
                         .filter(r -> r.getLastModified().isAfter(ifms))
+                        .collect(Collectors.toList());
+                }
+
+                // Apply the shortName filter if requested.
+                if (shortName != null && !shortName.isBlank()) {
+                    // Filter resources with the specified shortName.
+                    events = events.stream()
+                        .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
                         .collect(Collectors.toList());
                 }
 
@@ -2155,7 +2195,9 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
-            schema = @Schema(implementation = StatusType.class)) String status) {
+            schema = @Schema(implementation = StatusType.class)) String status,
+        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2199,6 +2241,14 @@ public class FacilityController {
                 // Now add resources that have changed since the If-Modified-Since time.
                 results = results.stream()
                     .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the shortName filter if requested.
+            if (shortName != null && !shortName.isBlank()) {
+                // Filter resources with the specified shortName.
+                results = results.stream()
+                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 

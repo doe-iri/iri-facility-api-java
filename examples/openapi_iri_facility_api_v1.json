@@ -674,7 +674,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "id",
+            "description": "The UUID uniquely identifying the IRI resource.",
             "required": true,
             "schema": {
               "type": "string"
@@ -864,7 +864,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "id",
+            "description": "The UUID uniquely identifying the IRI resource.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1050,6 +1050,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1211,6 +1220,15 @@
             "name": "If-Modified-Since",
             "in": "header",
             "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
             "required": false,
             "schema": {
               "type": "string"
@@ -1778,6 +1796,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1957,6 +1984,15 @@
             "name": "type",
             "in": "query",
             "description": "The group parameter will filter resources based on group membership.  If group is specified then only resources that are a member of the specified group will be returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
             "required": false,
             "schema": {
               "type": "string"
@@ -2465,6 +2501,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2652,6 +2697,15 @@
             "in": "path",
             "description": "id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -3272,6 +3326,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3489,6 +3552,15 @@
             "name": "time",
             "in": "query",
             "description": "Search for incidents overlapping with time, where start <= time <= end.  The time query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
             "required": false,
             "schema": {
               "type": "string"
@@ -4814,6 +4886,15 @@
                 "unknown"
               ]
             }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -4994,6 +5075,15 @@
                 "down",
                 "unknown"
               ]
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],

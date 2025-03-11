@@ -74,7 +74,12 @@ public class OpenApiDescriptions {
           + " the data that is returned and also tells how to access the resource by indicating "
           + "the direct URL.";
 
-  // Query parameters.
+  /*******************************************************************************************************
+   * Query parameters.
+   *******************************************************************************************************/
+  public static final String SHORT_NAME_NAME = "short_name";
+  public static final String SHORT_NAME_MSG = "The short name of the resource.";
+
   public static final String GROUP_NAME = "group";
   public static final String GROUP_MSG =
           "The group parameter will filter resources based on group membership.  If group is specified "
@@ -96,24 +101,6 @@ public class OpenApiDescriptions {
   public static final String RESOURCE_TYPE_MSG =
       "The group parameter will filter resources based on group membership.  If group is specified "
           + "then only resources that are a member of the specified group will be returned.";
-
-  public static final String SUMMARY_NAME = "summary";
-  public static final String SUMMARY_MSG =
-          "If summary=true then a summary collection of models will be returned including the "
-          + "model meta-data while excluding the model element. Default value is summary=false.";
-
-  public static final String MODEL_NAME = "model";
-  public static final String MODEL_MSG =
-          "If model=turtle then the returned model element will contain the full topology model "
-          + "in a TURTLE representation. Default value is model=turtle.";
-  public static final String MODEL_TURTLE = "turtle";
-
-  public static final String ENCODE_NAME = "encode";
-  public static final String ENCODE_MSG =
-          "If encode=true then the embedded topology model will be transfer encoded using gzip "
-          + "(contentType=\"application/x-gzip\") and base64 encoding (contentTransferEncoding=\"base64\").  "
-          + "This will reduce the transfer size and encapsulate the original model contents.  Default "
-          + "value is encode=false.";
 
   /*******************************************************************************************************
    * URL path parameters.
