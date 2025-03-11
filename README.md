@@ -1,6 +1,6 @@
-# IRI Facility Status API Reference Implementation
+# IRI Facility Status API Implementation
 
-The **IRI Facility Status API** is a reference implementation for the **Integrated Research Infrastructure Facility Status** specification. It provides endpoints to query facility statuses, incidents, events, and related resources to support facility monitoring and status reporting.
+The **IRI Facility Status API** is an implementation of the **Integrated Research Infrastructure Facility Status** specification. It provides endpoints to query facility statuses, incidents, events, and related resources to support facility monitoring and status reporting.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -104,8 +104,9 @@ status:
 
 ## Endpoints
 ### **Facility Endpoints**
-| Method | Endpoint                   | Description                             |
+| Method  | Endpoint                   | Description                             |
 |---------|----------------------------|-----------------------------------------|
+| `GET`   | `/v3/api-docs`             | Retrieves the OpenAPI specification     |
 | `GET`   | `/api/v1/status/facility`  | Retrieves facility details              |
 | `GET`   | `/api/v1/status/incidents` | Retrieves a list of incidents           |
 | `GET`   | `/api/v1/status/events`    | Retrieves a list of events              |
