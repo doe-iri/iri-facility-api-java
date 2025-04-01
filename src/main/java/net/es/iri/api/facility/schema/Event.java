@@ -47,6 +47,6 @@ public class Event extends NamedObject {
 
     @JsonProperty("occurred_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this event occurred.", example = "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)")
+    @Schema(description = "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.", example = "2025-03-11T07:28:24.000−00:00")
     private OffsetDateTime occurredAt;
 }

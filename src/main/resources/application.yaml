@@ -20,12 +20,23 @@
 # Standard spring runtime configuration.
 server:
   port: 8081  # Change to the desired port number
+  servlet:
+    context-path: /
 
 # Standard logging runtime configuration.
 logging:
   level:
     root: INFO
     net.es.iri.api.facility: DEBUG  # Change package-level logging
+
+# This is the path to expose the swagger generated documentation.
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /v3/swagger-ui
 
 # Application specific configuration.
 iri:

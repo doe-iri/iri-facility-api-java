@@ -33,6 +33,7 @@ public class Relationships {
     public static final String HOSTED_AT = "hostedAt";
     public static final String HAS_SUPPORT_URL = "hasSupportURL";
     public static final String IMPACTS = "impacts";
+    public static final String IMPACTED_BY = "impactedBy";
     public static final String DEPENDS_ON = "dependsOn";
     public static final String HAS_DEPENDENT = "hasDependent";
     public static final String MEMBER_OF = "memberOf";

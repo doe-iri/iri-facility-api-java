@@ -32,6 +32,8 @@ This implementation is built with **Spring Boot** and follows RESTful API design
 ✅ Uses **ConcurrentMap** for in-memory storage of data  
 ✅ Implements proper exception handling and response codes  
 ✅ Supports `If-Modified-Since` and `Last-Modified` headers for efficient caching
+✅ Supports swagger-ui at http://localhost:8081/swagger-ui/index.html
+✅ Supports OpenAPI specification generation at http://localhost:8081/v3/api-docs
 
 ---
 
