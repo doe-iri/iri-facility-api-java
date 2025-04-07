@@ -49,6 +49,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Fun with test cases for the IRI Facility API.
@@ -56,6 +57,7 @@ import org.springframework.http.ResponseEntity;
  * @author hacksaw
  */
 @Slf4j
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApplicationTest {
     @LocalServerPort

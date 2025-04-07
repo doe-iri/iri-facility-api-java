@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  facility-api:
+    image: iri-facility-api-java:latest
+    container_name: facility-api
+    build:
+      #context: github.com/doe-iri/iri-facility-api-java
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_CONTEXT_KEEP_GIT_DIR: 1
+    environment:
+      HOME: /iri
+      SSL_OPTS: ""
+    restart: always
+    healthcheck:
+      test: "curl -k -s -f https://facility-api:8443/actuator/health || exit 1" # Command to check health.
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    ports:
+      - 8443:8443
+    volumes:
+      - ./config:/iri/config
+      - ./var/log/facility-api:/iri/var/log

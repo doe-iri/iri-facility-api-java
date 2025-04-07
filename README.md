@@ -1,6 +1,6 @@
-# IRI Facility Status API Draft Implementation
+# IRI Facility API Reference Implementation (Java)
 
-The **IRI Facility Status API** is a draft implementation of the **Integrated Research Infrastructure Facility Status** specification. It provides endpoints to query facility statuses, incidents, events, and related resources to support facility monitoring and status reporting.
+The **IRI Facility API** is a draft implementation of the **Integrated Research Infrastructure Facility Status** specification. It provides endpoints to query facility statuses, incidents, events, and related resources to support facility monitoring and status reporting.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -16,7 +16,7 @@ The **IRI Facility Status API** is a draft implementation of the **Integrated Re
 ---
 
 ## Overview
-The **IRI Facility Status API** enables users to query facility-related resources, including:
+The **IRI Facility API** enables users to query facility-related resources, including:
 - Facility details
 - Status updates
 - Incidents and events
@@ -94,7 +94,7 @@ logging:
       root: INFO
       net.es.iri.api.facility: DEBUG  # Change package-level logging
 
-# IRI Facility Status API test data.
+# IRI Facility API test data.
 status:
    facilities:
       - id: "09a22593-2be8-46f6-ae54-2904b04e13a4"
@@ -189,7 +189,7 @@ Follow standard Java best practices. For consistent formatting, we recommend:
 ---
 
 ## License
-The IRI Facility Status API Reference Implementation is licensed under the **BSD 3-Clause License**. See the [LICENSE](LICENSE) file for more details.
+The IRI Facility API Reference Implementation is licensed under the **BSD 3-Clause License**. See the [LICENSE](LICENSE) file for more details.
 
 ---
 

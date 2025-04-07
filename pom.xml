@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.es.iri</groupId>
-    <artifactId>iri-facility-status-api</artifactId>
+    <artifactId>iri-facility-api-java</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 

@@ -299,6 +299,8 @@ status:
       links:
         - rel: "self"
           href: "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80"
+        - rel: "impactedBy"
+          href: "/api/v1/status/events/7732bce6-bc6a-4f25-9aa7-2885a0792eb7"
         - rel: "hasDependent"
           href: "/api/v1/status/"
         - rel: "dependsOn"

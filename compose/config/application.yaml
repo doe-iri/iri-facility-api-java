@@ -19,9 +19,15 @@
 
 # Standard spring runtime configuration.
 server:
-  port: 8081  # Change to the desired port number
+  port: 8443  # Change to the desired port number
   servlet:
     context-path: /
+  ssl:
+    enabled: true
+    key-store: /iri/config/keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: myalias
 
 # Standard logging runtime configuration.
 logging:
@@ -41,9 +47,8 @@ springdoc:
 # Application specific configuration.
 iri:
   server:
-    #root: "http://localhost:8081"
+    root: "http://localhost:8443"
     #proxy: "https://iri.es.net"
-
 
 # IRI Facility Status API test data.
 status:
@@ -296,12 +301,10 @@ status:
       name: "Data Transfer Nodes"
       shortName: "dtns"
       description: "The NERSC data transfer nodes provide access to Global Homes, Global Common, the Community File System (CFS), Perlmutter Scratch, and HPSS."
-      lastModified: "2025-03-11T07:28:24.000-00:00"
+      lastModified: "2025-03-11T07:28:24.690-00:00"
       links:
         - rel: "self"
           href: "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80"
-        - rel: "impactedBy"
-          href: "/api/v1/status/events/7732bce6-bc6a-4f25-9aa7-2885a0792eb7"
         - rel: "hasDependent"
           href: "/api/v1/status/"
         - rel: "dependsOn"
@@ -519,7 +522,7 @@ status:
     - id: "878573ff-6522-4a39-8b17-3d3cc9cd5e4e"
       name: "DTNs down"
       description: "The NERSC DTNs are down."
-      lastModified: "2025-03-11T07:28:24.000-00:00"
+      lastModified: "2025-03-11T07:28:24.690-00:00"
       links:
         - rel: "self"
           href: "/api/v1/status/incidents/878573ff-6522-4a39-8b17-3d3cc9cd5e4e"
@@ -529,13 +532,13 @@ status:
           href: "/api/v1/status/events/7732bce6-bc6a-4f25-9aa7-2885a0792eb7"
       status: "down"
       type: "planned"
-      start: "2025-03-11T07:28:24.000-00:00"
+      start: "2025-03-11T07:28:24.690-00:00"
       resolution: "unresolved"
   events:
     - id: "7732bce6-bc6a-4f25-9aa7-2885a0792eb7"
       name: "dtns"
       description: "dtns are down."
-      lastModified: "2025-03-11T07:28:24.000-00:00"
+      lastModified: "2025-03-11T07:28:24.690-00:00"
       links:
         - rel: "self"
           href: "/api/v1/status/events/7732bce6-bc6a-4f25-9aa7-2885a0792eb7"
@@ -544,7 +547,7 @@ status:
         - rel: "memberOf"
           href: "/api/v1/status/incidents/878573ff-6522-4a39-8b17-3d3cc9cd5e4e"
       status: "down"
-      occurredAt: "2025-03-11T07:28:24.000-00:00"
+      occurredAt: "2025-03-11T07:28:24.690-00:00"
     - id: "f9d6e700-1807-45bd-9a52-e81c32d40c5a"
       name: "service_now"
       description: "service_now is up."
