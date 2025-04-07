@@ -9,4 +9,7 @@
 *.log
 .DS_Store
 *.jks
+*.p12
+*.key
+*.cer
 /target/

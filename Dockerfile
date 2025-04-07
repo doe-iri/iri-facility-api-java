@@ -4,12 +4,29 @@ ENV HOME=/iri
 RUN mkdir -p $HOME
 WORKDIR $HOME
 ADD . $HOME
-RUN mvn -f $HOME/pom.xml clean package
+RUN mvn -f $HOME/pom.xml clean install -Ddocker.nocache
 
 FROM openjdk:21-jdk
 
 ENV HOME=/iri
-ARG JAR_FILE=${HOME}/target/iri-facility-api-java-1.0.0.jar
-COPY ${JAR_FILE} /app.jar
-EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.config.location=file:/iri/config/application.yaml"]
+ENV LOGBACK "file:$HOME/config/logback.xml"
+ENV CONFIG "file:$HOME/config/application.yaml"
+ENV DEBUG_OPTS ""
+ENV SSL_OPTS ""
+
+USER 1000:1000
+WORKDIR $HOME
+
+COPY --from=MAVEN_BUILD $HOME/target/iri-facility-api-java-1.0.0.jar ./app.jar
+COPY --from=MAVEN_BUILD $HOME/compose/config ./
+
+EXPOSE 8081/tcp
+
+CMD java \
+        -Xmx1024m -Djava.net.preferIPv4Stack=true  \
+        -Dlogging.config=$LOGBACK \
+        $SSL_OPTS \
+        $DEBUG_OPTS \
+        -XX:+StartAttachListener \
+        -jar "$HOME/app.jar" \
+        --spring.config.location=$CONFIG

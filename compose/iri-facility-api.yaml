@@ -23,4 +23,4 @@ services:
       - 8443:8443
     volumes:
       - ./config:/iri/config
-      - ./var/log/facility-api:/iri/var/log
+      - ./tmp:/iri/logs
