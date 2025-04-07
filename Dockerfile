@@ -8,6 +8,7 @@ RUN mvn -f $HOME/pom.xml clean package
 
 FROM openjdk:21-jdk
 
+ENV HOME=/iri
 ARG JAR_FILE=${HOME}/target/iri-facility-api-java-1.0.0.jar
 COPY ${JAR_FILE} /app.jar
 EXPOSE 8081
