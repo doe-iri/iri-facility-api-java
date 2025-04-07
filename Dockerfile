@@ -9,10 +9,10 @@ RUN mvn -f $HOME/pom.xml clean install -Ddocker.nocache
 FROM openjdk:21-jdk
 
 ENV HOME=/iri
-ENV LOGBACK "file:$HOME/config/logback.xml"
-ENV CONFIG "file:$HOME/config/application.yaml"
-ENV DEBUG_OPTS ""
-ENV SSL_OPTS ""
+ENV LOGBACK="file:$HOME/config/logback.xml"
+ENV CONFIG="file:$HOME/config/application.yaml"
+ENV DEBUG_OPTS=""
+ENV SSL_OPTS=""
 
 USER 1000:1000
 WORKDIR $HOME
@@ -22,11 +22,13 @@ COPY --from=MAVEN_BUILD $HOME/compose/config ./
 
 EXPOSE 8081/tcp
 
-CMD java \
-        -Xmx1024m -Djava.net.preferIPv4Stack=true  \
-        -Dlogging.config=$LOGBACK \
-        $SSL_OPTS \
-        $DEBUG_OPTS \
-        -XX:+StartAttachListener \
-        -jar "$HOME/app.jar" \
-        --spring.config.location=$CONFIG
+CMD [ "sh", "-c", "\
+  java \
+    -Xmx1024m \
+    -Djava.net.preferIPv4Stack=true \
+    -Dlogging.config=$LOGBACK \
+    $SSL_OPTS \
+    $DEBUG_OPTS \
+    -XX:+StartAttachListener \
+    -jar $HOME/app.jar \
+    --spring.config.location=$CONFIG" ]

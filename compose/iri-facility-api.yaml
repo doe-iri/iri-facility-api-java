@@ -12,6 +12,7 @@ services:
     environment:
       HOME: /iri
       SSL_OPTS: ""
+      DEBUG_OPTS: ""
     restart: always
     healthcheck:
       test: "curl -k -s -f https://facility-api:8443/actuator/health || exit 1" # Command to check health.
@@ -23,4 +24,4 @@ services:
       - 8443:8443
     volumes:
       - ./config:/iri/config
-      - ./tmp:/iri/logs
+      - /tmp:/iri/logs
