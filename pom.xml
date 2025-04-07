@@ -9,8 +9,8 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>IRI Facility Status API</name>
-    <description>A reference implementation of the IRI Facility Status API</description>
+    <name>IRI Facility API</name>
+    <description>A reference implementation of the IRI Facility API.</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

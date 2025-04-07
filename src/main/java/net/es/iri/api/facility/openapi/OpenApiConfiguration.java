@@ -1,5 +1,5 @@
 /*
- * IRI Facility Status API reference implementation Copyright (c) 2025,
+ * IRI Facility API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -44,9 +44,9 @@ public class OpenApiConfiguration {
 
   private Info apiInfo() {
     return new Info()
-        .title("IRI Facility Status API")
+        .title("IRI Facility API")
         .description("This API implements the standard integrated research infrastructure specification for facility status.")
-        .termsOfService("IRI Facility Status API Copyright (c) 2025. The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.")
+        .termsOfService("IRI Facility API Copyright (c) 2025. The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.")
         .version("v1")
         .contact(apiContact())
         .license(apiLicence());

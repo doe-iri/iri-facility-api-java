@@ -1,5 +1,5 @@
 /*
- * IRI Facility Status API reference implementation Copyright (c) 2025,
+ * IRI Facility API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -84,7 +84,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @RestController
 @RequestMapping(path = "/api/v1/status")
-@Tag(name = "IRI Facility Status API", description = "Integrated Research Infrastructure Facility Status API endpoint")
+@Tag(name = "IRI Facility API", description = "Integrated Research Infrastructure Facility Status API endpoint")
 public class FacilityController {
     // Spring application context.
     private final ApplicationContext context;

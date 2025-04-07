@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "IRI Facility Status API",
+    "title": "IRI Facility API",
     "description": "This API implements the standard integrated research infrastructure specification for facility status.",
-    "termsOfService": "IRI Facility Status API Copyright (c) 2025. The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.",
+    "termsOfService": "IRI Facility API Copyright (c) 2025. The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.",
     "contact": {
       "name": "The IRI Interfaces Subcommittee",
       "url": "https://iri.science/ts/interfaces/",
@@ -23,7 +23,7 @@
   ],
   "tags": [
     {
-      "name": "IRI Facility Status API",
+      "name": "IRI Facility API",
       "description": "Integrated Research Infrastructure Facility Status API endpoint"
     }
   ],
@@ -31,7 +31,7 @@
     "/api/v1/status": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getMetaData"
         ],
         "summary": "Get a list of facility status meta-data.",
@@ -104,7 +104,7 @@
       "get": {
         "tags": [
           "getFacility",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the facility resource associated with this endpoint.",
         "description": "Returns the facility resource associated with this endpoint.",
@@ -266,7 +266,7 @@
       "get": {
         "tags": [
           "getLocationBySite",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the location related to the specified site.",
         "description": "Returns the location related to the specified site.",
@@ -456,7 +456,7 @@
       "get": {
         "tags": [
           "getLocationBySite",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the location related to the specified site.",
         "description": "Returns the location related to the specified site.",
@@ -645,7 +645,7 @@
     "/api/v1/status/sites/{id}": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getSite"
         ],
         "summary": "Get the site associated with the specified id.",
@@ -835,7 +835,7 @@
     "/api/v1/status/facility/sites/{id}": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getSite"
         ],
         "summary": "Get the site associated with the specified id.",
@@ -1026,7 +1026,7 @@
       "get": {
         "tags": [
           "getSites",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a list of sites associated with a facility.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1200,7 +1200,7 @@
       "get": {
         "tags": [
           "getSites",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a list of sites associated with a facility.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1374,7 +1374,7 @@
       "get": {
         "tags": [
           "getResource",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the IRI resource associated with the specified id.",
         "description": "Returns the matching IRI resource.",
@@ -1564,7 +1564,7 @@
       "get": {
         "tags": [
           "getResource",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the IRI resource associated with the specified id.",
         "description": "Returns the matching IRI resource.",
@@ -1754,7 +1754,7 @@
       "get": {
         "tags": [
           "getResources",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a collection of IRI resources.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1946,7 +1946,7 @@
       "get": {
         "tags": [
           "getResources",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a collection of IRI resources.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -2137,7 +2137,7 @@
     "/api/v1/status/locations": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getLocations"
         ],
         "summary": "Get a list of locations associated with a facility.",
@@ -2302,7 +2302,7 @@
     "/api/v1/status/facility/locations": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getLocations"
         ],
         "summary": "Get a list of locations associated with a facility.",
@@ -2467,7 +2467,7 @@
     "/api/v1/status/incidents/{id}/events": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getEventsByIncident"
         ],
         "summary": "Get the events associated with the specified incident.",
@@ -2666,7 +2666,7 @@
     "/api/v1/status/facility/incidents/{id}/events": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getEventsByIncident"
         ],
         "summary": "Get the events associated with the specified incident.",
@@ -2866,7 +2866,7 @@
       "get": {
         "tags": [
           "getIncident",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the incident resource associated with the specified id.",
         "description": "Returns the matching incident resource.",
@@ -3056,7 +3056,7 @@
       "get": {
         "tags": [
           "getIncident",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the incident resource associated with the specified id.",
         "description": "Returns the matching incident resource.",
@@ -3245,7 +3245,7 @@
     "/api/v1/status/facility/incidents": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getIncidents"
         ],
         "summary": "Get a list of available incident resources.",
@@ -3476,7 +3476,7 @@
     "/api/v1/status/incidents": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getIncidents"
         ],
         "summary": "Get a list of available incident resources.",
@@ -3708,7 +3708,7 @@
       "get": {
         "tags": [
           "getResourceByEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the resource impacted by the specified event.",
         "description": "Returns the resource impacted by the specified event.",
@@ -3898,7 +3898,7 @@
       "get": {
         "tags": [
           "getResourceByEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the resource impacted by the specified event.",
         "description": "Returns the resource impacted by the specified event.",
@@ -4088,7 +4088,7 @@
       "get": {
         "tags": [
           "getIncidentByEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the incident related to the specified event.",
         "description": "Returns the incident related to the specified event.",
@@ -4278,7 +4278,7 @@
       "get": {
         "tags": [
           "getIncidentByEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the incident related to the specified event.",
         "description": "Returns the incident related to the specified event.",
@@ -4468,7 +4468,7 @@
       "get": {
         "tags": [
           "getEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the event associated with the specified id.",
         "description": "Returns the event associated with the specified id.",
@@ -4658,7 +4658,7 @@
       "get": {
         "tags": [
           "getEvent",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the event associated with the specified id.",
         "description": "Returns the event associated with the specified id.",
@@ -4848,7 +4848,7 @@
       "get": {
         "tags": [
           "getEvents",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a list of event resources.",
         "description": "Returns a list of event resources matching the specified query",
@@ -5038,7 +5038,7 @@
       "get": {
         "tags": [
           "getEvents",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get a list of event resources.",
         "description": "Returns a list of event resources matching the specified query",

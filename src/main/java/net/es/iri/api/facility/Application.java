@@ -1,5 +1,5 @@
 /*
- * IRI Facility Status API reference implementation Copyright (c) 2025,
+ * IRI Facility API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -33,7 +33,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application {
 
     /**
-     * Start up the IRI Facility Status API server.
+     * Start up the IRI Facility API server.
      *
      * @param args
      */
