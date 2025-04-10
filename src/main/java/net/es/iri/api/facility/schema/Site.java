@@ -39,6 +39,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "The location of a resource that has an associated physical location and an operating organization.")
 public class Site extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/status/sites/%s";
+
     @JsonProperty("operating_organization")
     @Schema(description = "The name of the organization operating the site.", example = "Lawrence Berkeley National Laboratory")
     private String operatingOrganization;

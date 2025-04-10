@@ -22,6 +22,7 @@ package net.es.iri.api.facility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * The IRI Facility Status application.
@@ -30,6 +31,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @Slf4j
 @SpringBootApplication
+@EnableScheduling
 public class Application {
 
     /**

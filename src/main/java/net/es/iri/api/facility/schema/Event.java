@@ -41,6 +41,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Defines a resource impacting event and provides status log functionality.")
 public class Event extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/status/events/%s";
+
     @JsonProperty("status")
     @Schema(description = "The status of the resource associated with this incident.", example = "down")
     private StatusType status;

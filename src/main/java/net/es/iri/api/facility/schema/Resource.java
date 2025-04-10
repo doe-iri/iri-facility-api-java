@@ -39,6 +39,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
 public class Resource extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/status/resources/%s";
+
     @JsonProperty("type")
     @Schema(description = "The type of resource.", example = "system")
     private ResourceType type;

@@ -20,7 +20,9 @@
 package net.es.iri.api.facility.schema;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -61,5 +63,5 @@ public class NamedObject {
 
     @JsonProperty("links")
     @Schema(description = "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.")
-    private List<Link> links;
+    private List<Link> links = new CopyOnWriteArrayList<>();
 }

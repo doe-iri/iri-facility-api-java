@@ -39,6 +39,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "These attribute are concerned with geographical positions or regions with which resources are associated.")
 public class GeographicalLocation extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/status/locations/%s";
+
     @JsonProperty("country_name")
     @Schema(description = "The country name of the location.", example = "United States of America")
     private String countryName;

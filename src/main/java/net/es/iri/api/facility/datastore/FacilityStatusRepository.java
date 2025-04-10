@@ -59,31 +59,19 @@ public class FacilityStatusRepository {
     // Master index for all objects.
     private final ConcurrentMap<String, NamedObject> objects = new ConcurrentHashMap<>();
 
-    // The input facility status model held in a bean populated from YAML file.
-    private final FacilityStatus facilityStatus;
-
     /**
      * Constructor to load FacilityStatus bean containing IRI Facility Status instance data.
      *
      * @param facilityStatus The input bean containing IRI Facility Status instance data.
      */
     public FacilityStatusRepository(FacilityStatus facilityStatus) {
-        this.facilityStatus = facilityStatus;
-    }
-
-    /**
-     * Initializes the repository by populating the master index with data
-     * from the FacilityStatus bean.
-     */
-    @PostConstruct
-    public void init() {
         log.debug("[FacilityStatusRepository::init] initializing repository.");
-        this.facilityStatus.getFacilities().forEach(facility -> objects.put(facility.getId(), facility));
-        this.facilityStatus.getLocations().forEach(location -> objects.put(location.getId(), location));
-        this.facilityStatus.getSites().forEach(sites -> objects.put(sites.getId(), sites));
-        this.facilityStatus.getResources().forEach(resource -> objects.put(resource.getId(), resource));
-        this.facilityStatus.getIncidents().forEach(incident -> objects.put(incident.getId(), incident));
-        this.facilityStatus.getEvents().forEach(event -> objects.put(event.getId(), event));
+        facilityStatus.getFacilities().forEach(facility -> objects.put(facility.getId(), facility));
+        facilityStatus.getLocations().forEach(location -> objects.put(location.getId(), location));
+        facilityStatus.getSites().forEach(sites -> objects.put(sites.getId(), sites));
+        facilityStatus.getResources().forEach(resource -> objects.put(resource.getId(), resource));
+        facilityStatus.getIncidents().forEach(incident -> objects.put(incident.getId(), incident));
+        facilityStatus.getEvents().forEach(event -> objects.put(event.getId(), event));
         log.debug("[FacilityStatusRepository::init] repository initialized.");
     }
 

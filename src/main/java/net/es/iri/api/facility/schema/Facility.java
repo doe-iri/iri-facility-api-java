@@ -39,6 +39,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "A DoE laboratory or production facility that offers resources for programmatic consumption.")
 public class Facility extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/status/facility/%s";
+
     @JsonProperty("organization_name")
     @Schema(description = "The name of the organization hosting the facility.", example = "Lawrence Berkeley National Laboratory")
     private String organizationName;

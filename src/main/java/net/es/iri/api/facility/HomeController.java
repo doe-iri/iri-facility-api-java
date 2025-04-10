@@ -19,6 +19,7 @@
  */
 package net.es.iri.api.facility;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -27,11 +28,13 @@ import org.springframework.web.bind.annotation.GetMapping;
  *
  * @author hacksaw
  */
+@Slf4j
 @Controller
 public class HomeController {
 
     @GetMapping("/")
     public String redirectToSwagger() {
+        log.debug("[HomeController::redirectToSwagger] GET operation /");
         return "redirect:/v3/swagger-ui/index.html";
     }
 }
