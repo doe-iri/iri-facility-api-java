@@ -93,17 +93,84 @@ public class SimulationController {
             log.debug("[SimulationController::init] {} : {}", key, value);
         });
 
-        // Populate an unplanned incident.
-        OffsetDateTime now = OffsetDateTime.now();
-        getRandomGroup().ifPresent(g ->
-            createIncident(IncidentType.UNPLANNED, g, now, now.plusHours((long) (10 * Math.random()))));
+        // Populate system start incident and give the all go!
+        createStartupIncident();
 
         // Populate a planned incident.
         getRandomGroup().ifPresent(g -> {
+            OffsetDateTime now = OffsetDateTime.now();
             OffsetDateTime startTime = now.plusHours((long) (24 * Math.random()));
             OffsetDateTime endTime = startTime.plusHours((long) (10 * Math.random()));
             createIncident(IncidentType.PLANNED, g, startTime, endTime);
         });
+    }
+
+    /**
+     * Create a system up incident and associated events.
+     */
+    private void createStartupIncident() {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        // Create a new incident.
+        Incident incident = new Incident();
+        incident.setId(UUID.randomUUID().toString());
+        incident.setType(IncidentType.UNPLANNED);
+        incident.setLastModified(now);
+        incident.setStart(now);
+        incident.setEnd(now);
+        incident.setShortName("Startup");
+        incident.setName("System startup");
+        incident.setDescription("The system has been started.");
+        incident.setStatus(StatusType.UP);
+        incident.setResolution(ResolutionType.COMPLETED);
+
+        // Link the incident to itself.
+        Link self = new Link();
+        self.setRel(Relationships.SELF);
+        self.setHref(String.format(Incident.URL_TEMPLATE, incident.getId()));
+        incident.getLinks().add(self);
+
+        // Add the incident to the facility.
+        Facility facility = repository.findAllFacilities().getFirst();
+        Link hasIncident = new Link();
+        hasIncident.setRel(Relationships.HAS_INCIDENT);
+        hasIncident.setHref(String.format(Incident.URL_TEMPLATE, incident.getId()));
+        facility.getLinks().add(hasIncident);
+        facility.setLastModified(now);
+
+        // The incident will impact resources from group.
+        repository.findAllResources().forEach(r -> {
+            // Incident impacts the resource.
+            Link impacts = new Link();
+            impacts.setRel(Relationships.IMPACTS);
+            impacts.setHref(String.format(Resource.URL_TEMPLATE, r.getId()));
+            incident.getLinks().add(impacts);
+
+            // There is no back link to Incident -- maybe in the future.
+
+            // Create the new down event.
+            Event event = new Event();
+            event.setId(UUID.randomUUID().toString());
+            event.setLastModified(now);
+            event.setName(r.getShortName() + " is up");
+            event.setShortName(r.getShortName());
+            event.setDescription("Up event for resource " + r.getId());
+            event.setStatus(StatusType.UP);
+
+            // Update resource with new status.
+            r.setLastModified(now);
+            r.setCurrentStatus(StatusType.UP);
+
+            linkEvent(incident, event, r);
+
+            // Save what we have modified here.
+            repository.saveAndFlush(event);
+            repository.saveAndFlush(r);
+        });
+
+        // Save the new incident and changes to facility.
+        repository.saveAndFlush(incident);
+        repository.saveAndFlush(facility);
     }
 
     /**
@@ -204,6 +271,7 @@ public class SimulationController {
                     event.setName(r.getShortName() + " is down");
                     event.setShortName(r.getShortName());
                     event.setDescription("Down event for resource " + r.getId());
+                    event.setStatus(StatusType.DOWN);
 
                     // Update resource with new status.
                     r.setLastModified(now);
