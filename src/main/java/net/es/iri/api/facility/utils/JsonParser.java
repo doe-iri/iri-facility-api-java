@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -19,9 +19,12 @@
  */
 package net.es.iri.api.facility.utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
@@ -51,6 +54,40 @@ public class JsonParser {
             return objectMapper.writeValueAsString(object);
         } catch (IOException e) {
             throw new RuntimeException("toJson: Error writing JSON: " + object.toString(), e);
+        }
+    }
+
+    /**
+     * Deserialize a JSON object from a file into an instance of the specified type.
+     *
+     * @param filename the path to the JSON file
+     * @param clazz    the class of the object
+     * @param <T>      the object type
+     * @return a deserialized object
+     */
+    public static <T> T fromFile(String filename, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(new File(filename), clazz);
+        } catch (IOException e) {
+            throw new RuntimeException("fromFile: Error reading JSON from file: " + filename, e);
+        }
+    }
+
+    /**
+     * Deserialize a JSON array from a file into a List of the specified type.
+     *
+     * @param filename the path to the JSON file
+     * @param clazz    the class of the array elements
+     * @param <T>      the element type
+     * @return a List of deserialized objects
+     */
+    public static <T> List<T> listFromFile(String filename, Class<T> clazz) {
+        try {
+            CollectionType listType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, clazz);
+            return objectMapper.readValue(new File(filename), listType);
+        } catch (IOException e) {
+            throw new RuntimeException("listFromFile: Error reading JSON list from file: " + filename, e);
         }
     }
 }

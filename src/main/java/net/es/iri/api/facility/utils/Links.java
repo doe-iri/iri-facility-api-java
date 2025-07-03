@@ -2,7 +2,7 @@ package net.es.iri.api.facility.utils;
 
 import java.util.List;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
+import net.es.iri.api.facility.mapping.Relationships;
 
 public class Links {
 

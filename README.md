@@ -49,8 +49,8 @@ Ensure the following are installed before proceeding:
 
 1. **Clone the Repository**
 ```sh
-$ git clone https://github.com/esnet/iri-facility-status-api.git
-$ cd iri-facility-status-api
+$ git clone https://github.com/doe-iri/iri-facility-api-java.git
+$ cd iri-facility-api-java
 ```
 
 2. **Build the Application**
@@ -66,8 +66,8 @@ $ mvn spring-boot:run
 4. **Docker Deployment (Optional)**
    To run the application inside a Docker container:
 ```sh
-$ docker build -t iri-facility-status-api .
-$ docker run -p 8081:8081 iri-facility-status-api
+$ docker build -t iri-facility-api-java .
+$ docker run -p 8081:8081 iri-facility-api-java
 
 ```
 
@@ -81,12 +81,12 @@ The API can be configured through **application.yml** located in `/src/main/reso
 # Standard spring runtime configuration.
 server:
    port: 8081  # Change to the desired port number
-   
-# Application specific configuration.
-iri:
-   server:
-      root: "http://localhost:8081"
-      proxy: "https://iri.es.net"
+   shutdown: graceful
+   servlet:
+      context-path: /
+   compression:
+      enabled: true
+   server-header: "DOE IRI Demo Server"
 
 # Standard logging runtime configuration.
 logging:
@@ -94,12 +94,14 @@ logging:
       root: INFO
       net.es.iri.api.facility: DEBUG  # Change package-level logging
 
-# IRI Facility API test data.
-status:
-   facilities:
-      - id: "09a22593-2be8-46f6-ae54-2904b04e13a4"
-        name: "National Energy Research Scientific Computing Center"
-        shortName: "NERSC"
+# This is the path to expose the swagger-generated documentation.
+springdoc:
+   api-docs:
+      enabled: true
+      path: /v3/api-docs
+   swagger-ui:
+      enabled: true
+      path: /v3/swagger-ui
 ```
 
 ---

@@ -19,6 +19,8 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,31 +28,28 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
-/**
- * This class models a hyperlink referencing a resource with a specific relationship.
- *
- * @author hacksaw
- */
 @Data
-@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Link represents a hyperlink with relation (rel), URL (href), and type.")
-public class Link {
-    @JsonProperty("rel")
-    @Schema(description = "The relationship type of the link", example = "self")
-    private String rel;
+@Schema(description = "The allowable embedded objects for Incident.")
+public class IncidentEmbedded {
+    @JsonProperty("hasEvent")
+    private List<Event> hasEvent;
 
-    @JsonProperty("href")
-    @Schema(description = "The hyperlink reference (URI)", format = "uri",
-        example = "https://example.com/facility", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String href;
+    @JsonProperty("mayImpact")
+    private List<Resource> mayImpact;
 
-    @JsonProperty("type")
-    @Schema(description = "The media type of the linked resource", example = "application/json")
-    private String type;
+    /**
+     * Determine if this instance is empty.
+     *
+     * @return true if all embedded lists are null or contain no elements.
+     */
+    @JsonIgnore
+    public boolean isEmpty() {
+        return (hasEvent    == null || hasEvent.isEmpty())
+            && (mayImpact == null || mayImpact.isEmpty());
+    }
 }

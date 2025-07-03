@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -21,6 +21,7 @@ package net.es.iri.api.facility.beans;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -38,4 +39,22 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class IriConfig {
     private ServerConfig server;
+
+    @Value("${iri.status.facility}")
+    private String facility;
+
+    @Value("${iri.status.incidents}")
+    private String incidents;
+
+    @Value("${iri.status.events}")
+    private String events;
+
+    @Value("${iri.status.locations}")
+    private String locations;
+
+    @Value("${iri.status.sites}")
+    private String sites;
+
+    @Value("${iri.status.resources}")
+    private String resources;
 }

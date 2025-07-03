@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -19,8 +19,11 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -85,5 +88,16 @@ public enum IncidentType {
     @Override
     public String toString() {
         return value;
+    }
+
+    /**
+     * Get the set of all enum named values.
+     *
+     * @return The set of named values.
+     */
+    public static Set<String> validValues() {
+        return EnumSet.allOf(IncidentType.class).stream()
+            .map(Enum::name)
+            .collect(Collectors.toSet());
     }
 }

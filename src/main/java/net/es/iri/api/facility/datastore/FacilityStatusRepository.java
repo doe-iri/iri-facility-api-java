@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.FacilityStatus;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.GeographicalLocation;
+import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.NamedObject;
 import net.es.iri.api.facility.schema.Resource;
@@ -59,19 +59,31 @@ public class FacilityStatusRepository {
     // Master index for all objects.
     private final ConcurrentMap<String, NamedObject> objects = new ConcurrentHashMap<>();
 
+    // The input facility status model is loaded from an external source.
+    private final FacilityStatus facilityStatus;
+
     /**
      * Constructor to load FacilityStatus bean containing IRI Facility Status instance data.
      *
      * @param facilityStatus The input bean containing IRI Facility Status instance data.
      */
     public FacilityStatusRepository(FacilityStatus facilityStatus) {
+        this.facilityStatus = facilityStatus;
+    }
+
+    /**
+     * Initializes the repository by populating the master index with data
+     * from the FacilityStatus bean.
+     */
+    @PostConstruct
+    public void init() {
         log.debug("[FacilityStatusRepository::init] initializing repository.");
-        facilityStatus.getFacilities().forEach(facility -> objects.put(facility.getId(), facility));
-        facilityStatus.getLocations().forEach(location -> objects.put(location.getId(), location));
-        facilityStatus.getSites().forEach(sites -> objects.put(sites.getId(), sites));
-        facilityStatus.getResources().forEach(resource -> objects.put(resource.getId(), resource));
-        facilityStatus.getIncidents().forEach(incident -> objects.put(incident.getId(), incident));
-        facilityStatus.getEvents().forEach(event -> objects.put(event.getId(), event));
+        this.facilityStatus.getFacilities().forEach(facility -> objects.put(facility.getId(), facility));
+        this.facilityStatus.getLocations().forEach(location -> objects.put(location.getId(), location));
+        this.facilityStatus.getSites().forEach(sites -> objects.put(sites.getId(), sites));
+        this.facilityStatus.getResources().forEach(resource -> objects.put(resource.getId(), resource));
+        this.facilityStatus.getIncidents().forEach(incident -> objects.put(incident.getId(), incident));
+        this.facilityStatus.getEvents().forEach(event -> objects.put(event.getId(), event));
         log.debug("[FacilityStatusRepository::init] repository initialized.");
     }
 
@@ -498,8 +510,8 @@ public class FacilityStatusRepository {
      * @param href The URL reference for the resource to find.
      * @return A location corresponding to href, or null if not found.
      */
-    public GeographicalLocation findLocationByHref(String href) {
-        return findByHref(href, GeographicalLocation.class);
+    public Location findLocationByHref(String href) {
+        return findByHref(href, Location.class);
     }
 
     /**
@@ -510,6 +522,8 @@ public class FacilityStatusRepository {
     public List<Facility> findAllFacilities() {
         return objects.values().stream()
             .filter(Facility.class::isInstance)
+            .map(Facility.class::cast)
+            .map(fac -> fac.toBuilder().build())
             .map(Facility.class::cast)
             .toList();
     }
@@ -522,6 +536,8 @@ public class FacilityStatusRepository {
     public Facility findFacilityById(String id) {
         return Optional.ofNullable(objects.get(id))
             .filter(Facility.class::isInstance)
+            .map(Facility.class::cast)
+            .map(fac -> fac.toBuilder().build())
             .map(Facility.class::cast)
             .orElse(null);
     }
@@ -536,6 +552,8 @@ public class FacilityStatusRepository {
             .filter(Facility.class::isInstance)
             .map(Facility.class::cast)
             .findFirst()
+            .map(fac -> fac.toBuilder().build())
+            .map(Facility.class::cast)
             .orElse(null);
     }
 
@@ -547,6 +565,8 @@ public class FacilityStatusRepository {
     public List<Resource> findAllResources() {
         return objects.values().stream()
             .filter(Resource.class::isInstance)
+            .map(Resource.class::cast)
+            .map(res -> res.toBuilder().build())
             .map(Resource.class::cast)
             .toList();
     }
@@ -560,6 +580,8 @@ public class FacilityStatusRepository {
         return Optional.ofNullable(objects.get(id))
             .filter(Resource.class::isInstance)
             .map(Resource.class::cast)
+            .map(res -> res.toBuilder().build())
+            .map(Resource.class::cast)
             .orElse(null);
     }
 
@@ -572,6 +594,8 @@ public class FacilityStatusRepository {
         return objects.values().stream()
             .filter(Site.class::isInstance)
             .map(Site.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(Site.class::cast)
             .toList();
     }
 
@@ -582,7 +606,11 @@ public class FacilityStatusRepository {
      */
     public Site findSiteById(String id) {
         return Optional.ofNullable(objects.get(id))
-            .filter(Site.class::isInstance).map(Site.class::cast).orElse(null);
+            .filter(Site.class::isInstance)
+            .map(Site.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(Site.class::cast)
+            .orElse(null);
     }
 
     /**
@@ -590,10 +618,12 @@ public class FacilityStatusRepository {
      *
      * @return List of locations.
      */
-    public List<GeographicalLocation> findAllLocations() {
+    public List<Location> findAllLocations() {
         return objects.values().stream()
-            .filter(GeographicalLocation.class::isInstance)
-            .map(GeographicalLocation.class::cast)
+            .filter(Location.class::isInstance)
+            .map(Location.class::cast)
+            .map(g -> g.toBuilder().build())
+            .map(Location.class::cast)
             .toList();
     }
 
@@ -602,10 +632,12 @@ public class FacilityStatusRepository {
      *
      * @return The location matching id or null.
      */
-    public GeographicalLocation findLocationById(String id) {
+    public Location findLocationById(String id) {
         return Optional.ofNullable(objects.get(id))
-            .filter(GeographicalLocation.class::isInstance)
-            .map(GeographicalLocation.class::cast)
+            .filter(Location.class::isInstance)
+            .map(Location.class::cast)
+            .map(g -> g.toBuilder().build())
+            .map(Location.class::cast)
             .orElse(null);
     }
 
@@ -617,6 +649,8 @@ public class FacilityStatusRepository {
     public List<Incident> findAllIncidents() {
         return objects.values().stream()
             .filter(Incident.class::isInstance)
+            .map(Incident.class::cast)
+            .map(i -> i.toBuilder().build())
             .map(Incident.class::cast)
             .toList();
     }
@@ -630,6 +664,8 @@ public class FacilityStatusRepository {
         return Optional.ofNullable(objects.get(id))
             .filter(Incident.class::isInstance)
             .map(Incident.class::cast)
+            .map(i -> i.toBuilder().build())
+            .map(Incident.class::cast)
             .orElse(null);
     }
 
@@ -642,6 +678,8 @@ public class FacilityStatusRepository {
         return objects.values().stream()
             .filter(Event.class::isInstance)
             .map(Event.class::cast)
+            .map(e -> e.toBuilder().build())
+            .map(Event.class::cast)
             .toList();
     }
 
@@ -653,6 +691,8 @@ public class FacilityStatusRepository {
     public Event findEventById(String id) {
         return Optional.ofNullable(objects.get(id))
             .filter(Event.class::isInstance)
+            .map(Event.class::cast)
+            .map(e -> e.toBuilder().build())
             .map(Event.class::cast)
             .orElse(null);
     }

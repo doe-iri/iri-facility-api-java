@@ -23,7 +23,7 @@
   ],
   "tags": [
     {
-      "name": "IRI Facility API",
+      "name": "IRI Facility Status API",
       "description": "Integrated Research Infrastructure Facility Status API endpoint"
     }
   ],
@@ -31,7 +31,7 @@
     "/api/v1/status": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getMetaData"
         ],
         "summary": "Get a list of facility status meta-data.",
@@ -41,8 +41,8 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -104,7 +104,7 @@
       "get": {
         "tags": [
           "getFacility",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the facility resource associated with this endpoint.",
         "description": "Returns the facility resource associated with this endpoint.",
@@ -128,21 +128,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -266,7 +278,7 @@
       "get": {
         "tags": [
           "getLocationBySite",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the location related to the specified site.",
         "description": "Returns the location related to the specified site.",
@@ -299,21 +311,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -330,7 +354,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GeographicalLocation"
+                  "$ref": "#/components/schemas/Location"
                 }
               }
             }
@@ -456,7 +480,7 @@
       "get": {
         "tags": [
           "getLocationBySite",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the location related to the specified site.",
         "description": "Returns the location related to the specified site.",
@@ -489,21 +513,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -520,7 +556,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GeographicalLocation"
+                  "$ref": "#/components/schemas/Location"
                 }
               }
             }
@@ -645,7 +681,7 @@
     "/api/v1/status/sites/{id}": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getSite"
         ],
         "summary": "Get the site associated with the specified id.",
@@ -679,21 +715,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -835,7 +883,7 @@
     "/api/v1/status/facility/sites/{id}": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getSite"
         ],
         "summary": "Get the site associated with the specified id.",
@@ -869,21 +917,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1026,7 +1086,7 @@
       "get": {
         "tags": [
           "getSites",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a list of sites associated with a facility.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1059,21 +1119,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1200,7 +1272,7 @@
       "get": {
         "tags": [
           "getSites",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a list of sites associated with a facility.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1233,21 +1305,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1374,7 +1458,7 @@
       "get": {
         "tags": [
           "getResource",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the IRI resource associated with the specified id.",
         "description": "Returns the matching IRI resource.",
@@ -1407,21 +1491,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1564,7 +1660,7 @@
       "get": {
         "tags": [
           "getResource",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the IRI resource associated with the specified id.",
         "description": "Returns the matching IRI resource.",
@@ -1597,21 +1693,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1754,7 +1862,7 @@
       "get": {
         "tags": [
           "getResources",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a collection of IRI resources.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1791,7 +1899,7 @@
           {
             "name": "type",
             "in": "query",
-            "description": "The group parameter will filter resources based on group membership.  If group is specified then only resources that are a member of the specified group will be returned.",
+            "description": "Return only resources of this type.",
             "required": false,
             "schema": {
               "type": "string"
@@ -1805,21 +1913,45 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "current_status",
+            "in": "query",
+            "description": "Return only resources with these status values.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1946,7 +2078,7 @@
       "get": {
         "tags": [
           "getResources",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a collection of IRI resources.",
         "description": "Returns a list of IRI resources matching the query.",
@@ -1983,7 +2115,7 @@
           {
             "name": "type",
             "in": "query",
-            "description": "The group parameter will filter resources based on group membership.  If group is specified then only resources that are a member of the specified group will be returned.",
+            "description": "Return only resources of this type.",
             "required": false,
             "schema": {
               "type": "string"
@@ -1997,21 +2129,45 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "current_status",
+            "in": "query",
+            "description": "Return only resources with these status values.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2137,7 +2293,7 @@
     "/api/v1/status/locations": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getLocations"
         ],
         "summary": "Get a list of locations associated with a facility.",
@@ -2162,21 +2318,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2195,7 +2363,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/GeographicalLocation"
+                    "$ref": "#/components/schemas/Location"
                   }
                 }
               }
@@ -2302,7 +2470,7 @@
     "/api/v1/status/facility/locations": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getLocations"
         ],
         "summary": "Get a list of locations associated with a facility.",
@@ -2327,21 +2495,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2360,7 +2540,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/GeographicalLocation"
+                    "$ref": "#/components/schemas/Location"
                   }
                 }
               }
@@ -2467,7 +2647,7 @@
     "/api/v1/status/incidents/{id}/events": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getEventsByIncident"
         ],
         "summary": "Get the events associated with the specified incident.",
@@ -2510,21 +2690,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2666,7 +2858,7 @@
     "/api/v1/status/facility/incidents/{id}/events": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getEventsByIncident"
         ],
         "summary": "Get the events associated with the specified incident.",
@@ -2709,21 +2901,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2866,7 +3070,7 @@
       "get": {
         "tags": [
           "getIncident",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the incident resource associated with the specified id.",
         "description": "Returns the matching incident resource.",
@@ -2899,21 +3103,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3056,7 +3272,7 @@
       "get": {
         "tags": [
           "getIncident",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the incident resource associated with the specified id.",
         "description": "Returns the matching incident resource.",
@@ -3089,21 +3305,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3245,7 +3473,7 @@
     "/api/v1/status/facility/incidents": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getIncidents"
         ],
         "summary": "Get a list of available incident resources.",
@@ -3336,21 +3564,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3476,7 +3716,7 @@
     "/api/v1/status/incidents": {
       "get": {
         "tags": [
-          "IRI Facility API",
+          "IRI Facility Status API",
           "getIncidents"
         ],
         "summary": "Get a list of available incident resources.",
@@ -3567,21 +3807,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3708,7 +3960,7 @@
       "get": {
         "tags": [
           "getResourceByEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the resource impacted by the specified event.",
         "description": "Returns the resource impacted by the specified event.",
@@ -3741,21 +3993,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3898,7 +4162,7 @@
       "get": {
         "tags": [
           "getResourceByEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the resource impacted by the specified event.",
         "description": "Returns the resource impacted by the specified event.",
@@ -3931,21 +4195,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4088,7 +4364,7 @@
       "get": {
         "tags": [
           "getIncidentByEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the incident related to the specified event.",
         "description": "Returns the incident related to the specified event.",
@@ -4121,21 +4397,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4278,7 +4566,7 @@
       "get": {
         "tags": [
           "getIncidentByEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the incident related to the specified event.",
         "description": "Returns the incident related to the specified event.",
@@ -4311,21 +4599,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4468,7 +4768,7 @@
       "get": {
         "tags": [
           "getEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the event associated with the specified id.",
         "description": "Returns the event associated with the specified id.",
@@ -4501,21 +4801,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4658,7 +4970,7 @@
       "get": {
         "tags": [
           "getEvent",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get the event associated with the specified id.",
         "description": "Returns the event associated with the specified id.",
@@ -4691,21 +5003,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4848,7 +5172,7 @@
       "get": {
         "tags": [
           "getEvents",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a list of event resources.",
         "description": "Returns a list of event resources matching the specified query",
@@ -4897,21 +5221,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5038,7 +5374,7 @@
       "get": {
         "tags": [
           "getEvents",
-          "IRI Facility API"
+          "IRI Facility Status API"
         ],
         "summary": "Get a list of event resources.",
         "description": "Returns a list of event resources matching the specified query",
@@ -5087,21 +5423,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "A list of relationships to dereference and include as embedded objects.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Content-Location": {
-                "description": "The HTTP Content-Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5249,7 +5597,7 @@
       },
       "Link": {
         "type": "object",
-        "description": "Represents a hyperlink with relation, URL, and type.",
+        "description": "Link represents a hyperlink with relation (rel), URL (href), and type.",
         "properties": {
           "rel": {
             "type": "string",
@@ -5290,13 +5638,13 @@
           }
         }
       },
-      "Facility": {
+      "Event": {
         "type": "object",
-        "description": "A DoE laboratory or production facility that offers resources for programmatic consumption.",
+        "description": "Defines a resource impacting event and provides status log functionality.",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The unique identifier for the resource.",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
           "name": {
@@ -5317,10 +5665,91 @@
           "last_modified": {
             "type": "string",
             "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "links": {
+          "_links": {
+            "type": "array",
+            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the resource associated with this incident.",
+            "enum": [
+              "up",
+              "degraded",
+              "down",
+              "unknown"
+            ],
+            "example": "down"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "_embedded": {
+            "$ref": "#/components/schemas/EventEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "EventEmbedded": {
+        "type": "object",
+        "description": "Defines a resource that has a reportable status and its associated dependencies.",
+        "properties": {
+          "generatedBy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Incident"
+            }
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          }
+        }
+      },
+      "Facility": {
+        "type": "object",
+        "description": "A DoE laboratory or production facility that offers resources for programmatic consumption.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
+          },
+          "name": {
+            "type": "string",
+            "description": "The long name of the resource.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "short_name": {
+            "type": "string",
+            "description": "The short name of the resource.",
+            "example": "LBNL"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the resource.",
+            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "_links": {
             "type": "array",
             "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
@@ -5331,19 +5760,59 @@
             "type": "string",
             "description": "The name of the organization hosting the facility.",
             "example": "Lawrence Berkeley National Laboratory"
+          },
+          "_embedded": {
+            "$ref": "#/components/schemas/FacilityEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
           }
         },
         "required": [
           "id"
         ]
       },
-      "GeographicalLocation": {
+      "FacilityEmbedded": {
         "type": "object",
-        "description": "These attribute are concerned with geographical positions or regions with which resources are associated.",
+        "description": "Defines a resource that has a reportable status and its associated dependencies.",
+        "properties": {
+          "hostedAt": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Site"
+            }
+          },
+          "hasLocation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          },
+          "hasIncident": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Incident"
+            }
+          },
+          "hasEvent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "hasResource": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          }
+        }
+      },
+      "Incident": {
+        "type": "object",
+        "description": "An incident groups events in time and across resources.",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The unique identifier for the resource.",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
           "name": {
@@ -5364,10 +5833,120 @@
           "last_modified": {
             "type": "string",
             "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "links": {
+          "_links": {
+            "type": "array",
+            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the resource associated with this incident.",
+            "enum": [
+              "up",
+              "degraded",
+              "down",
+              "unknown"
+            ],
+            "example": "down"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of incident.",
+            "enum": [
+              "planned",
+              "unplanned",
+              "reservation"
+            ],
+            "example": "planned"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this incident started, or is predicted to start. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2023-10-17T11:02:31.690-00:00"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this incident ended, or is predicted to end.  Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2023-10-19T11:02:31.690-00:00"
+          },
+          "resolution": {
+            "type": "string",
+            "default": "pending",
+            "description": "The resolution for this incident.",
+            "enum": [
+              "unresolved",
+              "cancelled",
+              "completed",
+              "extended",
+              "pending"
+            ],
+            "example": "pending"
+          },
+          "_embedded": {
+            "$ref": "#/components/schemas/IncidentEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IncidentEmbedded": {
+        "type": "object",
+        "description": "The allowable embedded objects for Incident.",
+        "properties": {
+          "hasEvent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "mayImpact": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "description": "A location models the geographical location or region with which resources are associated.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
+          },
+          "name": {
+            "type": "string",
+            "description": "The long name of the resource.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "short_name": {
+            "type": "string",
+            "description": "The short name of the resource.",
+            "example": "LBNL"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the resource.",
+            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "_links": {
             "type": "array",
             "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
@@ -5416,58 +5995,27 @@
             "format": "double",
             "description": "The longitude of the location.",
             "example": -122.2529
+          },
+          "_embedded": {
+            "$ref": "#/components/schemas/LocationEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
           }
         },
         "required": [
           "id"
         ]
       },
-      "Site": {
+      "LocationEmbedded": {
         "type": "object",
-        "description": "The location of a resource that has an associated physical location and an operating organization.",
+        "description": "Defines a resource that has a reportable status and its associated dependencies.",
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "The unique identifier for the resource.",
-            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
-          },
-          "name": {
-            "type": "string",
-            "description": "The long name of the resource.",
-            "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
-          },
-          "description": {
-            "type": "string",
-            "description": "A description of the resource.",
-            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
-          },
-          "last_modified": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
-          },
-          "links": {
+          "hasSite": {
             "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
-              "$ref": "#/components/schemas/Link"
+              "$ref": "#/components/schemas/Site"
             }
-          },
-          "operating_organization": {
-            "type": "string",
-            "description": "The name of the organization operating the site.",
-            "example": "Lawrence Berkeley National Laboratory"
           }
-        },
-        "required": [
-          "id"
-        ]
+        }
       },
       "Resource": {
         "type": "object",
@@ -5475,7 +6023,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The unique identifier for the resource.",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
           "name": {
@@ -5496,10 +6044,10 @@
           "last_modified": {
             "type": "string",
             "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "links": {
+          "_links": {
             "type": "array",
             "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
@@ -5535,19 +6083,65 @@
               "unknown"
             ],
             "example": "up"
+          },
+          "_embedded": {
+            "$ref": "#/components/schemas/ResourceEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
           }
         },
         "required": [
           "id"
         ]
       },
-      "Incident": {
+      "ResourceEmbedded": {
         "type": "object",
-        "description": "An incident resource groups events in time and across resources.",
+        "description": "The allowable embedded objects for Resource.",
+        "properties": {
+          "memberOf": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Facility"
+            }
+          },
+          "locatedAt": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Site"
+            }
+          },
+          "hasIncident": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Incident"
+            }
+          },
+          "impactedBy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "hasDependent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          }
+        }
+      },
+      "Site": {
+        "type": "object",
+        "description": "The location of a resource that has an associated physical location and an operating organization.",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The unique identifier for the resource.",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
           "name": {
@@ -5568,125 +6162,47 @@
           "last_modified": {
             "type": "string",
             "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "links": {
+          "_links": {
             "type": "array",
             "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
               "$ref": "#/components/schemas/Link"
             }
           },
-          "status": {
+          "operating_organization": {
             "type": "string",
-            "description": "The status of the resource associated with this incident.",
-            "enum": [
-              "up",
-              "degraded",
-              "down",
-              "unknown"
-            ],
-            "example": "down"
+            "description": "The name of the organization operating the site.",
+            "example": "Lawrence Berkeley National Laboratory"
           },
-          "type": {
-            "type": "string",
-            "description": "The type of incident.",
-            "enum": [
-              "planned",
-              "unplanned",
-              "reservation"
-            ],
-            "example": "planned"
-          },
-          "start": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this incident started, or is predicted to start.",
-            "example": "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)"
-          },
-          "end": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this incident ended, or is predicted to end.",
-            "example": "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)"
-          },
-          "resolution": {
-            "type": "string",
-            "default": "pending",
-            "description": "The resolution for this incident.",
-            "enum": [
-              "unresolved",
-              "cancelled",
-              "completed",
-              "extended",
-              "pending"
-            ],
-            "example": "pending"
+          "_embedded": {
+            "$ref": "#/components/schemas/SiteEmbedded",
+            "description": "A set of embedded objects that were requested via the 'include' query parameter."
           }
         },
         "required": [
           "id"
         ]
       },
-      "Event": {
+      "SiteEmbedded": {
         "type": "object",
-        "description": "Defines a resource impacting event and provides status log functionality.",
+        "description": "Defines a resource that has a reportable status and its associated dependencies.",
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "The unique identifier for the resource.",
-            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
-          },
-          "name": {
-            "type": "string",
-            "description": "The long name of the resource.",
-            "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
-          },
-          "description": {
-            "type": "string",
-            "description": "A description of the resource.",
-            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
-          },
-          "last_modified": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this resource was last modified.",
-            "example": "format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm."
-          },
-          "links": {
+          "hasLocation": {
             "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
             "items": {
-              "$ref": "#/components/schemas/Link"
+              "$ref": "#/components/schemas/Location"
             }
           },
-          "status": {
-            "type": "string",
-            "description": "The status of the resource associated with this incident.",
-            "enum": [
-              "up",
-              "degraded",
-              "down",
-              "unknown"
-            ],
-            "example": "down"
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this event occurred.",
-            "example": "Format follows the ISO 8601 standard with timezone offsets like YYYY-MM-DDTHH:mm:ss±hh:mm)"
+          "hasResource": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
           }
-        },
-        "required": [
-          "id"
-        ]
+        }
       }
     }
   }

@@ -1,0 +1,75 @@
+[ {
+  "id" : "ce2bbc49-ba63-4711-8f36-43b74ec2fe45",
+  "name" : "Lawrence Berkeley National Laboratory Building 59",
+  "short_name" : "LBNL59",
+  "description" : "Building 59 is a medium-sized office building with two office floors, one mechanical equipment floor, and one floor for NERSC data and computing center.",
+  "last_modified" : "2025-03-04T09:00:00.690Z",
+  "_links" : [ {
+    "rel" : "self",
+    "href" : "/api/v1/status/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
+  }, {
+    "rel" : "hasLocation",
+    "href" : "/api/v1/status/locations/b1c7773f-4624-4787-b1e9-46e1c78c3320"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources//0918ad2e-b318-4fd1-ac8f-56a55abf8e8d"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d"
+  }, {
+    "rel" : "hasResource",
+    "href" : "/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415"
+  } ],
+  "operating_organization" : "Lawrence Berkeley National Laboratory"
+} ]

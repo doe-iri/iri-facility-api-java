@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -31,7 +31,7 @@ import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
+import net.es.iri.api.facility.mapping.Relationships;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.ResourceType;
 import net.es.iri.api.facility.utils.UrlTransform;
@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +50,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Fun with test cases for the IRI Facility API.
@@ -57,7 +57,7 @@ import org.springframework.test.context.ActiveProfiles;
  * @author hacksaw
  */
 @Slf4j
-@ActiveProfiles("test")
+@Profile("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApplicationTest {
     @LocalServerPort
@@ -102,11 +102,11 @@ class ApplicationTest {
         assertEquals("09a22593-2be8-46f6-ae54-2904b04e13a4", facility.getId());
 
         // Did we decode the lastModified time correctly?
-        assertEquals(OffsetDateTime.parse("2025-03-03T20:57:49.690-00:00"), facility.getLastModified());
+        assertEquals(OffsetDateTime.parse("2025-06-29T21:34:25Z"), facility.getLastModified());
 
         // Count the total number of links.
         assertNotNull(facility.getLinks());
-        assertEquals(32, facility.getLinks().size());
+        assertEquals(430, facility.getLinks().size());
 
         UrlTransform urlTransform = new UrlTransform("(/|http://localhost:" + port + "/)");
 
@@ -187,7 +187,7 @@ class ApplicationTest {
         assertEquals(1, hasSelf);
         assertEquals(20, hasResource);
         assertEquals(6, hasEvent);
-        assertEquals(3, hasIncident);
+        assertEquals(401, hasIncident);
         assertEquals(1, hostedAt);
         assertEquals(1, others);
 
@@ -285,7 +285,7 @@ class ApplicationTest {
             new ParameterizedTypeReference<>() {});
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(19, response.getBody().size());
+        assertEquals(20, response.getBody().size());
 
         // Query resources for a specific resource with shortName
         String resource_url = "http://localhost:" + port + "/api/v1/status/resources?short_name=scratch";

@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -25,9 +25,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * An incident resource groups events in time and across resources.
@@ -35,11 +38,13 @@ import lombok.ToString;
  * @author hacksaw
  */
 @Data
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "An incident resource groups events in time and across resources.")
+@Schema(description = "An incident groups events in time and across resources.")
 public class Incident extends NamedObject {
     public static final String URL_TEMPLATE = "/api/v1/status/incidents/%s";
 
@@ -63,5 +68,13 @@ public class Incident extends NamedObject {
 
     @JsonProperty("resolution")
     @Schema(description = "The resolution for this incident.", example = "pending", defaultValue = "pending")
+    @Builder.Default
     private ResolutionType resolution = ResolutionType.PENDING;
+
+    // Include embedded here since including a generic embedded structure in NamedObject screws up
+    // the OpenAPI documentation.
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty("_embedded")
+    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
+    private IncidentEmbedded embedded;
 }

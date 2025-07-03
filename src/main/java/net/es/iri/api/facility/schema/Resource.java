@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -23,9 +23,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  *  This class defines an IRI resource and associated dependencies.
@@ -33,6 +37,9 @@ import lombok.ToString;
  * @author hacksaw
  */
 @Data
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,4 +59,11 @@ public class Resource extends NamedObject {
     @JsonProperty("current_status")
     @Schema(description = "The current status of this resource a time of query.", example = "up")
     private StatusType currentStatus;
+
+    // Include embedded here since including a generic embedded structure in NamedObject screws up
+    // the OpenAPI documentation.
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty("_embedded")
+    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
+    private ResourceEmbedded embedded;
 }

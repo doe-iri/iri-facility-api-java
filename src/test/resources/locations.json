@@ -1,0 +1,19 @@
+[ {
+  "id" : "b1c7773f-4624-4787-b1e9-46e1c78c3320",
+  "name" : "Lawrence Berkeley National Laboratory",
+  "short_name" : "LBNL",
+  "description" : "Lawrence Berkeley National Laboratory is a U.S. DOE Office of Science national laboratory managed by the University of California.",
+  "last_modified" : "2025-03-04T09:00:00.690Z",
+  "_links" : [ {
+    "rel" : "self",
+    "href" : "/api/v1/status/locations/b1c7773f-4624-4787-b1e9-46e1c78c3320"
+  } ],
+  "country_name" : "United States of America",
+  "locality_name" : "Berkeley",
+  "state_or_province_name" : "California",
+  "street_address" : "1 Cyclotron Rd.",
+  "unlocode" : "US JBK",
+  "altitude" : 240.0,
+  "latitude" : 37.87492,
+  "longitude" : -122.2529
+} ]

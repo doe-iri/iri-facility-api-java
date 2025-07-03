@@ -19,6 +19,8 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,31 +28,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 
-/**
- * This class models a hyperlink referencing a resource with a specific relationship.
- *
- * @author hacksaw
- */
 @Data
-@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Link represents a hyperlink with relation (rel), URL (href), and type.")
-public class Link {
-    @JsonProperty("rel")
-    @Schema(description = "The relationship type of the link", example = "self")
-    private String rel;
+@Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
+public class EventEmbedded {
+    @JsonProperty("generatedBy")
+    private List<Incident> generatedBy;
 
-    @JsonProperty("href")
-    @Schema(description = "The hyperlink reference (URI)", format = "uri",
-        example = "https://example.com/facility", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String href;
+    @JsonProperty("impacts")
+    private List<Resource> impacts;
 
-    @JsonProperty("type")
-    @Schema(description = "The media type of the linked resource", example = "application/json")
-    private String type;
+    /**
+     * Determine if this instance is empty.
+     *
+     * @return true if all embedded lists are null or contain no elements.
+     */
+    @JsonIgnore
+    public boolean isEmpty() {
+        return (generatedBy    == null || generatedBy.isEmpty())
+            && (impacts == null || impacts.isEmpty());
+    }
 }

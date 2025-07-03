@@ -17,26 +17,35 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
-package net.es.iri.api.facility.beans;
+package net.es.iri.api.facility.schema;
 
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.validation.annotation.Validated;
 
-/**
- * ServerConfig bean contains properties for manipulating the URL of
- * resources returned through the API.
- *
- * @author hacksaw
- */
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
-@Configuration
-@ConfigurationProperties(prefix = "server")
-@Validated
-public class ServerConfig {
-  private String root;
-  private String proxy;
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
+public class LocationEmbedded {
+    @JsonProperty("hasSite")
+    private List<Site> hasSite;
+
+    /**
+     * Determine if this instance is empty.
+     *
+     * @return true if all embedded lists are null or contain no elements.
+     */
+    @JsonIgnore
+    public boolean isEmpty() {
+        return (hasSite == null || hasSite.isEmpty());
+    }
 }

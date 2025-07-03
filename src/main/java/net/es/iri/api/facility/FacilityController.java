@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -20,12 +20,14 @@
 package net.es.iri.api.facility;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,19 +43,33 @@ import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.IriConfig;
 import net.es.iri.api.facility.beans.ServerConfig;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
+import net.es.iri.api.facility.mapping.EmbeddedMapping;
+import net.es.iri.api.facility.mapping.EventMapping;
+import net.es.iri.api.facility.mapping.FacilityMapping;
+import net.es.iri.api.facility.mapping.IncidentMapping;
+import net.es.iri.api.facility.mapping.LocationMapping;
+import net.es.iri.api.facility.mapping.ResourceMapping;
+import net.es.iri.api.facility.mapping.SiteMapping;
 import net.es.iri.api.facility.openapi.OpenApiDescriptions;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
+import net.es.iri.api.facility.schema.EventEmbedded;
 import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.GeographicalLocation;
+import net.es.iri.api.facility.schema.FacilityEmbedded;
+import net.es.iri.api.facility.schema.IncidentEmbedded;
+import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
+import net.es.iri.api.facility.schema.LocationEmbedded;
+import net.es.iri.api.facility.schema.NamedObject;
+import net.es.iri.api.facility.mapping.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
+import net.es.iri.api.facility.schema.ResourceEmbedded;
 import net.es.iri.api.facility.schema.Site;
+import net.es.iri.api.facility.schema.SiteEmbedded;
 import net.es.iri.api.facility.schema.StatusType;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.JsonParser;
@@ -84,7 +100,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @RestController
 @RequestMapping(path = "/api/v1/status")
-@Tag(name = "IRI Facility API", description = "Integrated Research Infrastructure Facility Status API endpoint")
+@Tag(name = "IRI Facility Status API", description = "Integrated Research Infrastructure Facility Status API endpoint")
 public class FacilityController {
     // Spring application context.
     private final ApplicationContext context;
@@ -95,14 +111,14 @@ public class FacilityController {
     // The data store containing facility status information.
     private final FacilityStatusRepository repository;
 
-    // Transformer to manipulate URL path in case there are mapping issues.
+    // Transformer to manipulate the URL path in case of mapping issues.
     private final UrlTransform utilities;
 
     /**
      * Constructor for bean injection.
      *
      * @param context The Spring application context.
-     * @param config The application specific configuration.
+     * @param config The application-specific configuration.
      * @param repository The JPA-like repository holding the mock data model.
      */
     public FacilityController(ApplicationContext context, IriConfig config, FacilityStatusRepository repository) {
@@ -148,8 +164,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -185,24 +201,13 @@ public class FacilityController {
     public ResponseEntity<?> getMetaData() {
         try {
             // We need the request URL to build fully qualified resource URLs.
-            final URI location;
-            try {
-                location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-            } catch (Exception ex) {
-                log.error("[FacilityController::getResources] Exception caught in GET of /", ex);
-                Error error = Error.builder()
-                    .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                    .description(ex.getMessage())
-                    .build();
-                log.error("[FacilityController::getResources] returning error:\n{}", error);
-                return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
-            log.debug("[FacilityController::getResources] GET operation = {}", location);
+            log.debug("[FacilityController::getMetaData] GET operation = {}", location);
 
             // We will populate some HTTP response headers.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             List<Discovery> discovery = new ArrayList<>();
             Method[] methods = FacilityController.class.getMethods();
@@ -222,9 +227,9 @@ public class FacilityController {
                         resource.setVersion(ra.version());
                         UriComponentsBuilder path = utilities.getPath(location.toASCIIString());
                         path.path(p);
-                        Link link = new Link();
-                        link.setRel(Relationships.SELF);
-                        link.setHref(path.build().encode().toUriString());
+                        Link link = Link.builder()
+                            .rel(Relationships.SELF)
+                            .href(path.build().encode().toUriString()).build();
                         resource.setLink(link);
                         discovery.add(resource);
                     }
@@ -232,13 +237,13 @@ public class FacilityController {
             }
 
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
-        } catch (SecurityException | MalformedURLException ex) {
-            log.error("[FacilityController::getResources] Exception caught", ex);
+        } catch (Exception ex) {
+            log.error("[FacilityController::getMetaData] Exception caught", ex);
             Error error = Error.builder()
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .description(ex.getMessage())
                 .build();
-            log.error("[FacilityController::getResources] returning error:\n{}", error);
+            log.error("[FacilityController::getMetaData] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -268,8 +273,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -348,19 +353,21 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince) {
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location;
         try {
             location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
         } catch (Exception ex) {
-            log.error("[FacilityController::getIriResources] Exception caught in GET of /resources", ex);
+            log.error("[FacilityController::getFacility] Exception caught in GET of /resources", ex);
             Error error = Error.builder()
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .description(ex.getMessage())
                 .build();
-            log.error("[FacilityController::getIriResources] returning error:\n{}", error);
+            log.error("[FacilityController::getFacility] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -369,7 +376,7 @@ public class FacilityController {
 
         // Populate the content location header with our URL location.
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+        headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
         // Parse the If-Modified-Since header if it is present.
         OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
@@ -382,7 +389,7 @@ public class FacilityController {
 
         // Update the LastModified header with the value of the facility resource.
         if (resourceLastModified != null) {
-            headers.setLastModified(resourceLastModified.toInstant());
+            headers.setLastModified(resourceLastModified.toInstant().truncatedTo(ChronoUnit.SECONDS));
         }
 
         log.debug("[FacilityController::getFacility] ifms {}, resourceLastModified {}", ifms, resourceLastModified);
@@ -391,13 +398,21 @@ public class FacilityController {
             // If the request contained an If-Modified-Since header we process it.
             if (ifms != null && resourceLastModified != null) {
                 if (ifms.isEqual(resourceLastModified) || ifms.isAfter(resourceLastModified)) {
-                    // The resource has not been modified since specified time.
+                    // The resource has not been modified since the specified time.
                     log.debug("[FacilityController::getFacility] returning NOT_MODIFIED");
                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
             }
 
-            // We have success so return the models we have found.
+            // Process the embedded query parameter.
+            if (include != null && !include.isEmpty()) {
+                FacilityEmbedded embedded = EmbeddedMapping.processIncludes(facility, repository, include);
+                if (embedded != null && !embedded.isEmpty()) {
+                    facility.setEmbedded(embedded);
+                }
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(facility, headers, HttpStatus.OK);
         } catch (IllegalArgumentException ex) {
             log.error("[FacilityController] getFacility failed", ex);
@@ -436,8 +451,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -517,18 +532,20 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
             final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
             log.debug("[FacilityController::getSites] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             List<Site> results = repository.findAllSites();
@@ -566,7 +583,20 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // We have success so return the models we have found.
+            // Process the embedded query parameter.
+            if (include != null && !include.isEmpty()) {
+                List<Site> embeddedList = new ArrayList<>();
+                for (Site site : results) {
+                    SiteEmbedded embedded = EmbeddedMapping.processIncludes(site, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        site.setEmbedded(embedded);
+                    }
+                    embeddedList.add(site);
+                }
+                results = embeddedList;
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getSites] Exception caught in GET of /sites", ex);
@@ -607,8 +637,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -704,7 +734,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -715,7 +747,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Site site = repository.findSiteById(id);
@@ -730,9 +762,17 @@ public class FacilityController {
                 OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
+                        // The resource has not been modified since the specified time.
                         log.debug("[FacilityController::getSite] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Process the embedded query parameter.
+                if (include != null && !include.isEmpty()) {
+                    SiteEmbedded embedded = EmbeddedMapping.processIncludes(site, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        site.setEmbedded(embedded);
                     }
                 }
 
@@ -784,8 +824,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -796,7 +836,7 @@ public class FacilityController {
                 },
                 content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = GeographicalLocation.class)
+                    schema = @Schema(implementation = Location.class)
                 )
             ),
             @ApiResponse(
@@ -881,7 +921,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -892,7 +934,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Site site = repository.findSiteById(id);
@@ -916,8 +958,15 @@ public class FacilityController {
                 // Look up the resource associated with the event.
                 for (Link link : site.getLinks()) {
                     if (link.getRel() != null && link.getRel().equalsIgnoreCase(Relationships.LOCATED_AT)) {
-                        GeographicalLocation loc = repository.findLocationByHref(link.getHref());
+                        Location loc = repository.findLocationByHref(link.getHref());
                         if (loc != null) {
+                            // Process the embedded query parameter.
+                            if (include != null && !include.isEmpty()) {
+                                LocationEmbedded embedded = EmbeddedMapping.processIncludes(loc, repository, include);
+                                if (embedded != null && !embedded.isEmpty()) {
+                                    loc.setEmbedded(embedded);
+                                }
+                            }
                             return new ResponseEntity<>(loc, headers, HttpStatus.OK);
                         }
                     }
@@ -966,8 +1015,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -976,7 +1025,7 @@ public class FacilityController {
                         description = OpenApiDescriptions.LAST_MODIFIED_DESC,
                         schema = @Schema(implementation = String.class))
                 },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = GeographicalLocation.class)),
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Location.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             ),
             @ApiResponse(
@@ -1045,7 +1094,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince) {
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1056,17 +1107,17 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
-            List<GeographicalLocation> results = repository.findAllLocations();
+            List<Location> results = repository.findAllLocations();
 
             // Parse the If-Modified-Since header if it is present.
             OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
 
             // Find the latest modified timestamp among all resources
             OffsetDateTime latestModified = results.stream()
-                .map(GeographicalLocation::getLastModified)
+                .map(Location::getLastModified)
                 .max(OffsetDateTime::compareTo)
                 .orElse(OffsetDateTime.now());
 
@@ -1080,13 +1131,26 @@ public class FacilityController {
                 log.debug("[FacilityController::getLocations] ifms {}, latestModified {}",
                     ifms, latestModified);
                 if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
+                    // The resource has not been modified since the specified time.
                     log.debug("[FacilityController::getLocations] returning NOT_MODIFIED");
                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
             }
 
-            // We have success so return the models we have found.
+            // Process the embedded query parameter.
+            if (include != null && !include.isEmpty()) {
+                List<Location> embeddedList = new ArrayList<>();
+                for (Location loc : results) {
+                    LocationEmbedded embedded = EmbeddedMapping.processIncludes(loc, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        loc.setEmbedded(embedded);
+                    }
+                    embeddedList.add(loc);
+                }
+                results = embeddedList;
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocations] Exception caught in GET of /locations", ex);
@@ -1128,8 +1192,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1213,19 +1277,23 @@ public class FacilityController {
         @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.RESOURCE_TYPE_MSG) String type,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.CURRENT_STATUS_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.CURRENT_STATUS_MSG) List<String> currentStatus,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
             final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
-            log.debug("[FacilityController::getIriResources] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, group = {}, type = {}",
+            log.debug("[FacilityController::getResources] GET operation = {}, accept = {}, "
+                    + "If-Modified-Since = {}, group = {}, type = {}",
                 location, accept, ifModifiedSince, group, type);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             List<Resource> results = repository.findAllResources();
@@ -1243,14 +1311,14 @@ public class FacilityController {
             headers.setLastModified(latestModified.toInstant());
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
             if (ifms != null) {
-                log.debug("[FacilityController::getIriResources] ifms {}, latestModified {}",
+                log.debug("[FacilityController::getResources] ifms {}, latestModified {}",
                     ifms, latestModified);
                 if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[FacilityController::getIriResources] returning NOT_MODIFIED");
+                    // The resource has not been modified since the specified time.
+                    log.debug("[FacilityController::getResources] returning NOT_MODIFIED");
                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
@@ -1268,7 +1336,7 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // Apply the group filter is requested.
+            // Apply the group filter if requested.
             if (group != null && !group.isBlank()) {
                 // Filter resources from the specified group.
                 results = results.stream()
@@ -1276,7 +1344,7 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // Apply the type filter is requested.
+            // Apply the type filter if requested.
             if (type != null && !type.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
@@ -1284,15 +1352,42 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // We have success so return the models we have found.
+            // Apply the currentStatus filter if requested.
+            if (currentStatus != null && !currentStatus.isEmpty()) {
+                // Filter any filter values not in the StatusType enum.
+                Set<StatusType> wanted = currentStatus.stream()
+                    .map(String::toUpperCase)
+                    .filter(StatusType.validValues()::contains)
+                    .map(StatusType::valueOf)
+                    .collect(Collectors.toSet());
+
+                // Filter resources from the specified type.
+                results = results.stream()
+                    .filter(r -> wanted.contains(r.getCurrentStatus()))
+                    .collect(Collectors.toList());
+            }
+
+            if (include != null && !include.isEmpty()) {
+                List<Resource> embeddedList = new ArrayList<>();
+                for (Resource resource : results) {
+                    ResourceEmbedded embedded = EmbeddedMapping.processIncludes(resource, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        resource.setEmbedded(embedded);
+                    }
+                    embeddedList.add(resource);
+                }
+                results = embeddedList;
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
-            log.error("[FacilityController::getIriResources] Exception caught in GET of /resources", ex);
+            log.error("[FacilityController::getResources] Exception caught in GET of /resources", ex);
             Error error = Error.builder()
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .description(ex.getMessage())
                 .build();
-            log.error("[FacilityController::getIriResources] returning error:\n{}", error);
+            log.error("[FacilityController::getResources] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1325,8 +1420,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1422,18 +1517,20 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
             final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
-            log.debug("[FacilityController::getIriResources] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+            log.debug("[FacilityController::getResource] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the resource targeted by id.
             Resource resource = repository.findResourceById(id);
@@ -1448,9 +1545,17 @@ public class FacilityController {
                 OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
-                        log.debug("[FacilityController::getIriResource] returning NOT_MODIFIED");
+                        // The resource has not been modified since the specified time.
+                        log.debug("[FacilityController::getResource] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Process the embedded query parameter.
+                if (include != null && !include.isEmpty()) {
+                    ResourceEmbedded embedded = EmbeddedMapping.processIncludes(resource, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        resource.setEmbedded(embedded);
                     }
                 }
 
@@ -1458,19 +1563,19 @@ public class FacilityController {
                 return new ResponseEntity<>(resource, headers, HttpStatus.OK);
             }
 
-            log.error("[FacilityController::getIriResource] resource not found {}", location);
+            log.error("[FacilityController::getResource] resource not found {}", location);
             Error error = Error.builder()
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .description("The resource " + location + " was not found.")
                 .build();
             return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[FacilityController::getIriResource] Exception caught in GET of /resources/{}", id, ex);
+            log.error("[FacilityController::getResource] Exception caught in GET of /resources/{}", id, ex);
             Error error = Error.builder()
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .description(ex.getMessage())
                 .build();
-            log.error("[FacilityController::getIriResource] returning error:\n{}", error);
+            log.error("[FacilityController::getResource] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1501,8 +1606,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1595,7 +1700,9 @@ public class FacilityController {
         @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1607,7 +1714,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             List<Incident> results = repository.findAllIncidents();
@@ -1689,7 +1796,20 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // We have success so return the models we have found.
+            // Include any requested relationship objects.
+            if (include != null && !include.isEmpty()) {
+                List<Incident> embeddedList = new ArrayList<>();
+                for (Incident incident : results) {
+                    IncidentEmbedded embedded = EmbeddedMapping.processIncludes(incident, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        incident.setEmbedded(embedded);
+                    }
+                    embeddedList.add(incident);
+                }
+                results = embeddedList;
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getIncidents] Exception caught in GET of /incidents", ex);
@@ -1709,7 +1829,7 @@ public class FacilityController {
      *            GET /api/v1/status/facility/incident/{id}
      *
      * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
+     *    At the moment, 'application/json' is the supported response encoding.
      *
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all resources with lastModified after the specified
@@ -1730,8 +1850,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1827,7 +1947,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -1838,7 +1960,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the incident matching the specified id.
             Incident incident = repository.findIncidentById(id);
@@ -1853,9 +1975,17 @@ public class FacilityController {
                 OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
+                        // The resource has not been modified since the specified time.
                         log.debug("[FacilityController::getIncidents] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Process the embedded query parameter.
+                if (include != null && !include.isEmpty()) {
+                    IncidentEmbedded embedded = EmbeddedMapping.processIncludes(incident, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        incident.setEmbedded(embedded);
                     }
                 }
 
@@ -1887,7 +2017,7 @@ public class FacilityController {
      *            GET /api/v1/status/facility/incident/{id}/events
      *
      * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
+     *    At the moment, 'application/json' is the supported response encoding.
      *
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all resources with lastModified after the specified
@@ -1908,8 +2038,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2007,7 +2137,9 @@ public class FacilityController {
         @PathVariable(OpenApiDescriptions.ID_NAME)
         @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2018,7 +2150,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the incident matching the specified id.
             Incident incident = repository.findIncidentById(id);
@@ -2064,6 +2196,18 @@ public class FacilityController {
                     events = events.stream()
                         .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
                         .collect(Collectors.toList());
+                }
+
+                if (include != null && !include.isEmpty()) {
+                    List<Event> embeddedList = new ArrayList<>();
+                    for (Event event : events) {
+                        EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
+                        if (embedded != null && !embedded.isEmpty()) {
+                            event.setEmbedded(embedded);
+                        }
+                        embeddedList.add(event);
+                    }
+                    events = embeddedList;
                 }
 
                 // Return the matching resource.
@@ -2113,8 +2257,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2197,7 +2341,9 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
             schema = @Schema(implementation = StatusType.class)) String status,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2209,7 +2355,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             List<Event> results = repository.findAllEvents();
@@ -2260,7 +2406,19 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // We have success so return the models we have found.
+            if (include != null && !include.isEmpty()) {
+                List<Event> embeddedList = new ArrayList<>();
+                for (Event event : results) {
+                    EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        event.setEmbedded(embedded);
+                    }
+                    embeddedList.add(event);
+                }
+                results = embeddedList;
+            }
+
+            // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getEvents] Exception caught in GET of /events", ex);
@@ -2301,8 +2459,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2398,7 +2556,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2409,7 +2569,7 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Get the event matching the specified id.
             Event event = repository.findEventById(id);
@@ -2424,9 +2584,17 @@ public class FacilityController {
                 OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
+                        // The resource has not been modified since the specified time.
                         log.debug("[FacilityController::getEvent] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Process the embedded query parameter.
+                if (include != null && !include.isEmpty()) {
+                    EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
+                    if (embedded != null && !embedded.isEmpty()) {
+                        event.setEmbedded(embedded);
                     }
                 }
 
@@ -2479,8 +2647,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2576,7 +2744,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2587,14 +2757,14 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
-            // Find specified event then the impacted resources.
+            // Find the specified event, then the impacted resources.
             Event event = repository.findEventById(id);
             if (event != null) {
                 // Look up the resource associated with the event.
                 for (Link link : event.getLinks()) {
-                    if (link.getRel() != null && link.getRel().equalsIgnoreCase("impacts")) {
+                    if (link.getRel() != null && link.getRel().equalsIgnoreCase(Relationships.IMPACTS)) {
                         Resource resource = repository.findResourceByHref(link.getHref());
                         if (resource != null) {
                             OffsetDateTime lastModified = resource.getLastModified();
@@ -2607,9 +2777,18 @@ public class FacilityController {
                             OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                             if (ifms != null && lastModified != null) {
                                 if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                                    // The resource has not been modified since specified time.
+                                    // The resource has not been modified since the specified time.
                                     log.debug("[FacilityController::getResourceByEvent] returning NOT_MODIFIED");
                                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                                }
+                            }
+
+                            // Process the embedded query parameter.
+                            if (include != null && !include.isEmpty()) {
+                                ResourceEmbedded embedded =
+                                    EmbeddedMapping.processIncludes(resource, repository, include);
+                                if (embedded != null && !embedded.isEmpty()) {
+                                    resource.setEmbedded(embedded);
                                 }
                             }
 
@@ -2664,8 +2843,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.CONTENT_LOCATION,
-                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2761,7 +2940,9 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
+        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -2772,14 +2953,15 @@ public class FacilityController {
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
-            // Locate the specified event then find the memberOf relationship to identify Incident.
+            // Locate the specified event, then find the generatedBy relationship to identify Incident.
             Event event = repository.findEventById(id);
             if (event != null) {
                 // Look up the resource associated with the event.
                 for (Link link : event.getLinks()) {
-                    if (link.getRel() != null && link.getRel().equalsIgnoreCase("memberOf")) {
+                    if (link.getRel() != null &&
+                        link.getRel().equalsIgnoreCase(Relationships.GENERATED_BY)) {
                         Incident incident = repository.findIncidentByHref(link.getHref());
                         if (incident != null) {
                             OffsetDateTime lastModified = incident.getLastModified();
@@ -2792,9 +2974,18 @@ public class FacilityController {
                             OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                             if (ifms != null && lastModified != null) {
                                 if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                                    // The resource has not been modified since specified time.
+                                    // The resource has not been modified since the specified time.
                                     log.debug("[FacilityController::getIncidentByEvent] returning NOT_MODIFIED");
                                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                                }
+                            }
+
+                            // Process the embedded query parameter.
+                            if (include != null && !include.isEmpty()) {
+                                IncidentEmbedded embedded =
+                                    EmbeddedMapping.processIncludes(incident, repository, include);
+                                if (embedded != null && !embedded.isEmpty()) {
+                                    incident.setEmbedded(embedded);
                                 }
                             }
 
