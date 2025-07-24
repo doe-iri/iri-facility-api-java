@@ -20,6 +20,7 @@
 package net.es.iri.api.facility;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,12 +33,13 @@ import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
+import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.mapping.Relationships;
+import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.StatusType;
@@ -128,6 +130,7 @@ public class SimulationController {
         Link self = Link.builder()
             .rel(Relationships.SELF)
             .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
+            .type(MediaTypes.INCIDENT)
             .build();
         incident.getLinks().add(self);
 
@@ -136,6 +139,7 @@ public class SimulationController {
         Link hasIncident = Link.builder()
             .rel(Relationships.HAS_INCIDENT)
             .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
+            .type(MediaTypes.INCIDENT)
             .build();
         facility.getLinks().add(hasIncident);
         facility.setLastModified(now);
@@ -143,15 +147,30 @@ public class SimulationController {
         // The incident will impact the group's resources.
         List<Resource> resources = repository.findAllResources();
         for (Resource r : resources) {
+            // Remove all incidents referenced by the resource that are no
+            // longer active, leaving only the active and future incidents.
+            List<Link> links = new ArrayList<>();
+            for (Link link : r.getLinks()) {
+                if (link.getRel().equalsIgnoreCase(Relationships.HAS_INCIDENT)) {
+                    Optional.ofNullable(repository.findIncidentByHref(link.getHref())).ifPresent(i -> {
+                        if (i.getEnd() != null && OffsetDateTime.now().isAfter(i.getEnd())) {
+                            links.add(link);
+                        }
+                    });
+                }
+            }
+            r.getLinks().removeAll(links);
+
             // Incident mayImpact the Resource.
             Link mayImpact = Link.builder()
                 .rel(Relationships.MAY_IMPACT)
                 .href(String.format(Resource.URL_TEMPLATE, r.getId()))
+                .type(MediaTypes.RESOURCE)
                 .build();
             incident.getLinks().add(mayImpact);
 
             // A Resource hasIncident.
-            incident.getLinks().add(hasIncident);
+            r.getLinks().add(hasIncident);
 
             // Create the new down event.
             Event event = new Event();
@@ -238,6 +257,7 @@ public class SimulationController {
         Link self = Link.builder()
             .rel(Relationships.SELF)
             .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
+            .type(MediaTypes.INCIDENT)
             .build();
         incident.getLinks().add(self);
 
@@ -246,6 +266,7 @@ public class SimulationController {
         Link hasIncident = Link.builder()
             .rel(Relationships.HAS_INCIDENT)
             .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
+            .type(MediaTypes.INCIDENT)
             .build();
         facility.getLinks().add(hasIncident);
         facility.setLastModified(now);
@@ -258,6 +279,7 @@ public class SimulationController {
                 Link mayImpact = Link.builder()
                     .rel(Relationships.MAY_IMPACT)
                     .href(String.format(Resource.URL_TEMPLATE, r.getId()))
+                    .type(MediaTypes.RESOURCE)
                     .build();
                 incident.getLinks().add(mayImpact);
 
@@ -468,6 +490,7 @@ public class SimulationController {
         Link self = Link.builder()
             .rel(Relationships.SELF)
             .href(String.format(Event.URL_TEMPLATE, event.getId()))
+            .type(MediaTypes.EVENT)
             .build();
         event.getLinks().add(self);
 
@@ -475,26 +498,41 @@ public class SimulationController {
         Link impacts = Link.builder()
             .rel(Relationships.IMPACTS)
             .href(String.format(Resource.URL_TEMPLATE, resource.getId()))
+            .type(MediaTypes.RESOURCE)
             .build();
         event.getLinks().add(impacts);
 
-        // A Resource is impactedBy an Event.
+        // A Resource is impactedBy the last Event generated, so we need to
+        // remove any impactedBy links already in place.
+        List<Link> remove = new ArrayList<>();
+        for (Link link : resource.getLinks()) {
+            if (link.getRel().equals(Relationships.IMPACTED_BY)) {
+                remove.add(link);
+            }
+        }
+        resource.getLinks().removeAll(remove);
+
+        // Add this new impactedBy Event.
         Link impactedBy = Link.builder()
             .rel(Relationships.IMPACTED_BY)
             .href(String.format(Event.URL_TEMPLATE, event.getId()))
+            .type(MediaTypes.EVENT)
             .build();
         resource.getLinks().add(impactedBy);
 
         // Link the incident to the event.
-        Link hasEvent = new Link();
-        hasEvent.setRel(Relationships.HAS_EVENT);
-        hasEvent.setHref(String.format(Event.URL_TEMPLATE, event.getId()));
+        Link hasEvent = Link.builder()
+            .rel(Relationships.HAS_EVENT)
+            .href(String.format(Event.URL_TEMPLATE, event.getId()))
+            .type(MediaTypes.EVENT)
+            .build();
         incident.getLinks().add(hasEvent);
 
         // The Event is generatedBy an Incident.
         Link generatedBy = Link.builder()
             .rel(Relationships.GENERATED_BY)
             .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
+            .type(MediaTypes.INCIDENT)
             .build();
         event.getLinks().add(generatedBy);
     }

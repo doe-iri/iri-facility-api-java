@@ -29,8 +29,10 @@ import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.FacilityStatus;
+import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
+import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.NamedObject;
@@ -78,13 +80,49 @@ public class FacilityStatusRepository {
     @PostConstruct
     public void init() {
         log.debug("[FacilityStatusRepository::init] initializing repository.");
-        this.facilityStatus.getFacilities().forEach(facility -> objects.put(facility.getId(), facility));
-        this.facilityStatus.getLocations().forEach(location -> objects.put(location.getId(), location));
-        this.facilityStatus.getSites().forEach(sites -> objects.put(sites.getId(), sites));
-        this.facilityStatus.getResources().forEach(resource -> objects.put(resource.getId(), resource));
-        this.facilityStatus.getIncidents().forEach(incident -> objects.put(incident.getId(), incident));
-        this.facilityStatus.getEvents().forEach(event -> objects.put(event.getId(), event));
+        this.facilityStatus.getFacilities().forEach(facility -> {
+            fixLinks(facility.getLinks());
+            objects.put(facility.getId(), facility);
+        });
+        this.facilityStatus.getLocations().forEach(location -> {
+            fixLinks(location.getLinks());
+            objects.put(location.getId(), location);
+        });
+        this.facilityStatus.getSites().forEach(sites -> {
+            fixLinks(sites.getLinks());
+            objects.put(sites.getId(), sites);
+        });
+        this.facilityStatus.getResources().forEach(resource -> {
+            fixLinks(resource.getLinks());
+            objects.put(resource.getId(), resource);
+        });
+        this.facilityStatus.getIncidents().forEach(incident -> {
+            fixLinks(incident.getLinks());
+            objects.put(incident.getId(), incident);
+        });
+        this.facilityStatus.getEvents().forEach(event -> {
+            fixLinks(event.getLinks());
+            objects.put(event.getId(), event);
+        });
         log.debug("[FacilityStatusRepository::init] repository initialized.");
+    }
+
+    private static void fixLinks(List<Link> links) {
+        for (Link link : links) {
+            if (link.getHref().contains("resources")) {
+                link.setType(MediaTypes.RESOURCE);
+            } else if (link.getHref().contains("sites")) {
+                link.setType(MediaTypes.SITE);
+            } else if (link.getHref().contains("locations")) {
+                link.setType(MediaTypes.LOCATION);
+            } else if (link.getHref().contains("events")) {
+                link.setType(MediaTypes.EVENT);
+            } else if (link.getHref().contains("incidents")) {
+                link.setType(MediaTypes.INCIDENT);
+            } else {
+                log.error("[FacilityStatusRepository::fixLinks] link type unknown {}", link.getHref());
+            }
+        }
     }
 
     /**

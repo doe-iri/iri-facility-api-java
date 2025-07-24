@@ -22,6 +22,7 @@ package net.es.iri.api.facility.mapping;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import net.es.iri.api.facility.FacilityController;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.EventEmbedded;
@@ -32,6 +33,7 @@ import net.es.iri.api.facility.schema.IncidentEmbedded;
 import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.LocationEmbedded;
+import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.ResourceEmbedded;
 import net.es.iri.api.facility.schema.Site;
@@ -54,9 +56,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each relationship listed, we need to find matching links in the provided resource.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : facility.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(FacilityMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(FacilityMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.HOSTED_AT:
@@ -90,7 +93,7 @@ public class EmbeddedMapping {
                                     results.getHasResource().add((Resource) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for facility {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for facility {}, rel = {}",
                                         facility.getId(), link.getRel());
                                     break;
                             }});
@@ -117,9 +120,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each relationship listed, we need to find matching links in the provided resource.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : incident.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(IncidentMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(IncidentMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.HAS_EVENT:
@@ -135,7 +139,7 @@ public class EmbeddedMapping {
                                     results.getMayImpact().add((Resource) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for incident {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for incident {}, rel = {}",
                                         incident.getId(), link.getRel());
                                     break;
                             }});
@@ -162,9 +166,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each relationship listed, we need to find matching links in the provided resource.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : event.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(EventMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(EventMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.GENERATED_BY:
@@ -180,7 +185,7 @@ public class EmbeddedMapping {
                                     results.getImpacts().add((Resource) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for event {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for event {}, rel = {}",
                                         event.getId(), link.getRel());
                                     break;
                             }});
@@ -207,9 +212,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each specified relationship, find matching links.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : resource.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.MEMBER_OF:
@@ -249,7 +255,7 @@ public class EmbeddedMapping {
                                     results.getHasDependent().add((Resource) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for resource {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for resource {}, rel = {}",
                                         resource.getId(), link.getRel());
                                     break;
                             }
@@ -277,9 +283,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each specified relationship, find matching links.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : site.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.HAS_LOCATION:
@@ -295,7 +302,7 @@ public class EmbeddedMapping {
                                     results.getHasResource().add((Resource) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for site {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for site {}, rel = {}",
                                         site.getId(), link.getRel());
                                     break;
                             }
@@ -323,9 +330,10 @@ public class EmbeddedMapping {
         if (includes != null) {
             // For each specified relationship, find matching links.
             for (String rel : includes) {
+                log.debug("[EmbeddedMapping::processIncludes] rel = {}", rel);
                 for (Link link : location.getLinks()) {
-                    if (link.getRel().equalsIgnoreCase(rel)) {
-                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, rel);
+                    if (link.getRel().contains(rel)) {
+                        Mapping reference = Mapping.getTargetClass(ResourceMapping.RELATIONSHIP_TARGETS, link.getRel());
                         reference.getNamedObject(repository, link.getHref()).ifPresent(o -> {
                             switch (link.getRel()) {
                                 case Relationships.HAS_SITE:
@@ -335,7 +343,7 @@ public class EmbeddedMapping {
                                     results.getHasSite().add((Site) o);
                                     break;
                                 default:
-                                    log.error("[FacilityController::processIncludes] invalid relationship for location {}, rel = {}",
+                                    log.error("[EmbeddedMapping::processIncludes] invalid relationship for location {}, rel = {}",
                                         location.getId(), link.getRel());
                                     break;
                             }

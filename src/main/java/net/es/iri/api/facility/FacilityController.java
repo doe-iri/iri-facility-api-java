@@ -25,7 +25,6 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,12 +43,7 @@ import net.es.iri.api.facility.beans.IriConfig;
 import net.es.iri.api.facility.beans.ServerConfig;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
 import net.es.iri.api.facility.mapping.EmbeddedMapping;
-import net.es.iri.api.facility.mapping.EventMapping;
-import net.es.iri.api.facility.mapping.FacilityMapping;
-import net.es.iri.api.facility.mapping.IncidentMapping;
-import net.es.iri.api.facility.mapping.LocationMapping;
-import net.es.iri.api.facility.mapping.ResourceMapping;
-import net.es.iri.api.facility.mapping.SiteMapping;
+import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.openapi.OpenApiDescriptions;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
@@ -63,8 +57,7 @@ import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
 import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.LocationEmbedded;
-import net.es.iri.api.facility.schema.NamedObject;
-import net.es.iri.api.facility.mapping.Relationships;
+import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.ResourceEmbedded;
@@ -229,7 +222,9 @@ public class FacilityController {
                         path.path(p);
                         Link link = Link.builder()
                             .rel(Relationships.SELF)
-                            .href(path.build().encode().toUriString()).build();
+                            .href(path.build().encode().toUriString())
+                            .type(MediaTypes.DISCOVERY)
+                            .build();
                         resource.setLink(link);
                         discovery.add(resource);
                     }

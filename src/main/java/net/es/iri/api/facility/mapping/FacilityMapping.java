@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
 import net.es.iri.api.facility.schema.NamedObject;
+import net.es.iri.api.facility.schema.Relationships;
 
 public class FacilityMapping implements Mapping {
     // Map relationships to the target object class.

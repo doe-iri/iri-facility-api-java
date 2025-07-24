@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.es.iri.api.facility.datastore.FacilityStatusRepository;
 import net.es.iri.api.facility.schema.NamedObject;
+import net.es.iri.api.facility.schema.Relationships;
 
 public class SiteMapping implements Mapping {
     // Map relationships to the target object class.

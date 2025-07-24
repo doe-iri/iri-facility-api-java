@@ -31,7 +31,7 @@ import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.mapping.Relationships;
+import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.ResourceType;
 import net.es.iri.api.facility.utils.UrlTransform;
