@@ -13,7 +13,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -44,7 +45,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -75,7 +77,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -106,7 +109,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -137,7 +141,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -168,7 +173,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -199,7 +205,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -230,7 +237,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -261,7 +269,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -292,7 +301,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -323,7 +333,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -354,7 +365,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -385,7 +397,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -416,7 +429,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -447,7 +461,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -478,7 +493,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -509,7 +525,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -540,7 +557,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -571,7 +589,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
@@ -602,7 +621,8 @@
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
+        "href": "/api/v1/status/facility",
+        "type": "application/vnd.doe.iri.facility+json"
       },
       {
         "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",

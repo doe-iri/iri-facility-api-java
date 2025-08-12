@@ -102,11 +102,11 @@ class ApplicationTest {
         assertEquals("09a22593-2be8-46f6-ae54-2904b04e13a4", facility.getId());
 
         // Did we decode the lastModified time correctly?
-        assertEquals(OffsetDateTime.parse("2025-06-29T21:34:25Z"), facility.getLastModified());
+        assertEquals(OffsetDateTime.parse("2025-07-24T02:31:08Z"), facility.getLastModified());
 
         // Count the total number of links.
         assertNotNull(facility.getLinks());
-        assertEquals(430, facility.getLinks().size());
+        assertEquals(432, facility.getLinks().size());
 
         UrlTransform urlTransform = new UrlTransform("(/|http://localhost:" + port + "/)");
 
@@ -187,7 +187,7 @@ class ApplicationTest {
         assertEquals(1, hasSelf);
         assertEquals(20, hasResource);
         assertEquals(6, hasEvent);
-        assertEquals(401, hasIncident);
+        assertEquals(403, hasIncident);
         assertEquals(1, hostedAt);
         assertEquals(1, others);
 

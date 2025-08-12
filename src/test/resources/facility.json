@@ -7,11 +7,13 @@
   "_links": [
     {
       "rel": "self",
-      "href": "/api/v1/status/facility"
+      "href": "/api/v1/status/facility",
+      "type": "application/vnd.doe.iri.facility+json"
     },
     {
       "rel": "https://schema.doe.gov/iri/facility/status#supportURL",
-      "href": "https://help.nersc.gov/"
+      "href": "https://help.nersc.gov/",
+      "type": "text/html"
     },
     {
       "rel": "https://schema.doe.gov/iri/facility/status#hostedAt",
