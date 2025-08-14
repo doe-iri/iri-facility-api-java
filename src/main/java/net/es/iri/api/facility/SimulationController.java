@@ -329,7 +329,7 @@ public class SimulationController {
     /**
      * A scheduled transition of an incident through the lifecycle.
      */
-    @Scheduled(fixedRate = 5000)     // Runs every 5 seconds
+    @Scheduled(fixedRate = 30000)     // Runs every 30 seconds
     public void transitionIncidents() {
         log.debug("[SimulationController::transitionIncidents] executed at: {}",
             java.time.LocalDateTime.now());
