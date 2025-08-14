@@ -36,4 +36,5 @@ public @interface ResourceAnnotation
 {
     String name();
     String version();
+    String type();
 }

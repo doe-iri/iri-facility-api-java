@@ -190,7 +190,7 @@ public class FacilityController {
         })
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getMetaData", version = "v1")
+    @ResourceAnnotation(name = "getMetaData", version = "v1", type = MediaTypes.DISCOVERY)
     public ResponseEntity<?> getMetaData() {
         try {
             // We need the request URL to build fully qualified resource URLs.
@@ -223,9 +223,9 @@ public class FacilityController {
                         Link link = Link.builder()
                             .rel(Relationships.SELF)
                             .href(path.build().encode().toUriString())
-                            .type(MediaTypes.DISCOVERY)
+                            .type(ra.type())
                             .build();
-                        resource.setLink(link);
+                        resource.getLinks().add(link);
                         discovery.add(resource);
                     }
                 }
@@ -343,7 +343,7 @@ public class FacilityController {
         })
     @RequestMapping(path = "/facility", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getFacility", version = "v1")
+    @ResourceAnnotation(name = "getFacility", version = "v1", type = MediaTypes.FACILITY)
     public ResponseEntity<?> getFacility(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -520,7 +520,7 @@ public class FacilityController {
     @RequestMapping(path = {"/sites", "/facility/sites"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getSites", version = "v1")
+    @ResourceAnnotation(name = "getSites", version = "v1", type = MediaTypes.SITES)
     public ResponseEntity<?> getSites(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -722,7 +722,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getSite", version = "v1")
+    @ResourceAnnotation(name = "getSite", version = "v1", type = MediaTypes.SITE)
     public ResponseEntity<?> getSite(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -909,7 +909,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getLocationBySite", version = "v1")
+    @ResourceAnnotation(name = "getLocationBySite", version = "v1", type = MediaTypes.LOCATION)
     public ResponseEntity<?> getLocationBySite(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1084,7 +1084,7 @@ public class FacilityController {
     @RequestMapping(path = {"/locations", "/facility/locations"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getLocations", version = "v1")
+    @ResourceAnnotation(name = "getLocations", version = "v1", type = MediaTypes.LOCATIONS)
     public ResponseEntity<?> getLocations(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1261,7 +1261,7 @@ public class FacilityController {
     @RequestMapping(path = {"/resources", "/facility/resources"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getResources", version = "v1")
+    @ResourceAnnotation(name = "getResources", version = "v1", type = MediaTypes.RESOURCES)
     public ResponseEntity<?> getResources(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1505,7 +1505,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getResource", version = "v1")
+    @ResourceAnnotation(name = "getResource", version = "v1", type = MediaTypes.RESOURCE)
     public ResponseEntity<?> getResource(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1677,7 +1677,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getIncidents", version = "v1")
+    @ResourceAnnotation(name = "getIncidents", version = "v1", type = MediaTypes.INCIDENTS)
     public ResponseEntity<?> getIncidents(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1935,7 +1935,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getIncident", version = "v1")
+    @ResourceAnnotation(name = "getIncident", version = "v1", type = MediaTypes.INCIDENT)
     public ResponseEntity<?> getIncident(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -2123,7 +2123,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getEventsByIncident", version = "v1")
+    @ResourceAnnotation(name = "getEventsByIncident", version = "v1", type = MediaTypes.EVENTS)
     public ResponseEntity<?> getEventsByIncident(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -2326,7 +2326,7 @@ public class FacilityController {
     @RequestMapping(path = {"/events",
         "/facility/events"}, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getEvents", version = "v1")
+    @ResourceAnnotation(name = "getEvents", version = "v1", type = MediaTypes.EVENTS)
     public ResponseEntity<?> getEvents(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -2544,7 +2544,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getEvent", version = "v1")
+    @ResourceAnnotation(name = "getEvent", version = "v1", type = MediaTypes.EVENT)
     public ResponseEntity<?> getEvent(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -2732,7 +2732,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getResourceByEvent", version = "v1")
+    @ResourceAnnotation(name = "getResourceByEvent", version = "v1", type = MediaTypes.RESOURCE)
     public ResponseEntity<?> getResourceByEvent(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -2928,7 +2928,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getIncidentByEvent", version = "v1")
+    @ResourceAnnotation(name = "getIncidentByEvent", version = "v1", type = MediaTypes.INCIDENT)
     public ResponseEntity<?> getIncidentByEvent(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,

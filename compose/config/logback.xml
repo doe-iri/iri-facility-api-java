@@ -13,9 +13,9 @@
 
     <!-- File Appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/iri/logs/application.log</file>
+        <file>/iri/log/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/iri/logs/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/iri/log/application-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
