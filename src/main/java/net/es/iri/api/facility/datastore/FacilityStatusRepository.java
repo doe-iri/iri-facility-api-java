@@ -119,7 +119,10 @@ public class FacilityStatusRepository {
                 link.setType(MediaTypes.EVENT);
             } else if (link.getHref().contains("incidents")) {
                 link.setType(MediaTypes.INCIDENT);
-            } else {
+            } else if (link.getHref().contains("facility")) {
+                link.setType(MediaTypes.FACILITY);
+            }
+            else {
                 log.error("[FacilityStatusRepository::fixLinks] link type unknown {}", link.getHref());
             }
         }

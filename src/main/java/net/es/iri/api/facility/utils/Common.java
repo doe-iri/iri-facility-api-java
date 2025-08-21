@@ -49,4 +49,15 @@ public class Common {
     }
     return null;
   }
+
+  public static String stripQuotes(String input) {
+    if (input == null || input.length() < 2) {
+      return input;
+    }
+    if ((input.startsWith("\"") && input.endsWith("\"")) ||
+        (input.startsWith("'") && input.endsWith("'"))) {
+      return input.substring(1, input.length() - 1);
+    }
+    return input;
+  }
 }

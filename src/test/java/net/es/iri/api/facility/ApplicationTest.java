@@ -22,14 +22,20 @@ package net.es.iri.api.facility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
+import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.Resource;
@@ -124,7 +130,6 @@ class ApplicationTest {
                 case Relationships.SELF -> {
                     hasSelf++;
                     String self_url = urlTransform.getPath(link.getHref()).toUriString();
-                    log.debug("[ApplicationTest::testGetFacility] self {}", self_url);
                     ResponseEntity<Facility> self =
                         restTemplate.getForEntity(self_url, Facility.class);
                     assertEquals(HttpStatus.OK, self.getStatusCode());
@@ -135,7 +140,6 @@ class ApplicationTest {
                 case Relationships.HAS_RESOURCE -> {
                     hasResource++;
                     String resource_url = urlTransform.getPath(link.getHref()).toUriString();
-                    log.debug("[ApplicationTest::testGetFacility] hasResource {}", resource_url);
                     ResponseEntity<Resource> resource =
                         restTemplate.getForEntity(resource_url, Resource.class);
                     assertEquals(HttpStatus.OK, resource.getStatusCode());
@@ -147,7 +151,6 @@ class ApplicationTest {
                 case Relationships.HAS_EVENT -> {
                     hasEvent++;
                     String event_url = urlTransform.getPath(link.getHref()).toUriString();
-                    log.debug("[ApplicationTest::testGetFacility] hasEvent {}", event_url);
                     ResponseEntity<Event> event =
                         restTemplate.getForEntity(event_url, Event.class);
                     assertEquals(HttpStatus.OK, event.getStatusCode());
@@ -159,7 +162,6 @@ class ApplicationTest {
                 case Relationships.HAS_INCIDENT -> {
                     hasIncident++;
                     String incident_url = urlTransform.getPath(link.getHref()).toUriString();
-                    log.debug("[ApplicationTest::testGetFacility] hasIncident {}", incident_url);
                     ResponseEntity<Event> incident =
                         restTemplate.getForEntity(incident_url, Event.class);
                     assertEquals(HttpStatus.OK, incident.getStatusCode());
@@ -171,7 +173,6 @@ class ApplicationTest {
                 case Relationships.HOSTED_AT -> {
                     hostedAt++;
                     String hosted_url = urlTransform.getPath(link.getHref()).toUriString();
-                    log.debug("[ApplicationTest::testGetFacility] hostedAt {}", hosted_url);
                     ResponseEntity<Event> hosted =
                         restTemplate.getForEntity(hosted_url, Event.class);
                     assertEquals(HttpStatus.OK, hosted.getStatusCode());
@@ -340,13 +341,217 @@ class ApplicationTest {
     }
 
     /**
-     * Test the getIncidents API.
+     * Test the getIncidents API for the "from" query parameter.
      *
      * @throws Exception When stuff gets janky.
      */
     @Test
-    public void testGetIncidents() throws Exception {
+    public void testGetIncidentsFrom() throws Exception {
+        log.debug("[ApplicationTest::testGetIncidentsFrom] start test.");
 
+        // Build the target URL.
+        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+
+        // Perform the GET /resources operation.
+        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
+            null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+
+        // Filter incidents where the start time is equal to or after the specified startTime
+        List<Incident> filteredIncidents = incidents.stream()
+            .filter(incident -> incident.isConflict("2025-06-27T06:04:25.275Z", null))
+            .sorted(Comparator.comparing((Incident i) -> Optional.ofNullable(i.getStart()).orElse(OffsetDateTime.MIN)))
+            .toList();
+
+        // Now we want to compare this to a similar list returned from a query.
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z";
+
+        // Perform the GET /resources operation.
+        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidentsStart = response.getBody();
+        assertNotNull(incidentsStart);
+
+        List<Incident> sortedIncidents = incidentsStart.stream()
+            .sorted(Comparator.comparing(Incident::getStart))
+            .toList();
+
+        log.debug("[ApplicationTest::testGetIncidentsFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+            incidents.size(), sortedIncidents.size(), filteredIncidents.size());
+
+        assertEquals(filteredIncidents.size(), sortedIncidents.size());
+
+        log.debug("[ApplicationTest::testGetIncidentsFrom] ending test.");
+    }
+
+    /**
+     * Test the getIncidents API for "to" query parameter.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsTo() throws Exception {
+        log.debug("[ApplicationTest::testGetIncidentsTo] start test.");
+
+        // Build the target URL.
+        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+
+        // Perform the GET /resources operation.
+        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
+            null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+
+        // Filter incidents where the start time is equal to or after the specified startTime
+        List<Incident> filteredIncidents = incidents.stream()
+            .filter(incident -> incident.isConflict(null, "2025-06-28T06:04:25.275Z"))
+            .sorted(Comparator.comparing((Incident i) -> Optional.ofNullable(i.getStart()).orElse(OffsetDateTime.MIN)))
+            .toList();
+
+        // Now we want to compare this to a similar list returned from a query.
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?to=2025-06-28T06:04:25.275Z";
+
+        // Perform the GET /resources operation.
+        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidentsStart = response.getBody();
+        assertNotNull(incidentsStart);
+
+        List<Incident> sortedIncidents = incidentsStart.stream()
+            .sorted(Comparator.comparing(Incident::getStart))
+            .toList();
+
+        log.debug("[ApplicationTest::testGetIncidentsFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+            incidents.size(), sortedIncidents.size(), filteredIncidents.size());
+
+        assertEquals(filteredIncidents.size(), sortedIncidents.size());
+
+        log.debug("[ApplicationTest::testGetIncidentsTo] ending test.");
+    }
+
+    /**
+     * Test the getIncidents API for "to" query parameter.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsToFrom() throws Exception {
+        log.debug("[ApplicationTest::testGetIncidentsToFrom] start test.");
+
+        // Build the target URL.
+        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+
+        // Perform the GET /resources operation.
+        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
+            null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+
+        // Filter incidents where the start time is equal to or after the specified startTime
+        List<Incident> filteredIncidents = incidents.stream()
+            .filter(incident -> incident.isConflict("2025-06-27T06:04:25.275Z", "2025-06-28T06:04:25.275Z"))
+            .sorted(Comparator.comparing((Incident i) -> Optional.ofNullable(i.getStart()).orElse(OffsetDateTime.MIN)))
+            .toList();
+
+        // Now we want to compare this to a similar list returned from a query.
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z&to=2025-06-28T06:04:25.275Z";
+
+        // Perform the GET /resources operation.
+        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidentsStart = response.getBody();
+        assertNotNull(incidentsStart);
+
+        List<Incident> sortedIncidents = incidentsStart.stream()
+            .sorted(Comparator.comparing(Incident::getStart))
+            .toList();
+
+        log.debug("[ApplicationTest::testGetIncidentsToFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+            incidents.size(), sortedIncidents.size(), filteredIncidents.size());
+
+        assertEquals(filteredIncidents.size(), sortedIncidents.size());
+
+        log.debug("[ApplicationTest::testGetIncidentsToFrom] ending test.");
+    }
+
+    /**
+     * Test the getIncidents API for "resources" query parameter.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsWithResource() throws Exception {
+        log.debug("[ApplicationTest::testGetIncidentsWithResource] start test.");
+
+        // Build the target URL.
+        String url = "http://localhost:" + port +
+            "/api/v1/status/incidents?resources=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
+
+        // Perform the GET /resources operation.
+        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
+            null, new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+
+        log.debug("[ApplicationTest::testGetIncidentsWithResource] incidents = {}", incidents.size());
+
+        assertEquals(204, incidents.size());
+
+        log.debug("[ApplicationTest::testGetIncidentsWithResource] ending test.");
     }
 
     /**

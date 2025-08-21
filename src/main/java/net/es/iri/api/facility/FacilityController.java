@@ -131,12 +131,12 @@ public class FacilityController {
             context.getDisplayName(), context.getApplicationName());
 
         // Dump the models we are loading for demo data.
-        log.info("[FacilityController::init] Facilities\n{}", JsonParser.toJson(repository.findAllFacilities()));
-        log.info("[FacilityController::init] Sites\n{}",      JsonParser.toJson(repository.findAllSites()));
-        log.info("[FacilityController::init] Locations\n{}",  JsonParser.toJson(repository.findAllLocations()));
-        log.info("[FacilityController::init] Resources\n{}",  JsonParser.toJson(repository.findAllResources()));
-        log.info("[FacilityController::init] Incidents\n{}",  JsonParser.toJson(repository.findAllIncidents()));
-        log.info("[FacilityController::init] Events\n{}",     JsonParser.toJson(repository.findAllEvents()));
+        //log.info("[FacilityController::init] Facilities\n{}", JsonParser.toJson(repository.findAllFacilities()));
+        //log.info("[FacilityController::init] Sites\n{}",      JsonParser.toJson(repository.findAllSites()));
+        //log.info("[FacilityController::init] Locations\n{}",  JsonParser.toJson(repository.findAllLocations()));
+        //log.info("[FacilityController::init] Resources\n{}",  JsonParser.toJson(repository.findAllResources()));
+        //log.info("[FacilityController::init] Incidents\n{}",  JsonParser.toJson(repository.findAllIncidents()));
+        //log.info("[FacilityController::init] Events\n{}",     JsonParser.toJson(repository.findAllEvents()));
     }
 
     /**
@@ -574,7 +574,7 @@ public class FacilityController {
             if (shortName != null && !shortName.isBlank()) {
                 // Filter resources with the specified shortName.
                 results = results.stream()
-                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -1327,7 +1327,7 @@ public class FacilityController {
             if (shortName != null && !shortName.isBlank()) {
                 // Filter resources with the specified shortName.
                 results = results.stream()
-                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -1335,7 +1335,7 @@ public class FacilityController {
             if (group != null && !group.isBlank()) {
                 // Filter resources from the specified group.
                 results = results.stream()
-                    .filter(r -> group.equalsIgnoreCase(r.getGroup()))
+                    .filter(r -> Common.stripQuotes(group).equalsIgnoreCase(r.getGroup()))
                     .collect(Collectors.toList());
             }
 
@@ -1343,7 +1343,7 @@ public class FacilityController {
             if (type != null && !type.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(r -> type.equalsIgnoreCase(r.getType().getValue()))
+                    .filter(r -> Common.stripQuotes(type).equalsIgnoreCase(r.getType().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -1352,6 +1352,7 @@ public class FacilityController {
                 // Filter any filter values not in the StatusType enum.
                 Set<StatusType> wanted = currentStatus.stream()
                     .map(String::toUpperCase)
+                    .map(Common::stripQuotes)
                     .filter(StatusType.validValues()::contains)
                     .map(StatusType::valueOf)
                     .collect(Collectors.toSet());
@@ -1694,8 +1695,14 @@ public class FacilityController {
             schema = @Schema(implementation = ResolutionType.class)) String resolution,
         @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
+        @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
+        @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.TO_MSG) String to,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @RequestParam(value = OpenApiDescriptions.RESOURCES_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.RESOURCES_MSG) List<String> resources,
         @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
@@ -1704,8 +1711,10 @@ public class FacilityController {
             final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
             log.debug("[FacilityController::getIncidents] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, status = {}. type = {}. resolution = {}, time = {}",
-                location, accept, ifModifiedSince, status, type, resolution, time);
+                    + "If-Modified-Since = {}, status = {}. type = {}. resolution = {}, time = {},"
+                    + "from = {}, to = {}, shortName = {}, resources = {}, include = {}",
+                location, accept, ifModifiedSince, status, type, resolution, time,
+                from, to, shortName, resources, include);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -1748,7 +1757,7 @@ public class FacilityController {
             if (shortName != null && !shortName.isBlank()) {
                 // Filter resources with the specified shortName.
                 results = results.stream()
-                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -1756,7 +1765,7 @@ public class FacilityController {
             if (status != null && !status.isBlank()) {
                 // Filter resources from the specified group.
                 results = results.stream()
-                    .filter(r -> status.equalsIgnoreCase(r.getStatus().getValue()))
+                    .filter(r -> Common.stripQuotes(status).equalsIgnoreCase(r.getStatus().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -1764,7 +1773,7 @@ public class FacilityController {
             if (type != null && !type.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(r -> type.equalsIgnoreCase(r.getType().getValue()))
+                    .filter(r -> Common.stripQuotes(type).equalsIgnoreCase(r.getType().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -1772,24 +1781,26 @@ public class FacilityController {
             if (resolution != null && !resolution.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(r -> resolution.equalsIgnoreCase(r.getResolution().getValue()))
+                    .filter(r -> Common.stripQuotes(resolution).equalsIgnoreCase(r.getResolution().getValue()))
                     .collect(Collectors.toList());
             }
 
-            if (time != null && !time.isBlank()) {
-                OffsetDateTime timeFilter = Common.parseTime(time);
+            // The "time" query parameter is specified to return incidents overlapping with time.
+            results = results.stream()
+                .filter(incident -> incident.isOverlap(time))
+                .collect(Collectors.toList());
 
-                results = results.stream()
-                    .filter(incident -> {
-                        OffsetDateTime startTime = Optional.ofNullable(incident.getStart()).orElse(OffsetDateTime.MIN);
-                        OffsetDateTime endTime = Optional.ofNullable(incident.getEnd()).orElse(OffsetDateTime.MAX);
-                        log.debug("[FacilityController::getIncidents] startTime = {}, time = {}, endTime = {}",
-                            startTime, time, endTime);
-                        return (startTime.isBefore(timeFilter) || startTime.isEqual(timeFilter)) &&
-                            (endTime.isAfter(timeFilter) || endTime.isEqual(timeFilter));
-                    })
-                    .collect(Collectors.toList());
-            }
+            // The "from" query parameter is the start of the time the user is looking for active incidents.
+            // The "to" query parameter is the end of the time the user is looking for active incidents.
+            // This means we want any incidents active before this time.
+            results = results.stream()
+                .filter(incident -> incident.isConflict(from, to))
+                .collect(Collectors.toList());
+
+            // Find all the remaining incidents that contain a resource from the provided list.
+            results = results.stream()
+                .filter(incident -> incident.contains(resources))
+                .collect(Collectors.toList());
 
             // Include any requested relationship objects.
             if (include != null && !include.isEmpty()) {
@@ -2189,7 +2200,7 @@ public class FacilityController {
                 if (shortName != null && !shortName.isBlank()) {
                     // Filter resources with the specified shortName.
                     events = events.stream()
-                        .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                        .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
                         .collect(Collectors.toList());
                 }
 
@@ -2337,6 +2348,11 @@ public class FacilityController {
             schema = @Schema(implementation = StatusType.class)) String status,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
+        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
+        @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
+        @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.TO_MSG) String to,
         @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
 
@@ -2389,7 +2405,7 @@ public class FacilityController {
             if (shortName != null && !shortName.isBlank()) {
                 // Filter resources with the specified shortName.
                 results = results.stream()
-                    .filter(r -> shortName.equalsIgnoreCase(r.getShortName()))
+                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
                     .collect(Collectors.toList());
             }
 
@@ -2397,7 +2413,33 @@ public class FacilityController {
             if (status != null && !status.isBlank()) {
                 // Filter resources from the specified group.
                 results = results.stream()
-                    .filter(r -> status.equalsIgnoreCase(r.getStatus().getValue()))
+                    .filter(r -> Common.stripQuotes(status).equalsIgnoreCase(r.getStatus().getValue()))
+                    .collect(Collectors.toList());
+            }
+
+            if (from != null && !from.isBlank()) {
+                OffsetDateTime timeFilter = Common.parseTime(from);
+
+                results = results.stream()
+                    .filter(event -> {
+                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MIN);
+                        log.debug("[FacilityController::getEvents] from = {}, occurredAt = {}",
+                            from, occurredAt);
+                        return (occurredAt.isAfter(timeFilter) || occurredAt.isEqual(timeFilter));
+                    })
+                    .collect(Collectors.toList());
+            }
+
+            if (to != null && !to.isBlank()) {
+                OffsetDateTime timeFilter = Common.parseTime(to);
+
+                results = results.stream()
+                    .filter(event -> {
+                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MAX);
+                        log.debug("[FacilityController::getEvents] from = {}, getOccurredAt = {}",
+                            from, occurredAt);
+                        return (occurredAt.isBefore(timeFilter) || occurredAt.isEqual(timeFilter));
+                    })
                     .collect(Collectors.toList());
             }
 

@@ -97,11 +97,22 @@ public class OpenApiDescriptions {
   public static final String TIME_NAME = "time";
   public static final String TIME_MSG = "Search for incidents overlapping with time, where start <= time <= end.  The time query parameter must be in ISO 8601 format with timezone offsets.";
 
+  public static final String FROM_NAME = "from";
+  public static final String FROM_MSG = "Search for incidents/events that are active after (and including) the specified from time.  " +
+      "The from query parameter must be in ISO 8601 format with timezone offsets.";
+
+  public static final String TO_NAME = "to";
+  public static final String TO_MSG = "Search for incidents/events that are active before (and including) the specified to time.  " +
+      "The from query parameter must be in ISO 8601 format with timezone offsets.";
+
   public static final String RESOURCE_TYPE_NAME = "type";
   public static final String RESOURCE_TYPE_MSG = "Return only resources of this type.";
 
   public static final String CURRENT_STATUS_NAME = "current_status";
   public static final String CURRENT_STATUS_MSG = "Return only resources with these status values.";
+
+  public static final String RESOURCES_NAME = "resources";
+  public static final String RESOURCES_MSG = "A list of resources to match.";
 
   public static final String INCLUDE_NAME = "include";
   public static final String INCLUDE_MSG = "A list of relationships to dereference and include as embedded objects.";

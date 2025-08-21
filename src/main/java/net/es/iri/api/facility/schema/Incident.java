@@ -20,6 +20,8 @@
 package net.es.iri.api.facility.schema;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,6 +33,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import net.es.iri.api.facility.utils.Common;
 
 /**
  * An incident resource groups events in time and across resources.
@@ -77,4 +80,72 @@ public class Incident extends NamedObject {
     @JsonProperty("_embedded")
     @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
     private IncidentEmbedded embedded;
+
+    /**
+     * Determines if there is an overlap between this incident's time and the time
+     * duration specified in the parameters from and to.
+     *
+     * @param from The start of the period.
+     * @param to The end of the period.
+     * @return True if this incident clashes with the specified period.
+     */
+    public boolean isConflict(String from, String to) {
+        OffsetDateTime fromFilter = Optional.ofNullable(Common.parseTime(from)).orElse(OffsetDateTime.MIN);
+        OffsetDateTime toFilter = Optional.ofNullable(Common.parseTime(to)).orElse(OffsetDateTime.MAX);
+        OffsetDateTime startTime = Optional.ofNullable(start).orElse(OffsetDateTime.MIN);
+        OffsetDateTime endTime = Optional.ofNullable(end).orElse(OffsetDateTime.MAX);
+
+        // Check for overlap between the schedule and the new meeting
+        return (fromFilter.isBefore(endTime) || fromFilter.isEqual(endTime)) &&
+            (toFilter.isAfter(startTime) || toFilter.isEqual(startTime));
+    }
+
+    /**
+     * Determines if there is an overlap between this incident's time and the instance
+     * in time specified in the query parameter "time".
+     *
+     * @param time The time to check for overlap.
+     * @return True if this incident clashes with the specified period.
+     */
+    public boolean isOverlap(String time) {
+        if (time == null || time.isEmpty()) {
+            return true;
+        }
+
+        OffsetDateTime timeFilter = Optional.ofNullable(Common.parseTime(time)).orElse(OffsetDateTime.MIN);
+        OffsetDateTime startTime = Optional.ofNullable(start).orElse(OffsetDateTime.MIN);
+        OffsetDateTime endTime = Optional.ofNullable(end).orElse(OffsetDateTime.MAX);
+
+        // Check for overlap between the schedule and the new meeting
+        return (timeFilter.isAfter(startTime) || timeFilter.isEqual(startTime)) &&
+            (timeFilter.isBefore(endTime) || timeFilter.isEqual(endTime));
+    }
+
+    /**
+     * Determines if a resource identifier listed in the resources query parameter is
+     * present in the incident via the mayImpact relationship.
+     *
+     * @param resources The list of resources to match.
+     * @return True if this incident contains a resource from the list.
+     */
+    public boolean contains(List<String> resources) {
+        if (resources == null || resources.isEmpty()) {
+            return true;
+        }
+        for (String resource : resources) {
+            for (Link link : this.getLinks()) {
+                if (Relationships.MAY_IMPACT.equalsIgnoreCase(link.getRel()) &&
+                    link.getHref().contains("/resources/" + resource)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void setLastModified(OffsetDateTime lastModified) {
+        super.setLastModified(lastModified);
+    }
 }

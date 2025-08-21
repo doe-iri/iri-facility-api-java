@@ -130,27 +130,31 @@ If-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT
 ```json
 [
    {
-      "id": "29ea05ad-86de-4df8-b208-f0691aafbaa2",
-      "name": "Scratch",
-      "short_name": "scratch",
-      "description": "The Perlmutter Scratch File System is an all-flash file system.",
-      "last_modified": "2025-03-03T07:51:20.000Z",
-      "links": [
-         {
-            "rel": "self",
-            "href": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2"
-         },
-         {
-            "rel": "hasDependent",
-            "href": "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2"
-         },
-         {
-            "rel": "dependsOn",
-            "href": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67"
-         }
-      ],
-      "type": "storage",
-      "group": "perlmutter"
+      "id" : "29ea05ad-86de-4df8-b208-f0691aafbaa2",
+      "name" : "Scratch",
+      "short_name" : "scratch",
+      "description" : "The Perlmutter Scratch File System is an all-flash file system.",
+      "last_modified" : "2025-08-14T05:24:30.000Z",
+      "_links" : [ {
+         "rel" : "self",
+         "href" : "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
+         "type" : "application/vnd.doe.iri.resource+json"
+      }, {
+         "rel" : "https://schema.doe.gov/iri/facility/status#memberOf",
+         "href" : "/api/v1/status/facility",
+         "type" : "application/vnd.doe.iri.facility+json"
+      }, {
+         "rel" : "https://schema.doe.gov/iri/facility/status#hasIncident",
+         "href" : "/api/v1/status/incidents/10c0cadf-dbac-47c3-bf52-319b893d7f84",
+         "type" : "application/vnd.doe.iri.incident+json"
+      }, {
+         "rel" : "https://schema.doe.gov/iri/facility/status#impactedBy",
+         "href" : "/api/v1/status/events/ddca3418-9895-4a9d-b258-52dcb3eb4752",
+         "type" : "application/vnd.doe.iri.event+json"
+      } ],
+      "type" : "storage",
+      "group" : "perlmutter",
+      "current_status" : "up"
    }
 ]
 ```
