@@ -25,17 +25,29 @@
     {
       "name": "IRI Facility Status API",
       "description": "Integrated Research Infrastructure Facility Status API endpoint"
+    },
+    {
+      "name": "IRI Facility Account API",
+      "description": "Integrated Research Infrastructure Facility Account API endpoint."
+    },
+    {
+      "name": "IRI Facility API",
+      "description": "Integrated Research Infrastructure Facility API endpoint"
+    },
+    {
+      "name": "IRI Facility API error endpoint",
+      "description": "Error handling endpoint."
     }
   ],
   "paths": {
-    "/api/v1/status": {
+    "/api/v1": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getMetaData"
         ],
-        "summary": "Get a list of facility status meta-data.",
-        "description": "Returns a list of available facility status URL.",
+        "summary": "Get a list of facility API meta-data.",
+        "description": "Returns a list of available facility URL.",
         "operationId": "getMetaData",
         "responses": {
           "200": {
@@ -100,11 +112,83 @@
         }
       }
     },
-    "/api/v1/status/facility": {
+    "/api/v1/status": {
+      "get": {
+        "tags": [
+          "IRI Facility Status API",
+          "getMetaData"
+        ],
+        "summary": "Get a list of facility status meta-data.",
+        "description": "Returns a list of available facility status URL.",
+        "operationId": "getMetaData_1",
+        "responses": {
+          "200": {
+            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
+            "headers": {
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Discovery"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Requester is not authorized to access the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facility": {
       "get": {
         "tags": [
           "getFacility",
-          "IRI Facility Status API"
+          "IRI Facility API"
         ],
         "summary": "Get the facility resource associated with this endpoint.",
         "description": "Returns the facility resource associated with this endpoint.",
@@ -127,18 +211,6 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -274,15 +346,15 @@
         }
       }
     },
-    "/api/v1/status/facility/sites/{id}/location": {
+    "/api/v1/facility/sites": {
       "get": {
         "tags": [
-          "getLocationBySite",
-          "IRI Facility Status API"
+          "getSites",
+          "IRI Facility API"
         ],
-        "summary": "Get the location related to the specified site.",
-        "description": "Returns the location related to the specified site.",
-        "operationId": "getLocationBySite",
+        "summary": "Get a list of sites associated with a facility.",
+        "description": "Returns a list of IRI resources matching the query.",
+        "operationId": "getSites",
         "parameters": [
           {
             "name": "Accept",
@@ -304,24 +376,12 @@
             }
           },
           {
-            "name": "id",
-            "in": "path",
-            "description": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
+            "name": "short_name",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "The short name of the resource.",
             "required": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+              "type": "string"
             }
           }
         ],
@@ -354,7 +414,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Location"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Site"
+                  }
                 }
               }
             }
@@ -374,25 +437,6 @@
                 "style": "simple",
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - The provider is not currently capable of serving resource models.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -476,212 +520,10 @@
         }
       }
     },
-    "/api/v1/status/sites/{id}/location": {
+    "/api/v1/facility/sites/{id}": {
       "get": {
         "tags": [
-          "getLocationBySite",
-          "IRI Facility Status API"
-        ],
-        "summary": "Get the location related to the specified site.",
-        "description": "Returns the location related to the specified site.",
-        "operationId": "getLocationBySite_1",
-        "parameters": [
-          {
-            "name": "Accept",
-            "in": "header",
-            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "application/json"
-            }
-          },
-          {
-            "name": "If-Modified-Since",
-            "in": "header",
-            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Location"
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "Not Modified - The requested resource was not modified.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - The provider is not currently capable of serving resource models.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/status/sites/{id}": {
-      "get": {
-        "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getSite"
         ],
         "summary": "Get the site associated with the specified id.",
@@ -715,18 +557,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -880,15 +710,15 @@
         }
       }
     },
-    "/api/v1/status/facility/sites/{id}": {
+    "/api/v1/facility/sites/{id}/location": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
-          "getSite"
+          "getLocationBySite",
+          "IRI Facility API"
         ],
-        "summary": "Get the site associated with the specified id.",
-        "description": "Returns the site matching the specified id.",
-        "operationId": "getSite_1",
+        "summary": "Get the location related to the specified site.",
+        "description": "Returns the location related to the specified site.",
+        "operationId": "getLocationBySite",
         "parameters": [
           {
             "name": "Accept",
@@ -912,22 +742,10 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The UUID uniquely identifying the IRI resource.",
+            "description": "id",
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -960,7 +778,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Site"
+                  "$ref": "#/components/schemas/Location"
                 }
               }
             }
@@ -1082,379 +900,7 @@
         }
       }
     },
-    "/api/v1/status/sites": {
-      "get": {
-        "tags": [
-          "getSites",
-          "IRI Facility Status API"
-        ],
-        "summary": "Get a list of sites associated with a facility.",
-        "description": "Returns a list of IRI resources matching the query.",
-        "operationId": "getSites",
-        "parameters": [
-          {
-            "name": "Accept",
-            "in": "header",
-            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "application/json"
-            }
-          },
-          {
-            "name": "If-Modified-Since",
-            "in": "header",
-            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "short_name",
-            "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Site"
-                  }
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "Not Modified - The requested resource was not modified.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/status/facility/sites": {
-      "get": {
-        "tags": [
-          "getSites",
-          "IRI Facility Status API"
-        ],
-        "summary": "Get a list of sites associated with a facility.",
-        "description": "Returns a list of IRI resources matching the query.",
-        "operationId": "getSites_1",
-        "parameters": [
-          {
-            "name": "Accept",
-            "in": "header",
-            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "application/json"
-            }
-          },
-          {
-            "name": "If-Modified-Since",
-            "in": "header",
-            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "short_name",
-            "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Site"
-                  }
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "Not Modified - The requested resource was not modified.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/status/facility/resources/{id}": {
+    "/api/v1/facility/resources/{id}": {
       "get": {
         "tags": [
           "getResource",
@@ -1490,18 +936,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -1693,18 +1127,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -1858,7 +1280,7 @@
         }
       }
     },
-    "/api/v1/status/resources": {
+    "/api/v1/facility/resources": {
       "get": {
         "tags": [
           "getResources",
@@ -1906,18 +1328,9 @@
             }
           },
           {
-            "name": "short_name",
+            "name": "capability",
             "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "current_status",
-            "in": "query",
-            "description": "Return only resources with these status values.",
+            "description": "Return only resources with this capability.",
             "required": false,
             "schema": {
               "type": "array",
@@ -1927,9 +1340,9 @@
             }
           },
           {
-            "name": "include",
+            "name": "current_status",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "Return only resources with these status values.",
             "required": false,
             "schema": {
               "type": "array",
@@ -2074,7 +1487,7 @@
         }
       }
     },
-    "/api/v1/status/facility/resources": {
+    "/api/v1/status/resources": {
       "get": {
         "tags": [
           "getResources",
@@ -2122,18 +1535,9 @@
             }
           },
           {
-            "name": "short_name",
+            "name": "capability",
             "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "current_status",
-            "in": "query",
-            "description": "Return only resources with these status values.",
+            "description": "Return only resources with this capability.",
             "required": false,
             "schema": {
               "type": "array",
@@ -2143,9 +1547,9 @@
             }
           },
           {
-            "name": "include",
+            "name": "current_status",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "Return only resources with these status values.",
             "required": false,
             "schema": {
               "type": "array",
@@ -2290,10 +1694,10 @@
         }
       }
     },
-    "/api/v1/status/locations": {
+    "/api/v1/facility/locations": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
+          "IRI Facility API",
           "getLocations"
         ],
         "summary": "Get a list of locations associated with a facility.",
@@ -2318,18 +1722,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -2467,15 +1859,15 @@
         }
       }
     },
-    "/api/v1/status/facility/locations": {
+    "/api/v1/facility/locations/{id}": {
       "get": {
         "tags": [
-          "IRI Facility Status API",
-          "getLocations"
+          "getLocation",
+          "IRI Facility API"
         ],
-        "summary": "Get a list of locations associated with a facility.",
-        "description": "Returns a list of locations matching the query.",
-        "operationId": "getLocations_1",
+        "summary": "Get the IRI Location associated with the specified id.",
+        "description": "Returns the matching IRI location.",
+        "operationId": "getLocation",
         "parameters": [
           {
             "name": "Accept",
@@ -2497,15 +1889,12 @@
             }
           },
           {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+              "type": "string"
             }
           }
         ],
@@ -2538,10 +1927,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Location"
-                  }
+                  "$ref": "#/components/schemas/Location"
                 }
               }
             }
@@ -2561,6 +1947,25 @@
                 "style": "simple",
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The provider is not currently capable of serving resource models.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -2644,7 +2049,7 @@
         }
       }
     },
-    "/api/v1/status/incidents/{id}/events": {
+    "/api/v1/facility/incidents/{id}/events": {
       "get": {
         "tags": [
           "IRI Facility Status API",
@@ -2680,27 +2085,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "short_name",
-            "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -2855,7 +2239,7 @@
         }
       }
     },
-    "/api/v1/status/facility/incidents/{id}/events": {
+    "/api/v1/status/incidents/{id}/events": {
       "get": {
         "tags": [
           "IRI Facility Status API",
@@ -2891,27 +2275,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "short_name",
-            "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -3103,18 +2466,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -3268,7 +2619,7 @@
         }
       }
     },
-    "/api/v1/status/facility/incidents/{id}": {
+    "/api/v1/facility/incidents/{id}": {
       "get": {
         "tags": [
           "getIncident",
@@ -3305,18 +2656,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -3470,7 +2809,7 @@
         }
       }
     },
-    "/api/v1/status/facility/incidents": {
+    "/api/v1/facility/incidents": {
       "get": {
         "tags": [
           "IRI Facility Status API",
@@ -3557,6 +2896,24 @@
             }
           },
           {
+            "name": "from",
+            "in": "query",
+            "description": "Search for incidents/events that are active after (and including) the specified from time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Search for incidents/events that are active before (and including) the specified 'to' time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "short_name",
             "in": "query",
             "description": "The short name of the resource.",
@@ -3566,9 +2923,9 @@
             }
           },
           {
-            "name": "include",
+            "name": "resources",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "A list of resources to match.",
             "required": false,
             "schema": {
               "type": "array",
@@ -3800,6 +3157,24 @@
             }
           },
           {
+            "name": "from",
+            "in": "query",
+            "description": "Search for incidents/events that are active after (and including) the specified from time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Search for incidents/events that are active before (and including) the specified 'to' time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "short_name",
             "in": "query",
             "description": "The short name of the resource.",
@@ -3809,9 +3184,9 @@
             }
           },
           {
-            "name": "include",
+            "name": "resources",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "A list of resources to match.",
             "required": false,
             "schema": {
               "type": "array",
@@ -3956,7 +3331,7 @@
         }
       }
     },
-    "/api/v1/status/events/{id}/resource": {
+    "/api/v1/facility/events/{id}/resource": {
       "get": {
         "tags": [
           "getResourceByEvent",
@@ -3993,18 +3368,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -4158,7 +3521,7 @@
         }
       }
     },
-    "/api/v1/status/facility/events/{id}/resource": {
+    "/api/v1/status/events/{id}/resource": {
       "get": {
         "tags": [
           "getResourceByEvent",
@@ -4195,18 +3558,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -4360,7 +3711,7 @@
         }
       }
     },
-    "/api/v1/status/facility/events/{id}/incident": {
+    "/api/v1/facility/events/{id}/incident": {
       "get": {
         "tags": [
           "getIncidentByEvent",
@@ -4396,18 +3747,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         ],
@@ -4599,18 +3938,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -4801,18 +4128,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -4966,7 +4281,7 @@
         }
       }
     },
-    "/api/v1/status/facility/events/{id}": {
+    "/api/v1/facility/events/{id}": {
       "get": {
         "tags": [
           "getEvent",
@@ -5003,18 +4318,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -5085,208 +4388,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Requester is not authorized to access the requested resource.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
-            "headers": {
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/status/facility/events": {
-      "get": {
-        "tags": [
-          "getEvents",
-          "IRI Facility Status API"
-        ],
-        "summary": "Get a list of event resources.",
-        "description": "Returns a list of event resources matching the specified query",
-        "operationId": "getEvents",
-        "parameters": [
-          {
-            "name": "Accept",
-            "in": "header",
-            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "application/json"
-            }
-          },
-          {
-            "name": "If-Modified-Since",
-            "in": "header",
-            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "description": "The status of a resource.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "The status of a resource.",
-              "enum": [
-                "up",
-                "degraded",
-                "down",
-                "unknown"
-              ]
-            }
-          },
-          {
-            "name": "short_name",
-            "in": "query",
-            "description": "The short name of the resource.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
-                  }
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "Not Modified - The requested resource was not modified.",
-            "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Type": {
-                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -5378,7 +4479,7 @@
         ],
         "summary": "Get a list of event resources.",
         "description": "Returns a list of event resources matching the specified query",
-        "operationId": "getEvents_1",
+        "operationId": "getEvents",
         "parameters": [
           {
             "name": "Accept",
@@ -5425,15 +4526,30 @@
             }
           },
           {
-            "name": "include",
+            "name": "time",
             "in": "query",
-            "description": "A list of relationships to dereference and include as embedded objects.",
+            "description": "Search for incidents overlapping with time, where start <= time <= end.  The time query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Search for incidents/events that are active after (and including) the specified from time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
             "required": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Search for incidents/events that are active before (and including) the specified 'to' time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -5571,6 +4687,857 @@
           }
         }
       }
+    },
+    "/api/v1/facility/events": {
+      "get": {
+        "tags": [
+          "getEvents",
+          "IRI Facility Status API"
+        ],
+        "summary": "Get a list of event resources.",
+        "description": "Returns a list of event resources matching the specified query",
+        "operationId": "getEvents_1",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "The status of a resource.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The status of a resource.",
+              "enum": [
+                "up",
+                "degraded",
+                "down",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "short_name",
+            "in": "query",
+            "description": "The short name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "time",
+            "in": "query",
+            "description": "Search for incidents overlapping with time, where start <= time <= end.  The time query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Search for incidents/events that are active after (and including) the specified from time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Search for incidents/events that are active before (and including) the specified 'to' time.  The from query parameter must be in ISO 8601 format with timezone offsets.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not Modified - The requested resource was not modified.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account": {
+      "get": {
+        "tags": [
+          "IRI Facility Account API",
+          "getMetaData"
+        ],
+        "summary": "Get a list of facility status meta-data.",
+        "description": "Returns a list of available facility status URL.",
+        "operationId": "getMetaData_2",
+        "responses": {
+          "200": {
+            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
+            "headers": {
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Discovery"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Requester is not authorized to access the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/capabilities": {
+      "get": {
+        "tags": [
+          "IRI Facility Account API",
+          "getCapabilities"
+        ],
+        "summary": "Get a list of capabilities associated with a facility.",
+        "description": "Returns a list of IRI resources matching the query.",
+        "operationId": "getCapabilities",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the resource.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Site"
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not Modified - The requested resource was not modified.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/capabilities/{id}": {
+      "get": {
+        "tags": [
+          "IRI Facility Account API",
+          "getCapability"
+        ],
+        "summary": "Get the capability associated with the specified id.",
+        "description": "Returns the capability matching the specified id.",
+        "operationId": "getCapability",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "Provides media types that are acceptable for the response. At the moment application/json is the supported response encoding.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "description": "The HTTP request may contain the If-Modified-Since header requesting all models with creationTime after the specified date. The date must be specified in RFC 1123 format.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The UUID uniquely identifying the IRI resource.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns a list of available IRI resources matching the request criteria.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Site"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not Modified - The requested resource was not modified.",
+            "headers": {
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The provider is not currently capable of serving resource models.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - The server due to malformed syntax or invalid query parameters could not understand the client’s request.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Requester is not authorized to access the requested resource.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
+            "headers": {
+              "Content-Type": {
+                "description": "Provides media type used to encode the result of the operation based on those values provided in the Accept request header. At the moment application/json is the only supported Content-Type encoding.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{path}": {
+      "get": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_2",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_1",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_3",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_6",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_5",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "IRI Facility API error endpoint"
+        ],
+        "operationId": "fallback_4",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5589,9 +5556,12 @@
             "description": "Version of the resource based on API version",
             "example": "v1"
           },
-          "link": {
-            "$ref": "#/components/schemas/Link",
-            "description": "A link to the resources."
+          "_links": {
+            "type": "array",
+            "description": "A link to the resources.  Target link will be in SELF relationship.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
           }
         }
       },
@@ -5622,100 +5592,27 @@
       },
       "Error": {
         "type": "object",
-        "description": "Error structure for REST interface.",
+        "description": "Error structure for REST interface based on RFC 9457, \"Problem Details for HTTP APIs.\"",
         "properties": {
-          "error": {
+          "type": {
             "type": "string",
-            "description": "A short error description."
+            "format": "uri"
           },
-          "description": {
-            "type": "string",
-            "description": "Longer error description, human-readable."
-          },
-          "uri": {
-            "type": "string",
-            "description": "URI to a detailed error description on the API developer website."
-          }
-        }
-      },
-      "Event": {
-        "type": "object",
-        "description": "Defines a resource impacting event and provides status log functionality.",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
-            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
-          },
-          "name": {
-            "type": "string",
-            "description": "The long name of the resource.",
-            "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
-          },
-          "description": {
-            "type": "string",
-            "description": "A description of the resource.",
-            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
-          },
-          "last_modified": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
-            "example": "2025-03-11T07:28:24.000−00:00"
-          },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
+          "title": {
+            "type": "string"
           },
           "status": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 599,
+            "minimum": 100
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
             "type": "string",
-            "description": "The status of the resource associated with this incident.",
-            "enum": [
-              "up",
-              "degraded",
-              "down",
-              "unknown"
-            ],
-            "example": "down"
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.",
-            "example": "2025-03-11T07:28:24.000−00:00"
-          },
-          "_embedded": {
-            "$ref": "#/components/schemas/EventEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "EventEmbedded": {
-        "type": "object",
-        "description": "Defines a resource that has a reportable status and its associated dependencies.",
-        "properties": {
-          "generatedBy": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Incident"
-            }
-          },
-          "impacts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
-            }
+            "format": "uri"
           }
         }
       },
@@ -5728,15 +5625,16 @@
             "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
           "name": {
             "type": "string",
             "description": "The long name of the resource.",
             "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
           },
           "description": {
             "type": "string",
@@ -5749,62 +5647,336 @@
             "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
             "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
+          "short_name": {
+            "type": "string",
+            "description": "The short name of the resource.",
+            "example": "LBNL"
           },
           "organization_name": {
             "type": "string",
             "description": "The name of the organization hosting the facility.",
             "example": "Lawrence Berkeley National Laboratory"
           },
-          "_embedded": {
-            "$ref": "#/components/schemas/FacilityEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
+          "support_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the support website for this Facility (supportURL).",
+            "example": "https://help.nersc.gov/"
+          },
+          "site_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "location_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "resource_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "event_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "incident_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "capability_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
           }
         },
         "required": [
-          "id"
+          "id",
+          "last_modified",
+          "name",
+          "self_uri"
         ]
       },
-      "FacilityEmbedded": {
+      "Site": {
+        "type": "object",
+        "description": "The location of a resource that has an associated physical location and an operating organization.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
+          },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "name": {
+            "type": "string",
+            "description": "The long name of the resource.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the resource.",
+            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "short_name": {
+            "type": "string",
+            "description": "The short name of the resource.",
+            "example": "LBNL"
+          },
+          "operating_organization": {
+            "type": "string",
+            "description": "The name of the organization operating the site.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "location_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the location associated with this Site (hasLocation).",
+            "example": "https://example.com/api/v1/status/locations/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "resource_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "last_modified",
+          "name",
+          "self_uri"
+        ]
+      },
+      "Location": {
+        "type": "object",
+        "description": "A location models the geographical location or region with which resources are associated.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
+          },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "name": {
+            "type": "string",
+            "description": "The long name of the resource.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the resource.",
+            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "short_name": {
+            "type": "string",
+            "description": "The short name of the resource.",
+            "example": "LBNL"
+          },
+          "country_name": {
+            "type": "string",
+            "description": "The country name of the location.",
+            "example": "United States of America"
+          },
+          "locality_name": {
+            "type": "string",
+            "description": "The city or locality name of the location.",
+            "example": "Berkeley"
+          },
+          "state_or_province_name": {
+            "type": "string",
+            "description": "The state or province name of the location.",
+            "example": "California"
+          },
+          "street_address": {
+            "type": "string",
+            "description": "The street address of the location.",
+            "example": 1
+          },
+          "unlocode": {
+            "type": "string",
+            "description": "The United Nations code for trade and transport locations.",
+            "example": "US JBK"
+          },
+          "altitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The altitude of the location.",
+            "example": 240
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The latitude of the location.",
+            "example": 37.87492
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The longitude of the location.",
+            "example": -122.2529
+          },
+          "site_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "last_modified",
+          "name",
+          "self_uri"
+        ]
+      },
+      "Resource": {
         "type": "object",
         "description": "Defines a resource that has a reportable status and its associated dependencies.",
         "properties": {
-          "hostedAt": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
+          },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "name": {
+            "type": "string",
+            "description": "The long name of the resource.",
+            "example": "Lawrence Berkeley National Laboratory"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the resource.",
+            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "example": "2025-03-11T07:28:24.000−00:00"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of resource.",
+            "enum": [
+              "website",
+              "service",
+              "compute",
+              "system",
+              "storage",
+              "network",
+              "unknown"
+            ],
+            "example": "system"
+          },
+          "capability_uris": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Site"
+              "type": "string",
+              "format": "uri"
             }
           },
-          "hasLocation": {
+          "group": {
+            "type": "string",
+            "description": "The member resource group.",
+            "example": "PERLMUTTER"
+          },
+          "current_status": {
+            "type": "string",
+            "description": "The current status of this resource at time of query.",
+            "enum": [
+              "up",
+              "degraded",
+              "down",
+              "unknown"
+            ],
+            "example": "up"
+          },
+          "impacted_by_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the last event impacting this Resource (impactedBy).",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "located_at_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the Site containing this Resource (locatedAt).",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "member_of_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to facility managing this Resource (memberOf).",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
+          "depends_on_uris": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Location"
+              "type": "string",
+              "format": "uri"
             }
           },
-          "hasIncident": {
+          "has_dependent_uris": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Incident"
-            }
-          },
-          "hasEvent": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Event"
-            }
-          },
-          "hasResource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
+              "type": "string",
+              "format": "uri"
             }
           }
-        }
+        },
+        "required": [
+          "id",
+          "last_modified",
+          "name",
+          "self_uri",
+          "type"
+        ]
       },
       "Incident": {
         "type": "object",
@@ -5815,15 +5987,16 @@
             "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
           "name": {
             "type": "string",
             "description": "The long name of the resource.",
             "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
           },
           "description": {
             "type": "string",
@@ -5835,13 +6008,6 @@
             "format": "date-time",
             "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
             "example": "2025-03-11T07:28:24.000−00:00"
-          },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
           },
           "status": {
             "type": "string",
@@ -5889,51 +6055,47 @@
             ],
             "example": "pending"
           },
-          "_embedded": {
-            "$ref": "#/components/schemas/IncidentEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
+          "resource_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "event_uris": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
           }
         },
         "required": [
-          "id"
+          "id",
+          "last_modified",
+          "name",
+          "self_uri"
         ]
       },
-      "IncidentEmbedded": {
+      "Event": {
         "type": "object",
-        "description": "The allowable embedded objects for Incident.",
-        "properties": {
-          "hasEvent": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Event"
-            }
-          },
-          "mayImpact": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
-            }
-          }
-        }
-      },
-      "Location": {
-        "type": "object",
-        "description": "A location models the geographical location or region with which resources are associated.",
+        "description": "Defines a resource impacting event and provides status log functionality.",
         "properties": {
           "id": {
             "type": "string",
             "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
             "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
           },
+          "self_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to this resource (self)",
+            "example": "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171"
+          },
           "name": {
             "type": "string",
             "description": "The long name of the resource.",
             "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
           },
           "description": {
             "type": "string",
@@ -5946,263 +6108,42 @@
             "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
             "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "country_name": {
+          "status": {
             "type": "string",
-            "description": "The country name of the location.",
-            "example": "United States of America"
-          },
-          "locality_name": {
-            "type": "string",
-            "description": "The city or locality name of the location.",
-            "example": "Berkeley"
-          },
-          "state_or_province_name": {
-            "type": "string",
-            "description": "The state or province name of the location.",
-            "example": "California"
-          },
-          "street_address": {
-            "type": "string",
-            "description": "The street address of the location.",
-            "example": 1
-          },
-          "unlocode": {
-            "type": "string",
-            "description": "The United Nations code for trade and transport locations.",
-            "example": "US JBK"
-          },
-          "altitude": {
-            "type": "number",
-            "format": "double",
-            "description": "The altitude of the location.",
-            "example": 240
-          },
-          "latitude": {
-            "type": "number",
-            "format": "double",
-            "description": "The latitude of the location.",
-            "example": 37.87492
-          },
-          "longitude": {
-            "type": "number",
-            "format": "double",
-            "description": "The longitude of the location.",
-            "example": -122.2529
-          },
-          "_embedded": {
-            "$ref": "#/components/schemas/LocationEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "LocationEmbedded": {
-        "type": "object",
-        "description": "Defines a resource that has a reportable status and its associated dependencies.",
-        "properties": {
-          "hasSite": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Site"
-            }
-          }
-        }
-      },
-      "Resource": {
-        "type": "object",
-        "description": "Defines a resource that has a reportable status and its associated dependencies.",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
-            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
-          },
-          "name": {
-            "type": "string",
-            "description": "The long name of the resource.",
-            "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
-          },
-          "description": {
-            "type": "string",
-            "description": "A description of the resource.",
-            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
-          },
-          "last_modified": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
-            "example": "2025-03-11T07:28:24.000−00:00"
-          },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "type": {
-            "type": "string",
-            "description": "The type of resource.",
-            "enum": [
-              "website",
-              "service",
-              "compute",
-              "system",
-              "storage",
-              "network",
-              "unknown"
-            ],
-            "example": "system"
-          },
-          "group": {
-            "type": "string",
-            "description": "The member resource group.",
-            "example": "PERLMUTTER"
-          },
-          "current_status": {
-            "type": "string",
-            "description": "The current status of this resource a time of query.",
+            "description": "The status of the resource associated with this event.",
             "enum": [
               "up",
               "degraded",
               "down",
               "unknown"
             ],
-            "example": "up"
+            "example": "down"
           },
-          "_embedded": {
-            "$ref": "#/components/schemas/ResourceEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "ResourceEmbedded": {
-        "type": "object",
-        "description": "The allowable embedded objects for Resource.",
-        "properties": {
-          "memberOf": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Facility"
-            }
-          },
-          "locatedAt": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Site"
-            }
-          },
-          "hasIncident": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Incident"
-            }
-          },
-          "impactedBy": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Event"
-            }
-          },
-          "dependsOn": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
-            }
-          },
-          "hasDependent": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
-            }
-          }
-        }
-      },
-      "Site": {
-        "type": "object",
-        "description": "The location of a resource that has an associated physical location and an operating organization.",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
-            "example": "09a22593-2be8-46f6-ae54-2904b04e13a4"
-          },
-          "name": {
-            "type": "string",
-            "description": "The long name of the resource.",
-            "example": "Lawrence Berkeley National Laboratory"
-          },
-          "short_name": {
-            "type": "string",
-            "description": "The short name of the resource.",
-            "example": "LBNL"
-          },
-          "description": {
-            "type": "string",
-            "description": "A description of the resource.",
-            "example": "Lawrence Berkeley National Laboratory is charged with conducting unclassified research across a wide range of scientific disciplines."
-          },
-          "last_modified": {
+          "occurred_at": {
             "type": "string",
             "format": "date-time",
-            "description": "The date this resource was last modified. Format follows the ISO 8601 standard with timezone offsets.",
+            "description": "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.",
             "example": "2025-03-11T07:28:24.000−00:00"
           },
-          "_links": {
-            "type": "array",
-            "description": "A list of links to other resources with defined relationships such as locatedAt, hostedAt, hasIncident, hasEvent, hasResource, hasDependent, dependsOn, impacts.",
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "operating_organization": {
+          "resource_uri": {
             "type": "string",
-            "description": "The name of the organization operating the site.",
-            "example": "Lawrence Berkeley National Laboratory"
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the Resource associated with this Event (impacts).",
+            "example": "https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171"
           },
-          "_embedded": {
-            "$ref": "#/components/schemas/SiteEmbedded",
-            "description": "A set of embedded objects that were requested via the 'include' query parameter."
+          "incident_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "A hyperlink reference (URI) to the Incident associated with this Event (generatedBy).",
+            "example": "https://example.com/api/v1/status/incidents/03bdbf77-6f29-4f66-9809-7f4f77098171"
           }
         },
         "required": [
-          "id"
+          "id",
+          "last_modified",
+          "name",
+          "self_uri"
         ]
-      },
-      "SiteEmbedded": {
-        "type": "object",
-        "description": "Defines a resource that has a reportable status and its associated dependencies.",
-        "properties": {
-          "hasLocation": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Location"
-            }
-          },
-          "hasResource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Resource"
-            }
-          }
-        }
       }
     }
   }

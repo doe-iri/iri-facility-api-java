@@ -21,6 +21,7 @@ package net.es.iri.api.facility.utils;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * Contains common HTTP message manipulation methods for controllers.
@@ -59,5 +60,22 @@ public class Common {
       return input.substring(1, input.length() - 1);
     }
     return input;
+  }
+
+  public static boolean contains(String input, List<String> uris) {
+    if (input == null || input.isEmpty() || uris == null || uris.isEmpty()) {
+      return false;
+    }
+
+    // normalize: caller may pass "foo" or "/foo"
+    final String segment = input.charAt(0) == '/' ? input.substring(1) : input;
+    final String suffix = "/" + segment;
+
+    for (String uri : uris) {
+      if (uri != null && uri.endsWith(suffix)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

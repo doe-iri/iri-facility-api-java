@@ -1,622 +1,242 @@
 [
   {
     "id": "29989783-bc70-4cc8-880f-f2176d6cec20",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "name": "iris.nersc.gov",
-    "short_name": "iris",
     "description": "Account management system.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/62b80ff7-0654-4b2f-9759-7e0613a5163a",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:44.000Z",
     "type": "website",
     "group": "websites",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/dbff2173-7ed0-4015-870c-67b9403da669",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "f8a06086-b79b-4f45-beec-abb8bee38fa1",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
     "name": "CPU Nodes",
-    "short_name": "cpu",
     "description": "CPU-based compute nodes.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/1033d133-99c6-402a-b1b7-5a70a39a02f3",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "compute",
     "group": "perlmutter",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/90b7172a-97a0-4f7f-b951-8fa2961019cf",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "72c11ef6-ff6b-409e-adfd-2f3763daac4f",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
     "name": "Gitlab",
-    "short_name": "gitlab",
     "description": "Gitlab is git-based code hosting service at NERSC.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/66c7967b-aba1-4554-be7c-38719d800893",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "service",
     "group": "services",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/0ffbd14e-66f8-492b-848e-873d911c9c19",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "303a692d-c52b-47f0-8699-045f962650e2",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
     "name": "HPSS Archive (User)",
-    "short_name": "archive",
     "description": "NERSC account management system.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/ccf0d53e-cc21-4e8a-b455-24a305254067",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/841dc5aa-793c-4354-bfef-a8a6dfde6754",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "057c3750-4ba1-4b51-accf-b160be683d80",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "name": "Data Transfer Nodes",
-    "short_name": "dtns",
     "description": "The NERSC data transfer nodes provide access to Global Homes, Global Common, the Community File System (CFS), Perlmutter Scratch, and HPSS.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/47d69e56-4697-42e8-9a86-f8a85f6bc1cf",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "compute",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/fac80c92-5240-4169-8b85-4399b739a7ba",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
     "name": "Spin",
-    "short_name": "spin",
     "description": "Spin is a container-based platform at NERSC designed for you to deploy your own science gateways, workflow managers, databases, API endpoints, and other network services to support your scientific projects.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/f55a3cea-3fa1-489f-9fb8-e866c3f04698",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "service",
     "group": "services",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/2d3bef7b-a429-4d17-b43a-29fc7c8471b4",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
     "name": "HPSS Regent (Backup)",
-    "short_name": "regent",
     "description": "As the backup counterpart to the primary HPSS Archive, HPSS Regent ensures data availability during maintenance or unexpected downtimes of the main system.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/27ddbed5-d805-4bf1-ab4e-a1729b9b17aa",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/ef3126ca-4df1-4a73-9a32-ea20d11666e3",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "29ea05ad-86de-4df8-b208-f0691aafbaa2",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
     "name": "Scratch",
-    "short_name": "scratch",
     "description": "The Perlmutter Scratch File System is an all-flash file system.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/7152fbd2-985e-4df6-b579-35c040034426",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "perlmutter",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/1eca67d7-f802-40ec-bb96-cb0a05bb10ba",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
     "name": "Globus",
-    "short_name": "globus",
     "description": "Globus is the recommended way to move significant amounts of data between NERSC and other sites.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/ae6fffe5-291a-4dcf-a523-5992257973cc",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
-    "type": "service",
+    "last_modified": "2025-09-24T02:33:13.000Z",
+    "type": "storage",
     "group": "services",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/5771a0e4-cd47-4857-8a05-958f3b2f5628",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
     "name": "Login Nodes",
-    "short_name": "login",
     "description": "In the NERSC system, login nodes are where users can log in, edit files, and submit jobs.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/906edc88-0dd9-4645-83ec-f3f947ebb4c9",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "compute",
     "group": "perlmutter",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/31e05731-6512-47fe-9adf-cc2e6818955c",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "b06f8043-f96b-4279-8f0a-0e128a73cc32",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
     "name": "CFS",
-    "short_name": "cfs",
     "description": "The Community File System (CFS) is a global file system available on all NERSC computational systems.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/ecef5c77-5940-4626-9fe5-c5922c214fc5",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/a16e5348-6d7a-4a86-8ed7-307ee5f275c7",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "8b61b346-b53c-4a8e-83b4-776eaa14cc67",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
     "name": "GPU Nodes",
-    "short_name": "gpu",
     "description": "GPU-based compute nodes.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/45f0a83e-01ca-4ac3-90ed-b28eca3d194c",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "compute",
     "group": "perlmutter",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/fd55fd7c-e559-4639-babb-d581e8924455",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "b951a092-7f0a-4263-bc9a-700c7ceed415",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
     "name": "portal[auth].nersc.gov",
-    "short_name": "portal",
     "description": "Science gateways.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/e180f8a9-2580-4b76-bb82-2b71e04b5db2",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:44.000Z",
     "type": "website",
     "group": "websites",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/be3eade5-972f-4889-b20b-0d8db990c1fb",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "289d38f2-e93c-4840-b037-8b78d8ec36cc",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "name": "help.nersc.gov",
-    "short_name": "service_now",
     "description": "The NERSC help portal.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/62de6dae-70dc-4f48-bfb7-4882aef6552e",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:44.000Z",
     "type": "website",
     "group": "websites",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/890c2f8d-9f57-44e1-90c9-e0513b25a171",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "a0d96526-6fd3-413e-8f9e-ff12d602539e",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "name": "Superfacility API",
-    "short_name": "sfapi",
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/868ebef4-871a-4ebc-babd-4a7e6026b051",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "service",
     "group": "services",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/c11ecace-2633-4cfd-926f-e650b6e6d9ff",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "3594b493-f811-43b9-9c14-a3dd23542ffc",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
     "name": "Network",
-    "short_name": "network",
     "description": "The networking infrastructure for services at NERSC.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/d07d2d1f-cd19-41e6-a4dd-1225299de25d",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "service",
     "group": "services",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/c1c200c0-b2df-4894-a816-debae35db8a3",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "ff415c87-6596-41c7-93fd-b772994a92d4",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
     "name": "Global Homes",
-    "short_name": "global_homes",
     "description": "Home directories provide a convenient means for a user to have access to files such as dotfiles, source files, and configuration files.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/67a8db5e-bdf2-40ab-b6cc-597f461c8a38",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/1676487c-b45c-4715-adca-62558aea2c2c",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
     "name": "HPSS Regent (Backup)",
-    "short_name": "regent",
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/ff6827e0-ab6a-43de-8e81-9f09ade828df",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/3c893844-c876-45b2-9357-13295b4627d1",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
     "name": "jupyter.nersc.gov",
-    "short_name": "jupyter",
     "description": "Jupyter is a literate computing software ecosystem for working with digital documents called notebooks that can contain executable code, equations, visualizations, interactive interfaces, text, and metadata.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/d92aa747-cbe1-49e6-8621-43c3130a079b",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:44.000Z",
     "type": "website",
     "group": "websites",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/f7062c96-dc2f-4017-8967-33d02a5ab901",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
     "id": "097c3750-4ba1-4b51-accf-b160be683d55",
+    "self_uri": "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
     "name": "Global Common",
-    "short_name": "global_common",
     "description": "The Global Common File System is a global file system available on all NERSC computational systems.",
-    "last_modified": "2025-07-24T03:06:25.000Z",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
-        "type": "application/vnd.doe.iri.resource+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#memberOf",
-        "href": "/api/v1/status/facility"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#hasIncident",
-        "href": "/api/v1/status/incidents/f3b48150-bcfa-4241-8885-107ed4952ae9",
-        "type": "application/vnd.doe.iri.incident+json"
-      },
-      {
-        "rel": "https://schema.doe.gov/iri/facility/status#impactedBy",
-        "href": "/api/v1/status/events/7fd04a37-5dc9-43a2-84e2-c4648fe11b3f",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ],
+    "last_modified": "2025-09-24T02:33:13.000Z",
     "type": "storage",
     "group": "storage",
-    "current_status": "up"
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/fa9f867f-18fe-4331-9363-a876697f0822",
+    "member_of_uri": "http://localhost:8081/api/v1/facility"
   }
 ]

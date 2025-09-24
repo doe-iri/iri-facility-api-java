@@ -57,4 +57,7 @@ public class IriConfig {
 
     @Value("${iri.status.resources}")
     private String resources;
+
+    @Value("${iri.account.capabilities}")
+    private String capabilities;
 }

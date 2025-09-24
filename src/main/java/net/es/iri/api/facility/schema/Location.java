@@ -19,16 +19,23 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
  * This class models a geographical location in which resources are located.
@@ -42,10 +49,14 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "A location models the geographical location or region with which resources are associated.")
 public class Location extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/status/locations/%s";
+    public static final String URL_TEMPLATE = "/api/v1/facility/locations/%s";
+
+    @JsonProperty("short_name")
+    @Schema(description = "The short name of the resource.", example = "LBNL")
+    private String shortName;
 
     @JsonProperty("country_name")
     @Schema(description = "The country name of the location.", example = "United States of America")
@@ -79,10 +90,32 @@ public class Location extends NamedObject {
     @Schema(description = "The longitude of the location.", example = "-122.2529")
     private double longitude;
 
-    // Include embedded here since including a generic embedded structure in NamedObject screws up
-    // the OpenAPI documentation.
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonProperty("_embedded")
-    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
-    private LocationEmbedded embedded;
+    @JsonProperty("site_uris")
+    @ArraySchema(
+        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Sites located at this Location (hasSite).",
+            example = "[\"https://example.com/api/v1/status/sites/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/sites/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> siteUris =  new ArrayList<>();
+
+    /**
+     * Returns the URL template for use by the parent class for exposing the Self URL.
+     *
+     * @return The URL template for an instance of this resource.
+     */
+    @Override protected String getUrlTemplate() {
+        return URL_TEMPLATE;
+    }
+
+    /**
+     * Run the transform over all URI in the resource.
+     *
+     * @param transform The transform to run on the resource.
+     */
+    @Override
+    public void transformUri(UrlTransform transform) {
+        this.setSelfUri(transform(transform, this.getSelfUri()));
+        this.setSiteUris(transformList(transform, this.getSiteUris()));
+    }
 }

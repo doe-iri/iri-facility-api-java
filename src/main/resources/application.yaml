@@ -87,6 +87,7 @@ iri:
   server:
     root: "http://localhost:8081"
     #proxy: "https://iri.es.net"
+
   status:
     facility: src/test/resources/facility.json
     sites: src/test/resources/sites.json
@@ -94,3 +95,6 @@ iri:
     incidents: src/test/resources/incidents.json
     events: src/test/resources/events.json
     resources: src/test/resources/resources.json
+
+  account:
+    capabilities: src/test/resources/capabilities.json

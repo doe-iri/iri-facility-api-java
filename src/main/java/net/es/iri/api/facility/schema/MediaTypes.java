@@ -13,4 +13,6 @@ public class MediaTypes {
     public static final String SITE = "application/vnd.doe.iri.site+json";
     public static final String LOCATIONS = "application/vnd.doe.iri.site.location.collection+json";
     public static final String LOCATION = "application/vnd.doe.iri.site.location+json";
+    public static final String CAPABILITIES = "application/vnd.doe.iri.site.capability.collection+json";
+    public static final String CAPABILITY = "application/vnd.doe.iri.site.capability+json";
 }

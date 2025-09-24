@@ -108,15 +108,15 @@ springdoc:
 
 ## Endpoints
 ### **Facility Endpoints**
-| Method  | Endpoint                   | Description                             |
-|---------|----------------------------|-----------------------------------------|
-| `GET`   | `/v3/api-docs`             | Retrieves the OpenAPI specification     |
-| `GET`   | `/api/v1/status/facility`  | Retrieves facility details              |
-| `GET`   | `/api/v1/status/incidents` | Retrieves a list of incidents           |
-| `GET`   | `/api/v1/status/events`    | Retrieves a list of events              |
-| `GET`   | `/api/v1/status/resources` | Retrieves a list of available resources |
-| `GET`   | `/api/v1/status/sites`     | Retrieves a list of physical sites      |
-| `GET`   | `/api/v1/status/locations` | Retrieves a list of locations           |
+| Method  | Endpoint                     | Description                             |
+|---------|------------------------------|-----------------------------------------|
+| `GET`   | `/v3/api-docs`               | Retrieves the OpenAPI specification     |
+| `GET`   | `/api/v1/facility`           | Retrieves facility details              |
+| `GET`   | `/api/v1/status/incidents`   | Retrieves a list of incidents           |
+| `GET`   | `/api/v1/status/events`      | Retrieves a list of events              |
+| `GET`   | `/api/v1/status/resources`   | Retrieves a list of available resources |
+| `GET`   | `/api/v1/facility/sites`     | Retrieves a list of physical sites      |
+| `GET`   | `/api/v1/facility/locations` | Retrieves a list of locations           |
 
 ### **Sample Request**
 ```http

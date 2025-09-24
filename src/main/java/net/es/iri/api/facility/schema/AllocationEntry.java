@@ -20,32 +20,40 @@
 package net.es.iri.api.facility.schema;
 
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
+/**
+ *  This class defines an IRI allocation.
+ *
+ * @author hacksaw
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
-public class LocationEmbedded {
-    @JsonProperty("hasSite")
-    private List<Site> hasSite;
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Schema(description = "Defines an allocation.")
+public class AllocationEntry {
+    @JsonProperty("allocation")
+    @Schema(description ="How much this allocation can spend.", example = "123.45")
+    private Float allocation;
 
-    /**
-     * Determine if this instance is empty.
-     *
-     * @return true if all embedded lists are null or contain no elements.
-     */
-    @JsonIgnore
-    public boolean isEmpty() {
-        return (hasSite == null || hasSite.isEmpty());
-    }
+    @JsonProperty("usage")
+    @Schema(description = "How much this allocation has spent.", example = "123.45")
+    private Float usage;
+
+    @JsonProperty("unit")
+    @Schema(description = "The unit of this allocation.", example = "bytes")
+    private AllocationUnit unit;
 }

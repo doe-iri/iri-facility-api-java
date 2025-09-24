@@ -20,14 +20,18 @@
 package net.es.iri.api.facility;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -41,31 +45,23 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.IriConfig;
 import net.es.iri.api.facility.beans.ServerConfig;
-import net.es.iri.api.facility.datastore.FacilityStatusRepository;
-import net.es.iri.api.facility.mapping.EmbeddedMapping;
-import net.es.iri.api.facility.schema.MediaTypes;
+import net.es.iri.api.facility.datastore.FacilityDataRepository;
 import net.es.iri.api.facility.openapi.OpenApiDescriptions;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
-import net.es.iri.api.facility.schema.EventEmbedded;
 import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.FacilityEmbedded;
-import net.es.iri.api.facility.schema.IncidentEmbedded;
-import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
 import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.LocationEmbedded;
+import net.es.iri.api.facility.schema.Location;
+import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
-import net.es.iri.api.facility.schema.ResourceEmbedded;
 import net.es.iri.api.facility.schema.Site;
-import net.es.iri.api.facility.schema.SiteEmbedded;
 import net.es.iri.api.facility.schema.StatusType;
 import net.es.iri.api.facility.utils.Common;
-import net.es.iri.api.facility.utils.JsonParser;
 import net.es.iri.api.facility.utils.ResourceAnnotation;
 import net.es.iri.api.facility.utils.UrlTransform;
 import org.springframework.context.ApplicationContext;
@@ -84,7 +80,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * The FacilityController provides API access to the IRI Facility Status functionality.
+ * The FacilityController provides API access to the IRI Facility functionality.
  * This class is annotated with OpenAPI documentation to autogenerate the OpenAPI v3
  * specification.
  *
@@ -92,17 +88,13 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Slf4j
 @RestController
-@RequestMapping(path = "/api/v1/status")
-@Tag(name = "IRI Facility Status API", description = "Integrated Research Infrastructure Facility Status API endpoint")
+@Tag(name = "IRI Facility API", description = "Integrated Research Infrastructure Facility API endpoint")
 public class FacilityController {
     // Spring application context.
     private final ApplicationContext context;
 
-    // Server YAML configuration.
-    private final IriConfig config;
-
     // The data store containing facility status information.
-    private final FacilityStatusRepository repository;
+    private final FacilityDataRepository repository;
 
     // Transformer to manipulate the URL path in case of mapping issues.
     private final UrlTransform utilities;
@@ -112,11 +104,9 @@ public class FacilityController {
      *
      * @param context The Spring application context.
      * @param config The application-specific configuration.
-     * @param repository The JPA-like repository holding the mock data model.
      */
-    public FacilityController(ApplicationContext context, IriConfig config, FacilityStatusRepository repository) {
+    public FacilityController(ApplicationContext context, IriConfig config, FacilityDataRepository repository) {
         this.context = context;
-        this.config = config;
         this.repository = repository;
         this.utilities = new UrlTransform(Optional.ofNullable(config.getServer())
             .map(ServerConfig::getProxy).orElse(null));
@@ -129,26 +119,18 @@ public class FacilityController {
     public void init() throws Exception {
         log.info("[FacilityController::init] initializing controller for {} - {}.",
             context.getDisplayName(), context.getApplicationName());
-
-        // Dump the models we are loading for demo data.
-        //log.info("[FacilityController::init] Facilities\n{}", JsonParser.toJson(repository.findAllFacilities()));
-        //log.info("[FacilityController::init] Sites\n{}",      JsonParser.toJson(repository.findAllSites()));
-        //log.info("[FacilityController::init] Locations\n{}",  JsonParser.toJson(repository.findAllLocations()));
-        //log.info("[FacilityController::init] Resources\n{}",  JsonParser.toJson(repository.findAllResources()));
-        //log.info("[FacilityController::init] Incidents\n{}",  JsonParser.toJson(repository.findAllIncidents()));
-        //log.info("[FacilityController::init] Events\n{}",     JsonParser.toJson(repository.findAllEvents()));
     }
 
     /**
-     * Returns a list of available Facility Status API resource endpoints.
+     * Returns a list of available Facility API resource endpoints.
      * <p>
-     * Operation: GET /api/v1/status
+     * Operation: GET /api/v1
      *
      * @return A RESTful response.
      */
     @Operation(
-        summary = "Get a list of facility status meta-data.",
-        description = "Returns a list of available facility status URL.",
+        summary = "Get a list of facility API meta-data.",
+        description = "Returns a list of available facility URL.",
         tags = {"getMetaData"},
         method = "GET")
     @ApiResponses(
@@ -188,7 +170,7 @@ public class FacilityController {
                     schema = @Schema(implementation = Error.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)),
         })
-    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(path = {"/api/v1"}, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getMetaData", version = "v1", type = MediaTypes.DISCOVERY)
     public ResponseEntity<?> getMetaData() {
@@ -202,51 +184,68 @@ public class FacilityController {
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
-            List<Discovery> discovery = new ArrayList<>();
-            Method[] methods = FacilityController.class.getMethods();
-            for (Method m : methods) {
-                if (m.isAnnotationPresent(ResourceAnnotation.class)) {
-                    ResourceAnnotation ra = m.getAnnotation(ResourceAnnotation.class);
-                    RequestMapping rm = m.getAnnotation(RequestMapping.class);
-                    if (ra == null || rm == null) {
-                        continue;
-                    }
+            List<Method> methods = Stream.of(
+                    FacilityController.class.getMethods(),
+                    StatusController.class.getMethods(),
+                    AccountController.class.getMethods()
+                )
+                .flatMap(Arrays::stream)
+                .toList();
 
-                    // Construct the URL to this resource.
-                    for (String p : rm.path()) {
-                        // Construct the discovery entry.
-                        Discovery resource = new Discovery();
-                        resource.setId(ra.name());
-                        resource.setVersion(ra.version());
-                        UriComponentsBuilder path = utilities.getPath(location.toASCIIString());
-                        path.path(p);
-                        Link link = Link.builder()
-                            .rel(Relationships.SELF)
-                            .href(path.build().encode().toUriString())
-                            .type(ra.type())
-                            .build();
-                        resource.getLinks().add(link);
-                        discovery.add(resource);
-                    }
-                }
-            }
-
+            List<Discovery> discovery = getDiscovery(utilities, location.toASCIIString(),  methods);
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getMetaData] Exception caught", ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController::getMetaData] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    public static List<Discovery> getDiscovery(UrlTransform transform, String location, List<Method> methods)
+            throws MalformedURLException {
+        List<Discovery> discovery = new ArrayList<>();
+        for (Method m : methods) {
+            if (m.isAnnotationPresent(ResourceAnnotation.class)) {
+                ResourceAnnotation ra = m.getAnnotation(ResourceAnnotation.class);
+                RequestMapping rm = m.getAnnotation(RequestMapping.class);
+                if (ra == null || rm == null) {
+                    continue;
+                }
+
+                // Construct the URL to this resource.
+                for (String p : rm.path()) {
+                    // Construct the discovery entry.
+                    Discovery resource = new Discovery();
+                    resource.setId(ra.name());
+                    resource.setVersion(ra.version());
+                    UriComponentsBuilder path = transform.getPath(location);
+                    path.path(p);
+                    Link link = Link.builder()
+                        .rel(Relationships.SELF)
+                        .href(path.build().encode().toUriString())
+                        .type(ra.type())
+                        .build();
+                    resource.getLinks().add(link);
+                    discovery.add(resource);
+                }
+            }
+        }
+
+        return discovery;
+    }
+
+
     /**
      * Returns the facility resource associated with this endpoint.
      * <p>
-     * Operation: GET /api/v1/status/facility
+     * Operation: GET /api/v1/facility
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -341,30 +340,21 @@ public class FacilityController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = "/facility", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(path = "/api/v1/facility", method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getFacility", version = "v1", type = MediaTypes.FACILITY)
     public ResponseEntity<?> getFacility(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince) {
+
+        log.debug("[FacilityController::getFacility] GET accept = {}, If-Modified-Since = {}",
+            accept, ifModifiedSince);
 
         // We need the request URL to build fully qualified resource URLs.
-        final URI location;
-        try {
-            location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-        } catch (Exception ex) {
-            log.error("[FacilityController::getFacility] Exception caught in GET of /resources", ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getFacility] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         log.debug("[FacilityController::getFacility] GET operation = {}, accept = {}, If-Modified-Since = {}",
             location, accept, ifModifiedSince);
@@ -399,22 +389,18 @@ public class FacilityController {
                 }
             }
 
-            // Process the embedded query parameter.
-            if (include != null && !include.isEmpty()) {
-                FacilityEmbedded embedded = EmbeddedMapping.processIncludes(facility, repository, include);
-                if (embedded != null && !embedded.isEmpty()) {
-                    facility.setEmbedded(embedded);
-                }
-            }
-
             // We have success, so return the models we have found.
             return new ResponseEntity<>(facility, headers, HttpStatus.OK);
         } catch (IllegalArgumentException ex) {
             log.error("[FacilityController] getFacility failed", ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController] getFacility returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -424,7 +410,7 @@ public class FacilityController {
     /**
      * Returns the sites associated with this facility.
      * <p>
-     * Operation: GET /api/v1/status/sites
+     * Operation: GET /api/v1/facility/sites
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -517,7 +503,7 @@ public class FacilityController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/sites", "/facility/sites"},
+    @RequestMapping(path = {"/api/v1/facility/sites"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getSites", version = "v1", type = MediaTypes.SITES)
@@ -527,14 +513,12 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
             log.debug("[FacilityController::getSites] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}", location, accept, ifModifiedSince);
 
@@ -551,6 +535,7 @@ public class FacilityController {
             // Find the latest modified timestamp among all resources
             OffsetDateTime latestModified = results.stream()
                 .map(Site::getLastModified)
+                .filter(Objects::nonNull)
                 .max(OffsetDateTime::compareTo)
                 .orElse(OffsetDateTime.now());
 
@@ -578,27 +563,18 @@ public class FacilityController {
                     .collect(Collectors.toList());
             }
 
-            // Process the embedded query parameter.
-            if (include != null && !include.isEmpty()) {
-                List<Site> embeddedList = new ArrayList<>();
-                for (Site site : results) {
-                    SiteEmbedded embedded = EmbeddedMapping.processIncludes(site, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        site.setEmbedded(embedded);
-                    }
-                    embeddedList.add(site);
-                }
-                results = embeddedList;
-            }
-
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getSites] Exception caught in GET of /sites", ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController::getSites] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -607,11 +583,10 @@ public class FacilityController {
     /**
      * Returns the site associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/status/sites/{id}
-     *            GET /api/v1/status/facility/sites/{id}
+     * Operation: GET /api/v1/facility/sites/{id}
      *
      * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
+     *    At the moment, 'application/json' is the supported response encoding.
      *
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all resources with lastModified after the specified
@@ -717,8 +692,7 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/sites/{" + OpenApiDescriptions.ID_NAME + "}",
-            "/facility/sites/{" + OpenApiDescriptions.ID_NAME + "}"},
+        path = {"/api/v1/facility/sites/{id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -729,14 +703,12 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
             log.debug("[FacilityController::getSite] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
 
@@ -763,30 +735,30 @@ public class FacilityController {
                     }
                 }
 
-                // Process the embedded query parameter.
-                if (include != null && !include.isEmpty()) {
-                    SiteEmbedded embedded = EmbeddedMapping.processIncludes(site, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        site.setEmbedded(embedded);
-                    }
-                }
-
                 // Return the matching site.
                 return new ResponseEntity<>(site, headers, HttpStatus.OK);
             }
 
             log.error("[FacilityController::getSite] site not found {}", location);
             Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The resource " + location + " was not found.")
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .detail("The resource " + location + " was not found.")
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getSite] Exception caught in GET of /sites/{}", id, ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController::getSite] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -904,8 +876,7 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/sites/{" + OpenApiDescriptions.ID_NAME + "}/location",
-            "/facility/sites/{" + OpenApiDescriptions.ID_NAME + "}/location"},
+        path = {"/api/v1/facility/sites/{id}/location"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -916,14 +887,12 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
             log.debug("[FacilityController::getLocationBySite] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
 
@@ -944,42 +913,39 @@ public class FacilityController {
                 OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
+                        // The resource has not been modified since the specified time.
                         log.debug("[FacilityController::getLocationBySite] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                     }
                 }
 
-                // Look up the resource associated with the event.
-                for (Link link : site.getLinks()) {
-                    if (link.getRel() != null && link.getRel().equalsIgnoreCase(Relationships.LOCATED_AT)) {
-                        Location loc = repository.findLocationByHref(link.getHref());
-                        if (loc != null) {
-                            // Process the embedded query parameter.
-                            if (include != null && !include.isEmpty()) {
-                                LocationEmbedded embedded = EmbeddedMapping.processIncludes(loc, repository, include);
-                                if (embedded != null && !embedded.isEmpty()) {
-                                    loc.setEmbedded(embedded);
-                                }
-                            }
-                            return new ResponseEntity<>(loc, headers, HttpStatus.OK);
-                        }
-                    }
+                // Look up the location associated with the site.
+                Location loc = repository.findLocationByHref(site.getLocationUri());
+                if (loc != null) {
+                    return new ResponseEntity<>(loc, headers, HttpStatus.OK);
                 }
             }
 
             log.error("[FacilityController::getLocationBySite] site not found {}", location);
             Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The resource " + location + " was not found.")
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .detail("The resource " + location + " was not found.")
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocationBySite] Exception caught in GET of /sites/{}/location", id, ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController::getLocationBySite] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -988,10 +954,10 @@ public class FacilityController {
     /**
      * Returns the locations associated with this facility.
      * <p>
-     * Operation: GET /api/v1/status/locations
+     * Operation: GET /api/v1/facility/locations
      *
      * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
+     *    At the moment, 'application/json' is the supported response encoding.
      *
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all models with lastModified after the specified
@@ -1081,7 +1047,7 @@ public class FacilityController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/locations", "/facility/locations"},
+    @RequestMapping(path = {"/api/v1/facility/locations"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getLocations", version = "v1", type = MediaTypes.LOCATIONS)
@@ -1089,15 +1055,13 @@ public class FacilityController {
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getLocations] GET operation = {}, accept = {}, "
+             log.debug("[FacilityController::getLocations] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}", location, accept, ifModifiedSince);
 
             // Populate the content location header with our URL location.
@@ -1113,6 +1077,7 @@ public class FacilityController {
             // Find the latest modified timestamp among all resources
             OffsetDateTime latestModified = results.stream()
                 .map(Location::getLastModified)
+                .filter(Objects::nonNull)
                 .max(OffsetDateTime::compareTo)
                 .orElse(OffsetDateTime.now());
 
@@ -1132,270 +1097,30 @@ public class FacilityController {
                 }
             }
 
-            // Process the embedded query parameter.
-            if (include != null && !include.isEmpty()) {
-                List<Location> embeddedList = new ArrayList<>();
-                for (Location loc : results) {
-                    LocationEmbedded embedded = EmbeddedMapping.processIncludes(loc, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        loc.setEmbedded(embedded);
-                    }
-                    embeddedList.add(loc);
-                }
-                results = embeddedList;
-            }
-
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocations] Exception caught in GET of /locations", ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(location)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             log.error("[FacilityController::getLocations] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Returns the resources associated with this facility.
+     * Returns the location associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/status/resources
-     *            GET /api/v1/status/facility/resources
+     * Operation: GET /api/v1/facility/locations/{id}
      *
      * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all models with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param group An optional query parameter that will filter resources base
-     *              on a group string.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get a collection of IRI resources.",
-        description = "Returns a list of IRI resources matching the query.",
-        tags = {"getResources"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Resource.class)),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(path = {"/resources", "/facility/resources"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getResources", version = "v1", type = MediaTypes.RESOURCES)
-    public ResponseEntity<?> getResources(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @RequestParam(value = OpenApiDescriptions.GROUP_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.GROUP_MSG) String group,
-        @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.RESOURCE_TYPE_MSG) String type,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @RequestParam(value = OpenApiDescriptions.CURRENT_STATUS_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.CURRENT_STATUS_MSG) List<String> currentStatus,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getResources] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, group = {}, type = {}",
-                location, accept, ifModifiedSince, group, type);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // We will collect the matching resources in this list.
-            List<Resource> results = repository.findAllResources();
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Resource::getLastModified)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
-
-            // Populate the header
-            headers.setLastModified(latestModified.toInstant());
-
-            // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer, we return
-            // them all.
-            if (ifms != null) {
-                log.debug("[FacilityController::getResources] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since the specified time.
-                    log.debug("[FacilityController::getResources] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
-
-                // Now compute those resources that have changed since the If-Modified-Since time.
-                results = results.stream()
-                    .filter(r -> r.getLastModified().isAfter(ifms))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the shortName filter if requested.
-            if (shortName != null && !shortName.isBlank()) {
-                // Filter resources with the specified shortName.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the group filter if requested.
-            if (group != null && !group.isBlank()) {
-                // Filter resources from the specified group.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(group).equalsIgnoreCase(r.getGroup()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the type filter if requested.
-            if (type != null && !type.isBlank()) {
-                // Filter resources from the specified type.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(type).equalsIgnoreCase(r.getType().getValue()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the currentStatus filter if requested.
-            if (currentStatus != null && !currentStatus.isEmpty()) {
-                // Filter any filter values not in the StatusType enum.
-                Set<StatusType> wanted = currentStatus.stream()
-                    .map(String::toUpperCase)
-                    .map(Common::stripQuotes)
-                    .filter(StatusType.validValues()::contains)
-                    .map(StatusType::valueOf)
-                    .collect(Collectors.toSet());
-
-                // Filter resources from the specified type.
-                results = results.stream()
-                    .filter(r -> wanted.contains(r.getCurrentStatus()))
-                    .collect(Collectors.toList());
-            }
-
-            if (include != null && !include.isEmpty()) {
-                List<Resource> embeddedList = new ArrayList<>();
-                for (Resource resource : results) {
-                    ResourceEmbedded embedded = EmbeddedMapping.processIncludes(resource, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        resource.setEmbedded(embedded);
-                    }
-                    embeddedList.add(resource);
-                }
-                results = embeddedList;
-            }
-
-            // We have success, so return the models we have found.
-            return new ResponseEntity<>(results, headers, HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getResources] Exception caught in GET of /resources", ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getResources] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns the resource associated with the specified id.
-     * <p>
-     * Operation: GET /api/v1/status/resources/{id}
-     *            GET /api/v1/status/facility/resources/{id}
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
+     *    At the moment, 'application/json' is the supported response encoding.
      *
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all resources with lastModified after the specified
@@ -1406,9 +1131,9 @@ public class FacilityController {
      * @return A RESTful response.
      */
     @Operation(
-        summary = "Get the IRI resource associated with the specified id.",
-        description = "Returns the matching IRI resource.",
-        tags = {"getResource"},
+        summary = "Get the IRI Location associated with the specified id.",
+        description = "Returns the matching IRI location.",
+        tags = {"getLocation"},
         method = "GET")
     @ApiResponses(
         value = {
@@ -1428,7 +1153,7 @@ public class FacilityController {
                 },
                 content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Resource.class)
+                    schema = @Schema(implementation = Location.class)
                 )
             ),
             @ApiResponse(
@@ -1501,37 +1226,34 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/resources/{" + OpenApiDescriptions.ID_NAME + "}",
-            "/facility/resources/{" + OpenApiDescriptions.ID_NAME + "}"},
+        path = {"/api/v1/facility/locations/{id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getResource", version = "v1", type = MediaTypes.RESOURCE)
-    public ResponseEntity<?> getResource(
+    @ResourceAnnotation(name = "getLocation", version = "v1", type = MediaTypes.LOCATIONS)
+    public ResponseEntity<?> getLocation(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
         @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
+        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI loc = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getResource] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+            log.debug("[FacilityController::getLocation] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}, id = {}", loc, accept, ifModifiedSince, id);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.LOCATION, loc.toASCIIString());
 
             // Find the resource targeted by id.
-            Resource resource = repository.findResourceById(id);
-            if (resource != null) {
-                OffsetDateTime lastModified = resource.getLastModified();
+            Location location = repository.findLocationById(id);
+            if (location != null) {
+                OffsetDateTime lastModified = location.getLastModified();
                 if (lastModified != null) {
                     // Populate the header
                     headers.setLastModified(lastModified.toInstant());
@@ -1542,1509 +1264,36 @@ public class FacilityController {
                 if (ifms != null && lastModified != null) {
                     if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
                         // The resource has not been modified since the specified time.
-                        log.debug("[FacilityController::getResource] returning NOT_MODIFIED");
+                        log.debug("[FacilityController::getLocation] returning NOT_MODIFIED");
                         return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                     }
                 }
 
-                // Process the embedded query parameter.
-                if (include != null && !include.isEmpty()) {
-                    ResourceEmbedded embedded = EmbeddedMapping.processIncludes(resource, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        resource.setEmbedded(embedded);
-                    }
-                }
-
                 // Return the matching resource.
-                return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+                return new ResponseEntity<>(location, headers, HttpStatus.OK);
             }
 
-            log.error("[FacilityController::getResource] resource not found {}", location);
+            log.error("[FacilityController::getLocation] location not found {}", loc);
             Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The resource " + location + " was not found.")
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .detail("The location " + loc + " was not found.")
+                .instance(loc)
                 .build();
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
             return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[FacilityController::getResource] Exception caught in GET of /resources/{}", id, ex);
+            log.error("[FacilityController::getLocation] Exception caught in GET of /locations/{}", id, ex);
             Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
+                .type(URI.create("about:blank"))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .detail(ex.getMessage())
+                .instance(loc)
                 .build();
-            log.error("[FacilityController::getResource] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns a list of "incident" resources.
-     * <p>
-     * Operation: GET /api/v1/status/incidents
-     *            GET /api/v1/status/facility/incidents
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all models with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get a list of available incident resources.",
-        description = "Returns a list of incident resources matching the specified query",
-        tags = {"getIncidents"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Incident.class)),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/incidents", "/facility/incidents" },
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getIncidents", version = "v1", type = MediaTypes.INCIDENTS)
-    public ResponseEntity<?> getIncidents(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
-            schema = @Schema(implementation = StatusType.class)) String status,
-        @RequestParam(value = OpenApiDescriptions.INCIDENT_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCIDENT_TYPE_MSG,
-            schema = @Schema(implementation = IncidentType.class)) String type,
-        @RequestParam(value = OpenApiDescriptions.RESOLUTION_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.RESOLUTION_TYPE_MSG,
-            schema = @Schema(implementation = ResolutionType.class)) String resolution,
-        @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
-        @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
-        @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TO_MSG) String to,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @RequestParam(value = OpenApiDescriptions.RESOURCES_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.RESOURCES_MSG) List<String> resources,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getIncidents] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, status = {}. type = {}. resolution = {}, time = {},"
-                    + "from = {}, to = {}, shortName = {}, resources = {}, include = {}",
-                location, accept, ifModifiedSince, status, type, resolution, time,
-                from, to, shortName, resources, include);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // We will collect the matching resources in this list.
-            List<Incident> results = repository.findAllIncidents();
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Incident::getLastModified)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
-
-            // Populate the Last-Modified header.
-            headers.setLastModified(latestModified.toInstant());
-
-            // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
-            // them all.
-            if (ifms != null) {
-                log.debug("[FacilityController::getIncidents] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[FacilityController::getIncidents] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
-
-                // Now add resources that have changed since the If-Modified-Since time.
-                results = results.stream()
-                    .filter(r -> r.getLastModified().isAfter(ifms))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the shortName filter if requested.
-            if (shortName != null && !shortName.isBlank()) {
-                // Filter resources with the specified shortName.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the status filter is requested.
-            if (status != null && !status.isBlank()) {
-                // Filter resources from the specified group.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(status).equalsIgnoreCase(r.getStatus().getValue()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the type filter requested.
-            if (type != null && !type.isBlank()) {
-                // Filter resources from the specified type.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(type).equalsIgnoreCase(r.getType().getValue()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the type filter requested.
-            if (resolution != null && !resolution.isBlank()) {
-                // Filter resources from the specified type.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(resolution).equalsIgnoreCase(r.getResolution().getValue()))
-                    .collect(Collectors.toList());
-            }
-
-            // The "time" query parameter is specified to return incidents overlapping with time.
-            results = results.stream()
-                .filter(incident -> incident.isOverlap(time))
-                .collect(Collectors.toList());
-
-            // The "from" query parameter is the start of the time the user is looking for active incidents.
-            // The "to" query parameter is the end of the time the user is looking for active incidents.
-            // This means we want any incidents active before this time.
-            results = results.stream()
-                .filter(incident -> incident.isConflict(from, to))
-                .collect(Collectors.toList());
-
-            // Find all the remaining incidents that contain a resource from the provided list.
-            results = results.stream()
-                .filter(incident -> incident.contains(resources))
-                .collect(Collectors.toList());
-
-            // Include any requested relationship objects.
-            if (include != null && !include.isEmpty()) {
-                List<Incident> embeddedList = new ArrayList<>();
-                for (Incident incident : results) {
-                    IncidentEmbedded embedded = EmbeddedMapping.processIncludes(incident, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        incident.setEmbedded(embedded);
-                    }
-                    embeddedList.add(incident);
-                }
-                results = embeddedList;
-            }
-
-            // We have success, so return the models we have found.
-            return new ResponseEntity<>(results, headers, HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getIncidents] Exception caught in GET of /incidents", ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getIncidents] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns the incident resource associated with the specified id.
-     * <p>
-     * Operation: GET /api/v1/status/incident/{id}
-     *            GET /api/v1/status/facility/incident/{id}
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment, 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all resources with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param id The identifier of the target incident resource.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get the incident resource associated with the specified id.",
-        description = "Returns the matching incident resource.",
-        tags = {"getIncident"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Incident.class)
-                )
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
-                description = OpenApiDescriptions.NOT_FOUND_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/incidents/{" + OpenApiDescriptions.ID_NAME + "}",
-            "/facility/incidents/{" + OpenApiDescriptions.ID_NAME + "}"},
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getIncident", version = "v1", type = MediaTypes.INCIDENT)
-    public ResponseEntity<?> getIncident(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getIncidents] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // Find the incident matching the specified id.
-            Incident incident = repository.findIncidentById(id);
-            if (incident != null) {
-                OffsetDateTime lastModified = incident.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
-
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[FacilityController::getIncidents] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
-                }
-
-                // Process the embedded query parameter.
-                if (include != null && !include.isEmpty()) {
-                    IncidentEmbedded embedded = EmbeddedMapping.processIncludes(incident, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        incident.setEmbedded(embedded);
-                    }
-                }
-
-                // Return the matching resource.
-                return new ResponseEntity<>(incident, headers, HttpStatus.OK);
-            }
-
-            log.error("[FacilityController::getIncidents] incident not found {}", location);
-            Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The resource " + location + " was not found.")
-                .build();
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getIncidents] Exception caught in GET of /incidents/{}", id, ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getIncidents] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns the events associated with the specified incident.
-     * <p>
-     * Operation: GET /api/v1/status/incident/{id}/events
-     *            GET /api/v1/status/facility/incident/{id}/events
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment, 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all resources with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param id The identifier of the target incident resource.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get the events associated with the specified incident.",
-        description = "RReturns the events associated with the specified incident.",
-        tags = {"getEventsByIncident"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Incident.class)
-                )
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
-                description = OpenApiDescriptions.NOT_FOUND_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/incidents/{" + OpenApiDescriptions.ID_NAME + "}/events",
-            "/facility/incidents/{" + OpenApiDescriptions.ID_NAME + "}/events"},
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getEventsByIncident", version = "v1", type = MediaTypes.EVENTS)
-    public ResponseEntity<?> getEventsByIncident(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getEventsByIncident] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // Find the incident matching the specified id.
-            Incident incident = repository.findIncidentById(id);
-            if (incident != null) {
-                // Look up the resource associated with the event.
-                List<Event> events = new ArrayList<>();
-                for (Link link : incident.getLinks()) {
-                    if (link.getRel() != null && link.getRel().equalsIgnoreCase(Relationships.HAS_EVENT)) {
-                        Event event = repository.findEventByHref(link.getHref());
-                        if (event != null) {
-                            events.add(event);
-                        }
-                    }
-                }
-
-                // Find the latest modified timestamp among all resources
-                OffsetDateTime lastModified = events.stream()
-                    .map(Event::getLastModified)
-                    .max(OffsetDateTime::compareTo)
-                    .orElse(OffsetDateTime.now());
-
-                // Populate the Last-Modified header.
-                headers.setLastModified(lastModified.toInstant());
-
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since specified time.
-                        log.debug("[FacilityController::getEventsByIncident] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
-
-                    // Now add resources that have changed since the If-Modified-Since time.
-                    events = events.stream()
-                        .filter(r -> r.getLastModified().isAfter(ifms))
-                        .collect(Collectors.toList());
-                }
-
-                // Apply the shortName filter if requested.
-                if (shortName != null && !shortName.isBlank()) {
-                    // Filter resources with the specified shortName.
-                    events = events.stream()
-                        .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
-                        .collect(Collectors.toList());
-                }
-
-                if (include != null && !include.isEmpty()) {
-                    List<Event> embeddedList = new ArrayList<>();
-                    for (Event event : events) {
-                        EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
-                        if (embedded != null && !embedded.isEmpty()) {
-                            event.setEmbedded(embedded);
-                        }
-                        embeddedList.add(event);
-                    }
-                    events = embeddedList;
-                }
-
-                // Return the matching resource.
-                return new ResponseEntity<>(events, headers, HttpStatus.OK);
-            }
-
-            log.error("[FacilityController::getEventsByIncident] event not found {}", location);
-            Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The resource " + location + " was not found.")
-                .build();
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getEventsByIncident] Exception caught in GET of /incidents/{}/events", id, ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getEventsByIncident] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns a list of events.
-     * <p>
-     * Operation: GET /api/v1/status/events
-     *            GET /api/v1/status/facility/events
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all models with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get a list of event resources.",
-        description = "Returns a list of event resources matching the specified query",
-        tags = {"getEvents"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Event.class)),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(path = {"/events",
-        "/facility/events"}, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getEvents", version = "v1", type = MediaTypes.EVENTS)
-    public ResponseEntity<?> getEvents(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
-            schema = @Schema(implementation = StatusType.class)) String status,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
-        @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
-        @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TO_MSG) String to,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getEvents] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}",
-                location, accept, ifModifiedSince);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // We will collect the matching resources in this list.
-            List<Event> results = repository.findAllEvents();
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Event::getLastModified)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
-
-            // Populate the Last-Modified header.
-            headers.setLastModified(latestModified.toInstant());
-
-            // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
-            // them all.
-            if (ifms != null) {
-                log.debug("[FacilityController::getEvents] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[FacilityController::getEvents] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
-
-                // Now add resources that have changed since the If-Modified-Since time.
-                results = results.stream()
-                    .filter(r -> r.getLastModified().isAfter(ifms))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the shortName filter if requested.
-            if (shortName != null && !shortName.isBlank()) {
-                // Filter resources with the specified shortName.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(shortName).equalsIgnoreCase(r.getShortName()))
-                    .collect(Collectors.toList());
-            }
-
-            // Apply the status filter is requested.
-            if (status != null && !status.isBlank()) {
-                // Filter resources from the specified group.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(status).equalsIgnoreCase(r.getStatus().getValue()))
-                    .collect(Collectors.toList());
-            }
-
-            if (from != null && !from.isBlank()) {
-                OffsetDateTime timeFilter = Common.parseTime(from);
-
-                results = results.stream()
-                    .filter(event -> {
-                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MIN);
-                        log.debug("[FacilityController::getEvents] from = {}, occurredAt = {}",
-                            from, occurredAt);
-                        return (occurredAt.isAfter(timeFilter) || occurredAt.isEqual(timeFilter));
-                    })
-                    .collect(Collectors.toList());
-            }
-
-            if (to != null && !to.isBlank()) {
-                OffsetDateTime timeFilter = Common.parseTime(to);
-
-                results = results.stream()
-                    .filter(event -> {
-                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MAX);
-                        log.debug("[FacilityController::getEvents] from = {}, getOccurredAt = {}",
-                            from, occurredAt);
-                        return (occurredAt.isBefore(timeFilter) || occurredAt.isEqual(timeFilter));
-                    })
-                    .collect(Collectors.toList());
-            }
-
-            if (include != null && !include.isEmpty()) {
-                List<Event> embeddedList = new ArrayList<>();
-                for (Event event : results) {
-                    EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        event.setEmbedded(embedded);
-                    }
-                    embeddedList.add(event);
-                }
-                results = embeddedList;
-            }
-
-            // We have success, so return the models we have found.
-            return new ResponseEntity<>(results, headers, HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getEvents] Exception caught in GET of /events", ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getEvents] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     *
-     * <p>
-     * Operation: GET /api/v1/status/events/{id}
-     *            GET /api/v1/status/facility/events/{id}
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all resources with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param id The identifier of the target incident resource.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get the event associated with the specified id.",
-        description = "Returns the event associated with the specified id.",
-        tags = {"getEvent"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Event.class)
-                )
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
-                description = OpenApiDescriptions.NOT_FOUND_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/events/{" + OpenApiDescriptions.ID_NAME + "}",
-            "/facility/events/{" + OpenApiDescriptions.ID_NAME + "}"},
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getEvent", version = "v1", type = MediaTypes.EVENT)
-    public ResponseEntity<?> getEvent(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // Get the event matching the specified id.
-            Event event = repository.findEventById(id);
-            if (event != null) {
-                OffsetDateTime lastModified = event.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
-
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[FacilityController::getEvent] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
-                }
-
-                // Process the embedded query parameter.
-                if (include != null && !include.isEmpty()) {
-                    EventEmbedded embedded = EmbeddedMapping.processIncludes(event, repository, include);
-                    if (embedded != null && !embedded.isEmpty()) {
-                        event.setEmbedded(embedded);
-                    }
-                }
-
-                // Return the matching resource.
-                return new ResponseEntity<>(event, headers, HttpStatus.OK);
-            }
-
-            log.error("[FacilityController::getEvent] event not found {}", location);
-            Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The event " + location + " was not found.")
-                .build();
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getEvent] Exception caught in GET of /events/{}", id, ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getEvent] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns the resource impacted by the specified event.
-     * <p>
-     * Operation: GET /api/v1/status/events/{id}/resource
-     *            GET /api/v1/status/facility/events/{id}/resource
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all resources with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param id The identifier of the target incident resource.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get the resource impacted by the specified event.",
-        description = "Returns the resource impacted by the specified event.",
-        tags = {"getResourceByEvent"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Resource.class)
-                )
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
-                description = OpenApiDescriptions.NOT_FOUND_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/events/{" + OpenApiDescriptions.ID_NAME + "}/resource",
-            "/facility/events/{" + OpenApiDescriptions.ID_NAME + "}/resource"},
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getResourceByEvent", version = "v1", type = MediaTypes.RESOURCE)
-    public ResponseEntity<?> getResourceByEvent(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getResourceByEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // Find the specified event, then the impacted resources.
-            Event event = repository.findEventById(id);
-            if (event != null) {
-                // Look up the resource associated with the event.
-                for (Link link : event.getLinks()) {
-                    if (link.getRel() != null && link.getRel().equalsIgnoreCase(Relationships.IMPACTS)) {
-                        Resource resource = repository.findResourceByHref(link.getHref());
-                        if (resource != null) {
-                            OffsetDateTime lastModified = resource.getLastModified();
-                            if (lastModified != null) {
-                                // Populate the header
-                                headers.setLastModified(lastModified.toInstant());
-                            }
-
-                            // Parse the If-Modified-Since header if it is present.
-                            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                            if (ifms != null && lastModified != null) {
-                                if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                                    // The resource has not been modified since the specified time.
-                                    log.debug("[FacilityController::getResourceByEvent] returning NOT_MODIFIED");
-                                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                                }
-                            }
-
-                            // Process the embedded query parameter.
-                            if (include != null && !include.isEmpty()) {
-                                ResourceEmbedded embedded =
-                                    EmbeddedMapping.processIncludes(resource, repository, include);
-                                if (embedded != null && !embedded.isEmpty()) {
-                                    resource.setEmbedded(embedded);
-                                }
-                            }
-
-                            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-                        }
-                    }
-                }
-            }
-
-            log.error("[FacilityController::getResourceByEvent] event not found {}", location);
-            Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The event " + location + " was not found.")
-                .build();
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getResourceByEvent] Exception caught in GET of /events/{}/resource", id, ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getResourceByEvent] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Returns the incident related to the specified event.
-     * <p>
-     * Operation: GET /api/v1/status/events/{id}/incident
-     *            GET /api/v1/status/facility/events/{id}/incident
-     *
-     * @param accept Provides media types that are acceptable for the response.
-     *    At the moment 'application/json' is the supported response encoding.
-     *
-     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
-     *    header requesting all resources with lastModified after the specified
-     *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param id The identifier of the target incident resource.
-     *
-     * @return A RESTful response.
-     */
-    @Operation(
-        summary = "Get the incident related to the specified event.",
-        description = "Returns the incident related to the specified event.",
-        tags = {"getIncidentByEvent"},
-        method = "GET")
-    @ApiResponses(
-        value = {
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.OK_CODE,
-                description = OpenApiDescriptions.OK_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Incident.class)
-                )
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
-                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class)),
-                    @Header(name = HttpHeaders.LAST_MODIFIED,
-                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content()
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
-                description = OpenApiDescriptions.NOT_FOUND_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
-                description = OpenApiDescriptions.BAD_REQUEST_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
-                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
-                description = OpenApiDescriptions.FORBIDDEN_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            ),
-            @ApiResponse(
-                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
-                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
-                headers = {
-                    @Header(name = HttpHeaders.CONTENT_TYPE,
-                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
-                        schema = @Schema(implementation = String.class))
-                },
-                content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-            )
-        })
-    @RequestMapping(
-        path = {"/events/{" + OpenApiDescriptions.ID_NAME + "}/incident",
-            "/facility/events/{" + OpenApiDescriptions.ID_NAME + "}/incident"},
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
-    @ResourceAnnotation(name = "getIncidentByEvent", version = "v1", type = MediaTypes.INCIDENT)
-    public ResponseEntity<?> getIncidentByEvent(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
-        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
-        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id,
-        @RequestParam(value = OpenApiDescriptions.INCLUDE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.INCLUDE_MSG) List<String> include) {
-
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
-
-            log.debug("[FacilityController::getIncidentByEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
-            // Locate the specified event, then find the generatedBy relationship to identify Incident.
-            Event event = repository.findEventById(id);
-            if (event != null) {
-                // Look up the resource associated with the event.
-                for (Link link : event.getLinks()) {
-                    if (link.getRel() != null &&
-                        link.getRel().equalsIgnoreCase(Relationships.GENERATED_BY)) {
-                        Incident incident = repository.findIncidentByHref(link.getHref());
-                        if (incident != null) {
-                            OffsetDateTime lastModified = incident.getLastModified();
-                            if (lastModified != null) {
-                                // Populate the header
-                                headers.setLastModified(lastModified.toInstant());
-                            }
-
-                            // Parse the If-Modified-Since header if it is present.
-                            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                            if (ifms != null && lastModified != null) {
-                                if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                                    // The resource has not been modified since the specified time.
-                                    log.debug("[FacilityController::getIncidentByEvent] returning NOT_MODIFIED");
-                                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                                }
-                            }
-
-                            // Process the embedded query parameter.
-                            if (include != null && !include.isEmpty()) {
-                                IncidentEmbedded embedded =
-                                    EmbeddedMapping.processIncludes(incident, repository, include);
-                                if (embedded != null && !embedded.isEmpty()) {
-                                    incident.setEmbedded(embedded);
-                                }
-                            }
-
-                            return new ResponseEntity<>(incident, headers, HttpStatus.OK);
-                        }
-                    }
-                }
-            }
-
-            log.error("[FacilityController::getIncidentByEvent] incident not found {}", location);
-            Error error = Error.builder()
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .description("The incident " + location + " was not found.")
-                .build();
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            log.error("[FacilityController::getIncidentByEvent] Exception caught in GET of /events/{}/incident", id, ex);
-            Error error = Error.builder()
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .description(ex.getMessage())
-                .build();
-            log.error("[FacilityController::getIncidentByEvent] returning error:\n{}", error);
+            error.putExtension("timestamp", OffsetDateTime.now().toString());
+            log.error("[FacilityController::getLocation] returning error:\n{}", error);
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

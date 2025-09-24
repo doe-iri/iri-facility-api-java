@@ -22,24 +22,20 @@ package net.es.iri.api.facility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Incident;
-import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
+import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Resource;
-import net.es.iri.api.facility.schema.ResourceType;
+import net.es.iri.api.facility.schema.Site;
 import net.es.iri.api.facility.utils.UrlTransform;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,12 +46,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 
 /**
  * Fun with test cases for the IRI Facility API.
@@ -65,7 +61,7 @@ import org.springframework.http.ResponseEntity;
 @Slf4j
 @Profile("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ApplicationTest {
+class StatusEndpointTest {
     @LocalServerPort
     private int port;
 
@@ -74,12 +70,12 @@ class ApplicationTest {
 
     @BeforeEach
     void setUp() {
-        log.debug("[ApplicationTest::setUp] starting tests using port {}.", port);
+        log.debug("[StatusEndpointTest::setUp] starting tests using port {}.", port);
     }
 
     @AfterEach
     void tearDown() {
-        log.debug("[ApplicationTest::tearDown] ending tests.");
+        log.debug("[StatusEndpointTest::tearDown] ending tests.");
     }
 
     /**
@@ -89,13 +85,15 @@ class ApplicationTest {
      */
     @Test
     public void testGetFacility() throws Exception {
-        log.debug("[ApplicationTest::testGetFacility] start test.");
+        log.debug("[StatusEndpointTest::testGetFacility] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/facility";
+        String url = "http://localhost:" + port + "/api/v1/facility";
+
+        RestClient client = RestClient.create();
 
         // Perform the GET /facility operation.
-        ResponseEntity<Facility> response = restTemplate.getForEntity(url, Facility.class);
+        ResponseEntity<Facility> response = client.get().uri(url).retrieve().toEntity(Facility.class);
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -110,89 +108,83 @@ class ApplicationTest {
         // Did we decode the lastModified time correctly?
         assertEquals(OffsetDateTime.parse("2025-07-24T02:31:08Z"), facility.getLastModified());
 
-        // Count the total number of links.
-        assertNotNull(facility.getLinks());
-        assertEquals(432, facility.getLinks().size());
+        UrlTransform urlTransform = new UrlTransform("(http://localhost:8081/|http://localhost:" + port + "/)");
 
-        UrlTransform urlTransform = new UrlTransform("(/|http://localhost:" + port + "/)");
+        // Verify the selfUri member points to the target facility.
+        String self_url = urlTransform.getPath(facility.getSelfUri()).toUriString();
+        ResponseEntity<Facility> self = client.get().uri(self_url).retrieve().toEntity(Facility.class);
+        assertEquals(HttpStatus.OK, self.getStatusCode());
+        assertNotNull(self.getBody());
+        assertEquals("09a22593-2be8-46f6-ae54-2904b04e13a4", self.getBody().getId());
 
-        // Count individual link types.
-        int hasSelf = 0;
+        // Count and resolve resource href.
         int hasResource = 0;
-        int hasEvent = 0;
-        int hasIncident = 0;
-        int hostedAt = 0;
-        int others = 0;
-
-        // Count and resolve each href.
-        for (Link link : facility.getLinks()) {
-            switch (link.getRel()) {
-                case Relationships.SELF -> {
-                    hasSelf++;
-                    String self_url = urlTransform.getPath(link.getHref()).toUriString();
-                    ResponseEntity<Facility> self =
-                        restTemplate.getForEntity(self_url, Facility.class);
-                    assertEquals(HttpStatus.OK, self.getStatusCode());
-                    assertNotNull(self.getBody());
-                    assertEquals("09a22593-2be8-46f6-ae54-2904b04e13a4", self.getBody().getId());
-                }
-
-                case Relationships.HAS_RESOURCE -> {
-                    hasResource++;
-                    String resource_url = urlTransform.getPath(link.getHref()).toUriString();
-                    ResponseEntity<Resource> resource =
-                        restTemplate.getForEntity(resource_url, Resource.class);
-                    assertEquals(HttpStatus.OK, resource.getStatusCode());
-                    assertNotNull(resource.getBody());
-                    String uuid = resource_url.substring(resource_url.lastIndexOf("/") + 1);
-                    assertEquals(uuid, resource.getBody().getId());
-                }
-
-                case Relationships.HAS_EVENT -> {
-                    hasEvent++;
-                    String event_url = urlTransform.getPath(link.getHref()).toUriString();
-                    ResponseEntity<Event> event =
-                        restTemplate.getForEntity(event_url, Event.class);
-                    assertEquals(HttpStatus.OK, event.getStatusCode());
-                    assertNotNull(event.getBody());
-                    String uuid = event_url.substring(event_url.lastIndexOf("/") + 1);
-                    assertEquals(uuid, event.getBody().getId());
-                }
-
-                case Relationships.HAS_INCIDENT -> {
-                    hasIncident++;
-                    String incident_url = urlTransform.getPath(link.getHref()).toUriString();
-                    ResponseEntity<Event> incident =
-                        restTemplate.getForEntity(incident_url, Event.class);
-                    assertEquals(HttpStatus.OK, incident.getStatusCode());
-                    assertNotNull(incident.getBody());
-                    String uuid = incident_url.substring(incident_url.lastIndexOf("/") + 1);
-                    assertEquals(uuid, incident.getBody().getId());
-                }
-
-                case Relationships.HOSTED_AT -> {
-                    hostedAt++;
-                    String hosted_url = urlTransform.getPath(link.getHref()).toUriString();
-                    ResponseEntity<Event> hosted =
-                        restTemplate.getForEntity(hosted_url, Event.class);
-                    assertEquals(HttpStatus.OK, hosted.getStatusCode());
-                    assertNotNull(hosted.getBody());
-                    String uuid = hosted_url.substring(hosted_url.lastIndexOf("/") + 1);
-                    assertEquals(uuid, hosted.getBody().getId());
-
-                }
-                default -> others++;
-            }
+        for (String uri : facility.getResourceUris()) {
+            hasResource++;
+            String resource_url = urlTransform.getPath(uri).toUriString();
+            ResponseEntity<Resource> resource = client.get().uri(resource_url).retrieve().toEntity(Resource.class);
+            assertEquals(HttpStatus.OK, resource.getStatusCode());
+            assertNotNull(resource.getBody());
+            String uuid = resource_url.substring(resource_url.lastIndexOf("/") + 1);
+            assertEquals(uuid, resource.getBody().getId());
         }
 
-        assertEquals(1, hasSelf);
         assertEquals(20, hasResource);
-        assertEquals(6, hasEvent);
-        assertEquals(403, hasIncident);
-        assertEquals(1, hostedAt);
-        assertEquals(1, others);
 
-        log.debug("[ApplicationTest::testGetFacility] end test.");
+        int hasEvent = 0;
+        for (String uri : facility.getEventUris()) {
+            hasEvent++;
+            String event_url = urlTransform.getPath(uri).toUriString();
+            ResponseEntity<Event> event = client.get().uri(event_url).retrieve().toEntity(Event.class);
+            assertEquals(HttpStatus.OK, event.getStatusCode());
+            assertNotNull(event.getBody());
+            String uuid = event_url.substring(event_url.lastIndexOf("/") + 1);
+            assertEquals(uuid, event.getBody().getId());
+        }
+
+        assertEquals(6, hasEvent);
+
+        int hasIncident = 0;
+        for (String uri : facility.getIncidentUris()) {
+            hasIncident++;
+            String incident_url = urlTransform.getPath(uri).toUriString();
+            ResponseEntity<Incident> incident = client.get().uri(incident_url).retrieve().toEntity(Incident.class);
+            assertEquals(HttpStatus.OK, incident.getStatusCode());
+            assertNotNull(incident.getBody());
+            String uuid = incident_url.substring(incident_url.lastIndexOf("/") + 1);
+            assertEquals(uuid, incident.getBody().getId());
+        }
+
+        assertEquals(403, hasIncident);
+
+        int hostedAt = 0;
+        for (String uri : facility.getSiteUris()) {
+            hostedAt++;
+            String hosted_url = urlTransform.getPath(uri).toUriString();
+            ResponseEntity<Site> hosted = client.get().uri(hosted_url).retrieve().toEntity(Site.class);
+            assertEquals(HttpStatus.OK, hosted.getStatusCode());
+            assertNotNull(hosted.getBody());
+            String uuid = hosted_url.substring(hosted_url.lastIndexOf("/") + 1);
+            assertEquals(uuid, hosted.getBody().getId());
+        }
+
+        assertEquals(1, hostedAt);
+
+        int hasLocation = 0;
+        for (String uri : facility.getLocationUris()) {
+            hasLocation++;
+            String location_url = urlTransform.getPath(uri).toUriString();
+            log.debug("Loading location: {}", location_url);
+            ResponseEntity<Location> location = client.get().uri(location_url).retrieve().toEntity(Location.class);
+            assertEquals(HttpStatus.OK, location.getStatusCode());
+            assertNotNull(location.getBody());
+            String uuid = location_url.substring(location_url.lastIndexOf("/") + 1);
+            assertEquals(uuid, location.getBody().getId());
+        }
+
+        assertEquals(1, hasLocation);
+
+        log.debug("[StatusEndpointTest::testGetFacility] end test.");
     }
 
     /**
@@ -202,25 +194,31 @@ class ApplicationTest {
      */
     @Test
     public void testGetFacilityFailure() throws Exception {
-        log.debug("[ApplicationTest::testGetFacilityFailure] start test.");
+        log.debug("[StatusEndpointTest::testGetFacilityFailure] start test.");
+
+        RestClient client = RestClient.create();
 
         // Build the bad target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/facility/09a22593-2be8-46f6-ae54-2904b04e13a4";
+        String url = "http://localhost:" + port + "/api/v1/facility/09a22593-2be8-46f6-ae54-2904b04e13a4";
 
         // Perform the GET /facility operation.
-        ResponseEntity<Error> response = restTemplate.getForEntity(url, Error.class);
+        ResponseEntity<Error> error = client.get().uri(url).retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                // Verify it failed as expected.
+                assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+            })
+            .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                throw new IllegalStateException("Unexpected server error: " + response.getStatusCode());
+            })
+            // We don't expect a body for 404, but this triggers the exchange
+            .toEntity(Error.class);
 
         // Verify it failed.
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, error.getStatusCode());
+        assertNotNull(error.getBody());
+        assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), error.getBody().getTitle());
 
-        // We have a result.
-        assertNotNull(response.getBody());
-
-        // It is the facility we were expecting.
-        Error error = response.getBody();
-        assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), error.getError());
-
-        log.debug("[ApplicationTest::testGetFacilityFailure] end test.");
+        log.debug("[StatusEndpointTest::testGetFacilityFailure] end test.");
     }
 
     /**
@@ -230,14 +228,15 @@ class ApplicationTest {
      */
     @Test
     public void testGetResources() throws Exception {
-        log.debug("[ApplicationTest::testGetResources] start test.");
+        log.debug("[StatusEndpointTest::testGetResources] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/resources";
 
         // Perform the GET /resources operation.
-        ResponseEntity<List<Resource>> response = restTemplate.exchange(url, HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {});
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Resource>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -252,18 +251,16 @@ class ApplicationTest {
         // Get each resource individually.
         for (Resource resource : resources) {
             String resource_url = "http://localhost:" + port + "/api/v1/status/resources/" + resource.getId();
-            ResponseEntity<Resource> individual = restTemplate.getForEntity(resource_url, Resource.class);
+            ResponseEntity<Resource> individual = client.get().uri(resource_url).retrieve().toEntity(Resource.class);
             assertEquals(HttpStatus.OK, individual.getStatusCode());
             assertNotNull(individual.getBody());
             assertEquals(resource, individual.getBody());
         }
 
         // Now check if-modified-since capabilities.
-        String ifms = OffsetDateTime.parse("2025-03-02T07:50:20.672Z")
-            .format(DateTimeFormatter.RFC_1123_DATE_TIME);
-
-        response = restTemplate.exchange(url, HttpMethod.GET, getHeaders(ifms),
-            new ParameterizedTypeReference<>() {});
+        response = client.get().uri(url)
+            .headers(h -> h.addAll(getHeaders(OffsetDateTime.parse("2025-03-02T07:50:20.672Z").format(DateTimeFormatter.RFC_1123_DATE_TIME))))
+            .retrieve().toEntity(new ParameterizedTypeReference<>() {});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         HttpHeaders responseHeaders = response.getHeaders();
@@ -274,31 +271,21 @@ class ApplicationTest {
         assertEquals(20, response.getBody().size());
 
         // Now we should get zero.
-        response = restTemplate.exchange(url, HttpMethod.GET, getHeaders(lastModified),
-            new ParameterizedTypeReference<>() {});
+        response = client.get().uri(url)
+            .headers(h -> h.addAll(getHeaders(lastModified)))
+            .retrieve().toEntity(new ParameterizedTypeReference<>() {});
         assertEquals(HttpStatus.NOT_MODIFIED, response.getStatusCode());
         assertFalse(response.hasBody());
 
-        // Query should return one less based on specific lastModified date.
-        ifms = OffsetDateTime.parse("2025-03-03T07:50:40.672-00:00")
-            .format(DateTimeFormatter.RFC_1123_DATE_TIME);
-        response = restTemplate.exchange(url, HttpMethod.GET, getHeaders(ifms),
-            new ParameterizedTypeReference<>() {});
+        // Query should return one less based on the specific lastModified date.
+        response = client.get().uri(url)
+            .headers(h -> h.addAll(getHeaders(OffsetDateTime.parse("2025-03-03T07:50:40.672-00:00").format(DateTimeFormatter.RFC_1123_DATE_TIME))))
+            .retrieve().toEntity(new ParameterizedTypeReference<>() {});
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(20, response.getBody().size());
 
-        // Query resources for a specific resource with shortName
-        String resource_url = "http://localhost:" + port + "/api/v1/status/resources?short_name=scratch";
-        ResponseEntity<List<Resource>> scratch = restTemplate.exchange(
-            resource_url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
-        assertEquals(HttpStatus.OK, scratch.getStatusCode());
-        assertNotNull(scratch.getBody());
-        List<Resource> scratches = scratch.getBody();
-        assertEquals(1, scratches.size());
-        assertEquals("29ea05ad-86de-4df8-b208-f0691aafbaa2", scratches.get(0).getId());
-
-        log.debug("[ApplicationTest::testGetResources] end test.");
+        log.debug("[StatusEndpointTest::testGetResources] end test.");
     }
 
     /**
@@ -308,17 +295,20 @@ class ApplicationTest {
      */
     @Test
     public void testGetResource() throws Exception {
-        log.debug("[ApplicationTest::testGetResource] start test.");
+        log.debug("[StatusEndpointTest::testGetResource] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20";
-        ResponseEntity<Resource> response = restTemplate.getForEntity(url, Resource.class);
+
+        // Perform the GET /facility operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<Resource> response = client.get().uri(url).retrieve().toEntity(Resource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("iris.nersc.gov", response.getBody().getName());
-        assertEquals(ResourceType.WEBSITE, response.getBody().getType());
+        //assertEquals(ResourceType.WEBSITE, response.getBody().getType());
 
-        log.debug("[ApplicationTest::testGetResource] end test.");
+        log.debug("[StatusEndpointTest::testGetResource] end test.");
     }
 
     /**
@@ -328,16 +318,28 @@ class ApplicationTest {
      */
     @Test
     public void testGetResourceFailure() throws Exception {
-        log.debug("[ApplicationTest::testGetResourceFailure] start test.");
+        log.debug("[StatusEndpointTest::testGetResourceFailure] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/resources/bad-id";
-        ResponseEntity<Error> response = restTemplate.getForEntity(url, Error.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), response.getBody().getError());
+        RestClient client = RestClient.create();
+        ResponseEntity<Error> error = client.get().uri(url).retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                // Verify it failed as expected.
+                assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+            })
+            .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                throw new IllegalStateException("Unexpected server error: " + response.getStatusCode());
+            })
+            // We don't expect a body for 404, but this triggers the exchange
+            .toEntity(Error.class);
 
-        log.debug("[ApplicationTest::testGetResourceFailure] end test.");
+        // Verify it failed.
+        assertEquals(HttpStatus.NOT_FOUND, error.getStatusCode());
+        assertNotNull(error.getBody());
+        assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), error.getBody().getTitle());
+
+        log.debug("[StatusEndpointTest::testGetResourceFailure] end test.");
     }
 
     /**
@@ -347,14 +349,15 @@ class ApplicationTest {
      */
     @Test
     public void testGetIncidentsFrom() throws Exception {
-        log.debug("[ApplicationTest::testGetIncidentsFrom] start test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/incidents";
 
-        // Perform the GET /resources operation.
-        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<List<Incident>>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -375,8 +378,9 @@ class ApplicationTest {
         // Now we want to compare this to a similar list returned from a query.
         String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z";
 
-        // Perform the GET /resources operation.
-        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        response = client.get().uri(url_start).retrieve()
+            .toEntity(new ParameterizedTypeReference<List<Incident>>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -392,12 +396,12 @@ class ApplicationTest {
             .sorted(Comparator.comparing(Incident::getStart))
             .toList();
 
-        log.debug("[ApplicationTest::testGetIncidentsFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
             incidents.size(), sortedIncidents.size(), filteredIncidents.size());
 
         assertEquals(filteredIncidents.size(), sortedIncidents.size());
 
-        log.debug("[ApplicationTest::testGetIncidentsFrom] ending test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] ending test.");
     }
 
     /**
@@ -407,14 +411,15 @@ class ApplicationTest {
      */
     @Test
     public void testGetIncidentsTo() throws Exception {
-        log.debug("[ApplicationTest::testGetIncidentsTo] start test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsTo] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/incidents";
 
-        // Perform the GET /resources operation.
-        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -436,7 +441,8 @@ class ApplicationTest {
         String url_start = "http://localhost:" + port + "/api/v1/status/incidents?to=2025-06-28T06:04:25.275Z";
 
         // Perform the GET /resources operation.
-        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+        response = client.get().uri(url_start).retrieve()
+            .toEntity(new ParameterizedTypeReference<List<Incident>>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -452,12 +458,12 @@ class ApplicationTest {
             .sorted(Comparator.comparing(Incident::getStart))
             .toList();
 
-        log.debug("[ApplicationTest::testGetIncidentsFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+        log.debug("[StatusEndpointTest::testGetIncidentsTo] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
             incidents.size(), sortedIncidents.size(), filteredIncidents.size());
 
         assertEquals(filteredIncidents.size(), sortedIncidents.size());
 
-        log.debug("[ApplicationTest::testGetIncidentsTo] ending test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsTo] ending test.");
     }
 
     /**
@@ -467,14 +473,15 @@ class ApplicationTest {
      */
     @Test
     public void testGetIncidentsToFrom() throws Exception {
-        log.debug("[ApplicationTest::testGetIncidentsToFrom] start test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsToFrom] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port + "/api/v1/status/incidents";
 
-        // Perform the GET /resources operation.
-        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -495,8 +502,8 @@ class ApplicationTest {
         // Now we want to compare this to a similar list returned from a query.
         String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z&to=2025-06-28T06:04:25.275Z";
 
-        // Perform the GET /resources operation.
-        response = restTemplate.exchange(url_start, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        response = client.get().uri(url_start).retrieve().toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -512,12 +519,12 @@ class ApplicationTest {
             .sorted(Comparator.comparing(Incident::getStart))
             .toList();
 
-        log.debug("[ApplicationTest::testGetIncidentsToFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+        log.debug("[StatusEndpointTest::testGetIncidentsToFrom] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
             incidents.size(), sortedIncidents.size(), filteredIncidents.size());
 
         assertEquals(filteredIncidents.size(), sortedIncidents.size());
 
-        log.debug("[ApplicationTest::testGetIncidentsToFrom] ending test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsToFrom] ending test.");
     }
 
     /**
@@ -527,15 +534,16 @@ class ApplicationTest {
      */
     @Test
     public void testGetIncidentsWithResource() throws Exception {
-        log.debug("[ApplicationTest::testGetIncidentsWithResource] start test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsWithResource] start test.");
 
         // Build the target URL.
         String url = "http://localhost:" + port +
             "/api/v1/status/incidents?resources=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
 
-        // Perform the GET /resources operation.
-        ResponseEntity<List<Incident>> response = restTemplate.exchange(url, HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {});
+        // Perform the GET /incidents operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -547,11 +555,11 @@ class ApplicationTest {
         List<Incident> incidents = response.getBody();
         assertNotNull(incidents);
 
-        log.debug("[ApplicationTest::testGetIncidentsWithResource] incidents = {}", incidents.size());
+        log.debug("[StatusEndpointTest::testGetIncidentsWithResource] incidents = {}", incidents.size());
 
         assertEquals(204, incidents.size());
 
-        log.debug("[ApplicationTest::testGetIncidentsWithResource] ending test.");
+        log.debug("[StatusEndpointTest::testGetIncidentsWithResource] ending test.");
     }
 
     /**
@@ -560,10 +568,10 @@ class ApplicationTest {
      * @param ifModifiedSince
      * @return
      */
-    private HttpEntity<String> getHeaders(String ifModifiedSince) {
+    private HttpHeaders getHeaders(String ifModifiedSince) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.IF_MODIFIED_SINCE, ifModifiedSince);
-        return new HttpEntity<>(headers);
+        return headers;
     }
 }

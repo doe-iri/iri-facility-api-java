@@ -20,13 +20,15 @@
 package net.es.iri.api.facility.schema;
 
 import java.net.MalformedURLException;
-import java.time.OffsetDateTime;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,7 +37,7 @@ import lombok.experimental.SuperBuilder;
 import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
- * Defines a resource-impacting event and provides log functionality.
+ *  This class defines an IRI project allocation.
  *
  * @author hacksaw
  */
@@ -47,30 +49,29 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Defines a resource impacting event and provides status log functionality.")
-public class Event extends NamedObject {
-    public static final String URL_TEMPLATE = "%s/api/v1/status/events/%s";
+@Schema(description = "Defines a user's allocation in a project.  This allocation is a piece of the project's allocation.")
+public class UserAllocation extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/account/user_allocations/%s";
 
-    @JsonProperty("status")
-    @Schema(description = "The status of the resource associated with this event.", example = "down")
-    private StatusType status;
+    @JsonProperty("user_id")
+    @Schema(description = "The user identifier associated with the allocation (hasUser).")
+    private String userId;
 
-    @JsonProperty("occurred_at")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.", example = "2025-03-11T07:28:24.000−00:00")
-    private OffsetDateTime occurredAt;
+    @JsonProperty("entries")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "Allocation entries associated with this user allocation (hasAllocationEntry)."
+        ),
+        schema = @Schema(implementation = AllocationEntry.class)
+    )
+    @Builder.Default
+    private List<AllocationEntry> entries = new ArrayList<>();
 
-    @JsonProperty("resource_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Resource associated with this Event (impacts).",
+    @JsonProperty("project_allocation_uri")
+    @Schema(description = "A hyperlink reference (URI) to the associated project allocation (hasProjectAllocation).",
         format = "uri",
-        example = "https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String resourceUri;
-
-    @JsonProperty("incident_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Incident associated with this Event (generatedBy).",
-        format = "uri",
-        example = "https://example.com/api/v1/status/incidents/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String incidentUri;
+        example = "https://example.com/api/v1/account/project_allocations/03bdbf77-6f29-4f66-9809-7f4f77098171")
+    private String projectAllocationUri;
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
@@ -89,7 +90,6 @@ public class Event extends NamedObject {
     @Override
     public void transformUri(UrlTransform transform) {
         this.setSelfUri(transform(transform, this.getSelfUri()));
-        this.setResourceUri(transform(transform, this.getResourceUri()));
-        this.setIncidentUri(transform(transform, this.getIncidentUri()));
+        this.setProjectAllocationUri(transform(transform, this.getProjectAllocationUri()));
     }
 }

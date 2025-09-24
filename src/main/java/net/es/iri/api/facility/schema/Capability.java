@@ -20,13 +20,14 @@
 package net.es.iri.api.facility.schema;
 
 import java.net.MalformedURLException;
-import java.time.OffsetDateTime;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,7 +36,7 @@ import lombok.experimental.SuperBuilder;
 import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
- * Defines a resource-impacting event and provides log functionality.
+ *  This class defines an IRI resource Capability.
  *
  * @author hacksaw
  */
@@ -47,30 +48,17 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Defines a resource impacting event and provides status log functionality.")
-public class Event extends NamedObject {
-    public static final String URL_TEMPLATE = "%s/api/v1/status/events/%s";
+@Schema(title="Capability", description = "Defines an aspect of a resource that can have an allocation. For example," +
+    "  Perlmutter nodes with GPUs. For some resources at a facility, this will be 1 to 1 with the resource." +
+    "  It is a way to further subdivide a resource into allocatable sub-resources.  The word" +
+    "  \"capability\" is also known to users as something they need for a job to run (eg. gpu).")
+public class Capability extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/account/capabilities/%s";
 
-    @JsonProperty("status")
-    @Schema(description = "The status of the resource associated with this event.", example = "down")
-    private StatusType status;
-
-    @JsonProperty("occurred_at")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.", example = "2025-03-11T07:28:24.000−00:00")
-    private OffsetDateTime occurredAt;
-
-    @JsonProperty("resource_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Resource associated with this Event (impacts).",
-        format = "uri",
-        example = "https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String resourceUri;
-
-    @JsonProperty("incident_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Incident associated with this Event (generatedBy).",
-        format = "uri",
-        example = "https://example.com/api/v1/status/incidents/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String incidentUri;
+    @JsonProperty("units")
+    @Schema(description = "The list of AllocationUnit associated with this capability.", example = "node_hours")
+    @Builder.Default
+    private List<AllocationUnit> units = new ArrayList<>();
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
@@ -89,7 +77,5 @@ public class Event extends NamedObject {
     @Override
     public void transformUri(UrlTransform transform) {
         this.setSelfUri(transform(transform, this.getSelfUri()));
-        this.setResourceUri(transform(transform, this.getResourceUri()));
-        this.setIncidentUri(transform(transform, this.getIncidentUri()));
     }
 }

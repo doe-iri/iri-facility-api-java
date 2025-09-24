@@ -48,7 +48,7 @@ springdoc:
 iri:
   server:
     root: "http://localhost:8443"
-    #proxy: "https://iri.es.net"
+    proxy: "https://iri.es.net"
 
   status:
     facility: /iri/config/facility.json
@@ -57,3 +57,7 @@ iri:
     incidents: /iri/config/incidents.json
     events: /iri/config/events.json
     resources: /iri/config/resources.json
+
+  account:
+    capabilities: /iri/config/capabilities.json
+

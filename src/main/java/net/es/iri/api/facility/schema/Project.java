@@ -19,17 +19,25 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
- * This class models a hyperlink referencing a resource with a specific relationship.
+ * A project resource will group user identifiers into a project.
  *
  * @author hacksaw
  */
@@ -37,20 +45,40 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Link represents a hyperlink with relation (rel), URL (href), and type.")
-public class Link {
-    @JsonProperty("rel")
-    @Schema(description = "The relationship type of the link", example = "self")
-    private String rel;
+@Schema(description = "A project and its list of users at a facility.")
+public class Project extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/account/projects/%s";
 
-    @JsonProperty("href")
-    @Schema(description = "The hyperlink reference (URI)", format = "uri",
-        example = "https://example.com/facility", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String href;
+    @JsonProperty("user_ids")
+    @ArraySchema(
+        arraySchema = @Schema(description = "A list of user identifiers associated with this project (hasUser).",
+            example = "[\"BillyJoeBob\",\"Jane\"]"),
+        schema = @Schema(type = "string"),
+        uniqueItems = true
+    )
+    @Builder.Default
+    private List<String> userIds = new ArrayList<>();
 
-    @JsonProperty("type")
-    @Schema(description = "The media type of the linked resource", example = "application/json")
-    private String type;
+    /**
+     * Returns the URL template for use by the parent class for exposing the Self URL.
+     *
+     * @return The URL template for an instance of this resource.
+     */
+    @Override protected String getUrlTemplate() {
+        return URL_TEMPLATE;
+    }
+
+    /**
+     * Run the transform over all URI in the resource.
+     *
+     * @param transform The transform to run on the resource.
+     */
+    @Override
+    public void transformUri(UrlTransform transform) {
+        this.setSelfUri(transform(transform, this.getSelfUri()));
+    }
 }

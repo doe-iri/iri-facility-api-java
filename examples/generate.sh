@@ -22,13 +22,14 @@
 # API Endpoints and Corresponding Output Files
 ENDPOINTS=(
     "http://localhost:8081/v3/api-docs openapi_iri_facility_api_v1.json"
-    "http://localhost:8081/api/v1/status meta-data.json"
-    "http://localhost:8081/api/v1/status/facility facility.json"
+    "http://localhost:8081/api/v1 meta-data.json"
+    "http://localhost:8081/api/v1/status status-meta-data.json"
+    "http://localhost:8081/api/v1/facility facility.json"
     "http://localhost:8081/api/v1/status/resources resources.json"
     "http://localhost:8081/api/v1/status/incidents incidents.json"
     "http://localhost:8081/api/v1/status/events events.json"
-    "http://localhost:8081/api/v1/status/sites sites.json"
-    "http://localhost:8081/api/v1/status/locations locations.json"
+    "http://localhost:8081/api/v1/facility/sites sites.json"
+    "http://localhost:8081/api/v1/facility/locations locations.json"
 )
 
 # Function to fetch data

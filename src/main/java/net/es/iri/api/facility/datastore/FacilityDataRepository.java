@@ -19,6 +19,7 @@
  */
 package net.es.iri.api.facility.datastore;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,23 +27,26 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import net.es.iri.api.facility.beans.FacilityStatus;
-import net.es.iri.api.facility.schema.MediaTypes;
+import net.es.iri.api.facility.beans.FacilityData;
+import net.es.iri.api.facility.beans.IriConfig;
+import net.es.iri.api.facility.beans.ServerConfig;
+import net.es.iri.api.facility.schema.Capability;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.NamedObject;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.Site;
+import net.es.iri.api.facility.utils.UrlTransform;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 /**
- * FacilityStatusRepository is a data access object (DAO) for managing JSON objects
+ * FacilityDataRepository is a data access object (DAO) for managing JSON objects
  * within this demo application. It functions as an in-memory data store for
  * facility status data and related objects such as resources, incidents, events,
  * geographical locations, and more.
@@ -57,20 +61,25 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class FacilityStatusRepository {
+public class FacilityDataRepository {
     // Master index for all objects.
     private final ConcurrentMap<String, NamedObject> objects = new ConcurrentHashMap<>();
 
     // The input facility status model is loaded from an external source.
-    private final FacilityStatus facilityStatus;
+    private final FacilityData facilityData;
+
+    // Transformer to manipulate the URL path in case of mapping issues.
+    private final UrlTransform utilities;
 
     /**
      * Constructor to load FacilityStatus bean containing IRI Facility Status instance data.
      *
-     * @param facilityStatus The input bean containing IRI Facility Status instance data.
+     * @param facilityData The input bean containing IRI Facility Status instance data.
      */
-    public FacilityStatusRepository(FacilityStatus facilityStatus) {
-        this.facilityStatus = facilityStatus;
+    public FacilityDataRepository(IriConfig config, FacilityData facilityData) {
+        this.facilityData = facilityData;
+        this.utilities = new UrlTransform("(/|" + Optional.ofNullable(config.getServer())
+            .map(ServerConfig::getRootOrProxy).orElse(null) + "/)");
     }
 
     /**
@@ -79,53 +88,38 @@ public class FacilityStatusRepository {
      */
     @PostConstruct
     public void init() {
-        log.debug("[FacilityStatusRepository::init] initializing repository.");
-        this.facilityStatus.getFacilities().forEach(facility -> {
-            fixLinks(facility.getLinks());
+        log.debug("[FacilityDataRepository::init] initializing status data.");
+        this.facilityData.getFacilities().forEach(facility -> {
+            facility.transformUri(utilities);
             objects.put(facility.getId(), facility);
         });
-        this.facilityStatus.getLocations().forEach(location -> {
-            fixLinks(location.getLinks());
+        this.facilityData.getLocations().forEach(location -> {
+            location.transformUri(utilities);
             objects.put(location.getId(), location);
         });
-        this.facilityStatus.getSites().forEach(sites -> {
-            fixLinks(sites.getLinks());
+        this.facilityData.getSites().forEach(sites -> {
+            sites.transformUri(utilities);
             objects.put(sites.getId(), sites);
         });
-        this.facilityStatus.getResources().forEach(resource -> {
-            fixLinks(resource.getLinks());
+        this.facilityData.getResources().forEach(resource -> {
+            resource.transformUri(utilities);
             objects.put(resource.getId(), resource);
         });
-        this.facilityStatus.getIncidents().forEach(incident -> {
-            fixLinks(incident.getLinks());
+        this.facilityData.getIncidents().forEach(incident -> {
+            incident.transformUri(utilities);
             objects.put(incident.getId(), incident);
         });
-        this.facilityStatus.getEvents().forEach(event -> {
-            fixLinks(event.getLinks());
+        this.facilityData.getEvents().forEach(event -> {
+            event.transformUri(utilities);
             objects.put(event.getId(), event);
         });
-        log.debug("[FacilityStatusRepository::init] repository initialized.");
-    }
 
-    private static void fixLinks(List<Link> links) {
-        for (Link link : links) {
-            if (link.getHref().contains("resources")) {
-                link.setType(MediaTypes.RESOURCE);
-            } else if (link.getHref().contains("sites")) {
-                link.setType(MediaTypes.SITE);
-            } else if (link.getHref().contains("locations")) {
-                link.setType(MediaTypes.LOCATION);
-            } else if (link.getHref().contains("events")) {
-                link.setType(MediaTypes.EVENT);
-            } else if (link.getHref().contains("incidents")) {
-                link.setType(MediaTypes.INCIDENT);
-            } else if (link.getHref().contains("facility")) {
-                link.setType(MediaTypes.FACILITY);
-            }
-            else {
-                log.error("[FacilityStatusRepository::fixLinks] link type unknown {}", link.getHref());
-            }
-        }
+        log.debug("[FacilityDataRepository::init] initializing account data.");
+        this.facilityData.getCapabilities().forEach(capability -> {
+            capability.transformUri(utilities);
+            objects.put(capability.getId(), capability);
+        });
+        log.debug("[FacilityDataRepository::init] repository initialized.");
     }
 
     /**
@@ -234,7 +228,7 @@ public class FacilityStatusRepository {
         if (probe.getName() != null && !probe.getName().equalsIgnoreCase(actual.getName())) {
             return false;
         }
-        if (probe.getShortName() != null && !probe.getShortName().equalsIgnoreCase(actual.getShortName())) {
+        if (probe.getSelfUri() != null && !probe.getSelfUri().equalsIgnoreCase(actual.getSelfUri())) {
             return false;
         }
         return probe.getDescription() == null || probe.getDescription().equalsIgnoreCase(actual.getDescription());
@@ -284,7 +278,7 @@ public class FacilityStatusRepository {
         for (Sort.Order order : sort) {
             Comparator<NamedObject> fieldComparator = Comparator.comparing(obj -> switch (order.getProperty()) {
                 case "name" -> obj.getName();
-                case "shortName" -> obj.getShortName();
+                case "selfUri" -> obj.getSelfUri();
                 case "description" -> obj.getDescription();
                 case "lastModified" -> obj.getLastModified().toLocalDate().toString();
                 default -> obj.getId();  // Default sort by ID
@@ -464,7 +458,7 @@ public class FacilityStatusRepository {
                 Comparator<NamedObject> fieldComparator = Comparator.comparing(object -> switch (order.getProperty()) {
                     case "id" -> object.getId();
                     case "name" -> object.getName();
-                    case "shortName" -> object.getShortName();
+                    case "selfUri" -> object.getSelfUri();
                     case "lastModified" ->
                         object.getLastModified().toLocalDateTime().toString(); // This will not be properly comparable.
                     default -> throw new IllegalArgumentException("Unknown property: " + order.getProperty());
@@ -505,8 +499,11 @@ public class FacilityStatusRepository {
         return null;
     }
 
+    /****************************************************************************
+     * Facility Status specific API.
+     ****************************************************************************/
     /**
-     * Find a resource based on href.
+     * Find a Facility resource based on href.
      *
      * @param href The URL reference for the resource to find.
      * @return A facility corresponding to href, or null if not found.
@@ -526,7 +523,7 @@ public class FacilityStatusRepository {
     }
 
     /**
-     * Find a resource based on href.
+     * Find an Event resource based on href.
      *
      * @param href The URL reference for the resource to find.
      * @return An event corresponding to href, or null if not found.
@@ -536,7 +533,7 @@ public class FacilityStatusRepository {
     }
 
     /**
-     * Find a resource based on href.
+     * Find an Incident resource based on href.
      *
      * @param href The URL reference for the resource to find.
      * @return An incident corresponding to href, or null if not found.
@@ -738,4 +735,35 @@ public class FacilityStatusRepository {
             .orElse(null);
     }
 
+    /****************************************************************************
+     * Facility Account specific API.
+     ****************************************************************************/
+
+    /**
+     * Return a list of Capabilities.
+     *
+     * @return List of sites.
+     */
+    public List<Capability> findAllCapabilities() {
+        return objects.values().stream()
+            .filter(Capability.class::isInstance)
+            .map(Capability.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(Capability.class::cast)
+            .toList();
+    }
+
+    /**
+     * Return Capability matching id.
+     *
+     * @return The capability matching id or null.
+     */
+    public Capability findCapabilityById(String id) {
+        return Optional.ofNullable(objects.get(id))
+            .filter(Capability.class::isInstance)
+            .map(Capability.class::cast)
+            .map(e -> e.toBuilder().build())
+            .map(Capability.class::cast)
+            .orElse(null);
+    }
 }

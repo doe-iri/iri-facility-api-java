@@ -20,7 +20,6 @@
 package net.es.iri.api.facility;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import net.es.iri.api.facility.datastore.FacilityStatusRepository;
+import net.es.iri.api.facility.beans.IriConfig;
+import net.es.iri.api.facility.datastore.FacilityDataRepository;
 import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
@@ -48,7 +48,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * A simple controller to simulated incidents and events to demo the
+ * A simple controller to simulate incidents and events to demo the
  * facility status model.
  *
  * @author hacksaw
@@ -58,18 +58,26 @@ import org.springframework.stereotype.Component;
 @Profile("!test") // exclude this component when 'test' profile is active
 public class SimulationController {
     // The data store containing facility status information.
-    private final FacilityStatusRepository repository;
+    private final FacilityDataRepository repository;
 
     // Map tracking if a resource group is being used for an incident.
     private final Map<String, Boolean> groupBeingUsed = new ConcurrentHashMap<>();
 
+    // The root of our absolute URL.
+    private final String root;
+
     /**
      * Constructor of the component.
-     *
-     * @param repository
      */
-    public SimulationController(FacilityStatusRepository repository) {
+    public SimulationController(IriConfig iriConfig, FacilityDataRepository repository) {
+        // Configuration information specified in application.yaml file.
         this.repository = repository;
+
+        if (iriConfig.getServer() != null) {
+            this.root = iriConfig.getServer().getRootOrProxy();
+        } else {
+            this.root = "https://example.com";
+        }
     }
 
     /**
@@ -120,64 +128,33 @@ public class SimulationController {
         incident.setLastModified(now);
         incident.setStart(now);
         incident.setEnd(now);
-        incident.setShortName("Startup");
         incident.setName("System startup");
         incident.setDescription("The system has been started.");
         incident.setStatus(StatusType.UP);
         incident.setResolution(ResolutionType.COMPLETED);
 
         // Link the incident to itself.
-        Link self = Link.builder()
-            .rel(Relationships.SELF)
-            .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
-            .type(MediaTypes.INCIDENT)
-            .build();
-        incident.getLinks().add(self);
+        String incidentSelf = incident.self(this.root);
+        incident.setSelfUri(incidentSelf);
 
         // Add the incident to the facility.
         Facility facility = repository.findAllFacilities().getFirst();
-        Link hasIncident = Link.builder()
-            .rel(Relationships.HAS_INCIDENT)
-            .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
-            .type(MediaTypes.INCIDENT)
-            .build();
-        facility.getLinks().add(hasIncident);
+        facility.getIncidentUris().add(incidentSelf);
         facility.setLastModified(now);
 
         // The incident will impact the group's resources.
         List<Resource> resources = repository.findAllResources();
         for (Resource r : resources) {
-            // Remove all incidents referenced by the resource that are no
-            // longer active, leaving only the active and future incidents.
-            List<Link> links = new ArrayList<>();
-            for (Link link : r.getLinks()) {
-                if (link.getRel().equalsIgnoreCase(Relationships.HAS_INCIDENT)) {
-                    Optional.ofNullable(repository.findIncidentByHref(link.getHref())).ifPresent(i -> {
-                        if (i.getEnd() != null && OffsetDateTime.now().isAfter(i.getEnd())) {
-                            links.add(link);
-                        }
-                    });
-                }
-            }
-            r.getLinks().removeAll(links);
+            log.debug("[SimulationController::createStartupIncident] {} : {}", r.getId(), r.getName());
 
             // Incident mayImpact the Resource.
-            Link mayImpact = Link.builder()
-                .rel(Relationships.MAY_IMPACT)
-                .href(String.format(Resource.URL_TEMPLATE, r.getId()))
-                .type(MediaTypes.RESOURCE)
-                .build();
-            incident.getLinks().add(mayImpact);
-
-            // A Resource hasIncident.
-            r.getLinks().add(hasIncident);
+            incident.getResourceUris().add(r.self(this.root));
 
             // Create the new down event.
             Event event = new Event();
             event.setId(UUID.randomUUID().toString());
             event.setLastModified(now);
-            event.setName(r.getShortName() + " is up");
-            event.setShortName(r.getShortName());
+            event.setName(r.getName() + " is up");
             event.setDescription("Up event for resource " + r.getId());
             event.setStatus(StatusType.UP);
 
@@ -248,27 +225,16 @@ public class SimulationController {
         incident.setLastModified(now);
         incident.setStart(startTime);
         incident.setEnd(endTime);
-        incident.setShortName(group);
         incident.setName(type + " outage on group " + group);
         incident.setDescription("Auto-generated incident of type " + type);
         incident.setStatus(StatusType.DOWN);
 
         // Link the incident to itself.
-        Link self = Link.builder()
-            .rel(Relationships.SELF)
-            .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
-            .type(MediaTypes.INCIDENT)
-            .build();
-        incident.getLinks().add(self);
+        incident.setSelfUri(incident.self(this.root));
 
         // Add the incident to the facility.
         Facility facility = repository.findAllFacilities().getFirst();
-        Link hasIncident = Link.builder()
-            .rel(Relationships.HAS_INCIDENT)
-            .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
-            .type(MediaTypes.INCIDENT)
-            .build();
-        facility.getLinks().add(hasIncident);
+        facility.getIncidentUris().add(incident.self(this.root));
         facility.setLastModified(now);
 
         // The incident mayImpact resources from group.
@@ -276,15 +242,7 @@ public class SimulationController {
             .filter(r -> group.equalsIgnoreCase(r.getGroup()))
             .forEach(r -> {
                 // Incident mayImpact the Resource.
-                Link mayImpact = Link.builder()
-                    .rel(Relationships.MAY_IMPACT)
-                    .href(String.format(Resource.URL_TEMPLATE, r.getId()))
-                    .type(MediaTypes.RESOURCE)
-                    .build();
-                incident.getLinks().add(mayImpact);
-
-                // A Resource hasIncident to Incident.
-                incident.getLinks().add(hasIncident);
+                incident.getResourceUris().add(r.self(this.root));
             });
 
         // Handling is a little different for planned and unplanned events.
@@ -301,8 +259,7 @@ public class SimulationController {
                 Event event = new Event();
                 event.setId(UUID.randomUUID().toString());
                 event.setLastModified(now);
-                event.setName(r.getShortName() + " is down");
-                event.setShortName(r.getShortName());
+                event.setName(r.getName() + " is down");
                 event.setDescription("Down event for resource " + r.getId());
                 event.setStatus(StatusType.DOWN);
 
@@ -383,16 +340,14 @@ public class SimulationController {
         // We need to get the list of resources associated with this
         // incident and create events.
         OffsetDateTime now = OffsetDateTime.now();
-        List<Resource> resources = incident.getLinks().stream()
-            .filter(l -> Relationships.IMPACTS.equalsIgnoreCase(l.getRel()))
-            .map(Link::getHref)
-            .filter(Objects::nonNull) // href
+        List<Resource> resources = incident.getResourceUris().stream()
+            .filter(Objects::nonNull)
             .map(url -> url.substring(url.lastIndexOf("/") + 1)) // uuid
             .map(repository::findResourceById)
             .toList();
 
+        // We need to create a new event per resource and link it to the incident.
         for (Resource r : resources) {
-            // We need to create a new event per resource and link it to the incident.
             log.debug("[SimulationController::transitionToCompleted] processing resource: {}", r.getId());
 
             Event event = new Event();
@@ -401,8 +356,7 @@ public class SimulationController {
             event.setLastModified(now);
             event.setStatus(StatusType.UP);
             event.setName(r.getName());
-            event.setShortName(r.getShortName());
-            event.setDescription(r.getShortName() + " is UP");
+            event.setDescription(r.getName() + " is UP");
 
             r.setLastModified(now);
             r.setCurrentStatus(StatusType.UP);
@@ -442,17 +396,15 @@ public class SimulationController {
         // We need to get the list of resources associated with this
         // incident and create events.
         OffsetDateTime now = OffsetDateTime.now();
-        List<Resource> resources = Optional.ofNullable(incident.getLinks()).stream()
+        List<Resource> resources = Optional.ofNullable(incident.getResourceUris()).stream()
             .flatMap(List::stream)
-            .filter(l -> Relationships.IMPACTS.equalsIgnoreCase(l.getRel()))
-            .map(Link::getHref)
             .filter(Objects::nonNull) // href
             .map(url -> url.substring(url.lastIndexOf("/") + 1))
             .map(repository::findResourceById)
             .toList();
 
+        // We need to create a new event per resource and link it to the incident.
         for (Resource r : resources) {
-            // We need to create a new event per resource and link it to the incident.
             log.debug("[SimulationController::transitionToUnResolved] processing resource: {}", r.getId());
 
             Event event = new Event();
@@ -461,8 +413,7 @@ public class SimulationController {
             event.setLastModified(now);
             event.setStatus(incident.getStatus());
             event.setName(r.getName());
-            event.setShortName(r.getShortName());
-            event.setDescription(r.getShortName() + " is " + incident.getStatus());
+            event.setDescription(r.getName() + " is " + incident.getStatus());
 
             r.setLastModified(now);
             r.setCurrentStatus(incident.getStatus());
@@ -487,54 +438,19 @@ public class SimulationController {
      */
     private void linkEvent(Incident incident, Event event, Resource resource) {
         // Add the event's self link.
-        Link self = Link.builder()
-            .rel(Relationships.SELF)
-            .href(String.format(Event.URL_TEMPLATE, event.getId()))
-            .type(MediaTypes.EVENT)
-            .build();
-        event.getLinks().add(self);
+        event.setSelfUri(event.self(this.root));
 
         // Link the event to the resource.
-        Link impacts = Link.builder()
-            .rel(Relationships.IMPACTS)
-            .href(String.format(Resource.URL_TEMPLATE, resource.getId()))
-            .type(MediaTypes.RESOURCE)
-            .build();
-        event.getLinks().add(impacts);
-
-        // A Resource is impactedBy the last Event generated, so we need to
-        // remove any impactedBy links already in place.
-        List<Link> remove = new ArrayList<>();
-        for (Link link : resource.getLinks()) {
-            if (link.getRel().equals(Relationships.IMPACTED_BY)) {
-                remove.add(link);
-            }
-        }
-        resource.getLinks().removeAll(remove);
+        event.setResourceUri(resource.self(this.root));
 
         // Add this new impactedBy Event.
-        Link impactedBy = Link.builder()
-            .rel(Relationships.IMPACTED_BY)
-            .href(String.format(Event.URL_TEMPLATE, event.getId()))
-            .type(MediaTypes.EVENT)
-            .build();
-        resource.getLinks().add(impactedBy);
+        resource.setImpactedByUri(event.self(this.root));
 
         // Link the incident to the event.
-        Link hasEvent = Link.builder()
-            .rel(Relationships.HAS_EVENT)
-            .href(String.format(Event.URL_TEMPLATE, event.getId()))
-            .type(MediaTypes.EVENT)
-            .build();
-        incident.getLinks().add(hasEvent);
+        incident.getEventUris().add(event.self(this.root));
 
         // The Event is generatedBy an Incident.
-        Link generatedBy = Link.builder()
-            .rel(Relationships.GENERATED_BY)
-            .href(String.format(Incident.URL_TEMPLATE, incident.getId()))
-            .type(MediaTypes.INCIDENT)
-            .build();
-        event.getLinks().add(generatedBy);
+        event.setIncidentUri(incident.self(this.root));
     }
 
     /**
@@ -576,10 +492,8 @@ public class SimulationController {
      * @return A set of group names associated with the impacted resources.
      */
     private Set<String> getImpactedGroups(Incident incident) {
-        return Optional.ofNullable(incident.getLinks()).stream()
+        return Optional.ofNullable(incident.getResourceUris()).stream()
             .flatMap(List::stream)
-            .filter(l -> Relationships.IMPACTS.equalsIgnoreCase(l.getRel()))
-            .map(Link::getHref)
             .filter(Objects::nonNull) // href
             .map(url -> url.substring(url.lastIndexOf("/") + 1)) // uuid
             .map(repository::findResourceById)

@@ -19,9 +19,15 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +36,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import net.es.iri.api.facility.utils.UrlTransform;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  *  This class defines an IRI resource and associated dependencies.
@@ -43,27 +52,101 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
 public class Resource extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/status/resources/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/status/resources/%s";
 
     @JsonProperty("type")
-    @Schema(description = "The type of resource.", example = "system")
+    @Schema(description = "The type of resource.", example = "system",
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private ResourceType type;
 
+    @JsonProperty("capability_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "Hyperlink references (URIs) to capabilities this resource provides (hasCapability).",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> capabilityUris = new ArrayList<>();
+
     @JsonProperty("group")
-    @Schema(description = "The member resource group.", example = "PERLMUTTER")
+    @Schema(description = "The member resource group.", example = "PERLMUTTER",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String group;
 
     @JsonProperty("current_status")
-    @Schema(description = "The current status of this resource a time of query.", example = "up")
+    @Schema(description = "The current status of this resource at time of query.", example = "up",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private StatusType currentStatus;
 
-    // Include embedded here since including a generic embedded structure in NamedObject screws up
-    // the OpenAPI documentation.
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonProperty("_embedded")
-    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
-    private ResourceEmbedded embedded;
+    @JsonProperty("impacted_by_uri")
+    @Schema(description = "A hyperlink reference (URI) to the last event impacting this Resource (impactedBy).",
+        format = "uri",
+        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String impactedByUri;
+
+    @JsonProperty("located_at_uri")
+    @Schema(description = "A hyperlink reference (URI) to the Site containing this Resource (locatedAt).",
+        format = "uri",
+        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String locatedAtUri;
+
+    @JsonProperty("member_of_uri")
+    @Schema(description = "A hyperlink reference (URI) to facility managing this Resource (memberOf).",
+        format = "uri",
+        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String memberOfUri;
+
+    @JsonProperty("depends_on_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "Hyperlink references (URIs) a list of Resources this Resource depends on (dependsOn).",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> dependsOnUris =  new ArrayList<>();
+
+    @JsonProperty("has_dependent_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "Hyperlink references (URIs) to Resources that depend on this Resource (hasDependent).",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> hasDependentUris =  new ArrayList<>();
+
+    /**
+     * Returns the URL template for use by the parent class for exposing the Self URL.
+     *
+     * @return The URL template for an instance of this resource.
+     */
+    @Override protected String getUrlTemplate() {
+        return URL_TEMPLATE;
+    }
+
+    /**
+     * Run the transform over all URI in the resource.
+     *
+     * @param transform The transform to run on the resource.
+     */
+    @Override
+    public void transformUri(UrlTransform transform) {
+        this.setSelfUri(transform(transform, this.getSelfUri()));
+        this.setImpactedByUri(transform(transform, this.getImpactedByUri()));
+        this.setLocatedAtUri(transform(transform, this.getLocatedAtUri()));
+        this.setMemberOfUri(transform(transform, this.getMemberOfUri()));
+        this.setDependsOnUris(transformList(transform, this.getDependsOnUris()));
+        this.setHasDependentUris(transformList(transform, this.getHasDependentUris()));
+    }
 }

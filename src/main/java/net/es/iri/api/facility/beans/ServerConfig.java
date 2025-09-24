@@ -39,4 +39,12 @@ import org.springframework.validation.annotation.Validated;
 public class ServerConfig {
   private String root;
   private String proxy;
+
+  public String getRootOrProxy() {
+    if (proxy != null && !proxy.isEmpty()) {
+      return proxy;
+    }
+    return root;
+  }
+
 }

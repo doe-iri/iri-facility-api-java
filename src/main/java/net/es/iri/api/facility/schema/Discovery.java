@@ -35,7 +35,7 @@ import lombok.Data;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "Defines discovery resource for modelling meta-data.")
 public class Discovery {
     @JsonProperty("id")

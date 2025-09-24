@@ -20,13 +20,14 @@
 package net.es.iri.api.facility.schema;
 
 import java.net.MalformedURLException;
-import java.time.OffsetDateTime;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,7 +36,7 @@ import lombok.experimental.SuperBuilder;
 import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
- * Defines a resource-impacting event and provides log functionality.
+ *  This class defines an IRI project allocation.
  *
  * @author hacksaw
  */
@@ -47,30 +48,28 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Defines a resource impacting event and provides status log functionality.")
-public class Event extends NamedObject {
-    public static final String URL_TEMPLATE = "%s/api/v1/status/events/%s";
+@Schema(description = "Defines a project's allocation for a capability (aka. repo).  This allocation is a"
+    + " piece of the total allocation for the capability (eg. 5% of the total node hours of Perlmutter GPU"
+    + " nodes).  A project would at least have a storage and job repos, maybe more than 1 of each.")
+public class ProjectAllocation extends NamedObject {
+    public static final String URL_TEMPLATE = "/api/v1/account/project_allocations/%s";
 
-    @JsonProperty("status")
-    @Schema(description = "The status of the resource associated with this event.", example = "down")
-    private StatusType status;
+    @JsonProperty("entries")
+    @Schema(description = "Allocation entries associated with this user allocation (hasAllocationEntry).")
+    @Builder.Default
+    private List<AllocationEntry> entries =  new ArrayList<>();
 
-    @JsonProperty("occurred_at")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this event occurred.  Format follows the ISO 8601 standard with timezone offsets.", example = "2025-03-11T07:28:24.000−00:00")
-    private OffsetDateTime occurredAt;
-
-    @JsonProperty("resource_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Resource associated with this Event (impacts).",
+    @JsonProperty("project_uri")
+    @Schema(description = "A hyperlink reference (URI) to the associated project (hasProject).",
         format = "uri",
-        example = "https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String resourceUri;
+        example = "https://example.com/api/v1/account/projects/03bdbf77-6f29-4f66-9809-7f4f77098171")
+    private String projectUri;
 
-    @JsonProperty("incident_uri")
-    @Schema(description = "A hyperlink reference (URI) to the Incident associated with this Event (generatedBy).",
+    @JsonProperty("capability_uri")
+    @Schema(description = "A hyperlink reference (URI) to the associated capability (hasCapability).",
         format = "uri",
-        example = "https://example.com/api/v1/status/incidents/03bdbf77-6f29-4f66-9809-7f4f77098171")
-    private String incidentUri;
+        example = "https://example.com/api/v1/account/capabilities/03bdbf77-6f29-4f66-9809-7f4f77098171")
+    private String capabilityUri;
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
@@ -89,7 +88,7 @@ public class Event extends NamedObject {
     @Override
     public void transformUri(UrlTransform transform) {
         this.setSelfUri(transform(transform, this.getSelfUri()));
-        this.setResourceUri(transform(transform, this.getResourceUri()));
-        this.setIncidentUri(transform(transform, this.getIncidentUri()));
+        this.setProjectUri(transform(transform, this.getProjectUri()));
+        this.setCapabilityUri(transform(transform, this.getCapabilityUri()));
     }
 }

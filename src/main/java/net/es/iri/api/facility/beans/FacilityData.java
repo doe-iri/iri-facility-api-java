@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Data;
+import net.es.iri.api.facility.schema.Capability;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Location;
@@ -34,18 +35,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * Configuration bean to get the IRI Facility Status instance data from the application configuration.
+ * Configuration bean to get the IRI Facility instance data from the application configuration.
  *
  * @author hacksaw
  */
 @Data
 @Component
 @Validated
-public class FacilityStatus {
-    // Injected configuration.
-    private final IriConfig iriConfig;
-
-    // Load from individual files.
+public class FacilityData {
+    // Load Status API data from individual files.
     private List<Facility> facilities = new CopyOnWriteArrayList<>();
     private List<Location> locations = new CopyOnWriteArrayList<>();
     private List<Site> sites = new CopyOnWriteArrayList<>();
@@ -53,9 +51,11 @@ public class FacilityStatus {
     private List<Incident> incidents = new CopyOnWriteArrayList<>();
     private List<Event> events = new CopyOnWriteArrayList<>();
 
-    public FacilityStatus(IriConfig iriConfig) {
-        this.iriConfig = iriConfig;
+    // Load Account API data from individual files.
+    private List<Capability> capabilities = new CopyOnWriteArrayList<>();
 
+    public FacilityData(IriConfig iriConfig) {
+        // Load Status API data from individual files.
         Optional.ofNullable(iriConfig.getFacility()).ifPresent(file ->
             this.facilities.add(JsonParser.fromFile(file, Facility.class))
         );
@@ -78,6 +78,11 @@ public class FacilityStatus {
 
         Optional.ofNullable(iriConfig.getEvents()).ifPresent(file ->
             this.events.addAll(JsonParser.listFromFile(file, Event.class))
+        );
+
+        // Load Account API data from individual files.
+        Optional.ofNullable(iriConfig.getCapabilities()).ifPresent(file ->
+            this.capabilities.addAll(JsonParser.listFromFile(file, Capability.class))
         );
     }
 }

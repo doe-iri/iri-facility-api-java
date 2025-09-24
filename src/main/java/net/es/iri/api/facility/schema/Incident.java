@@ -19,14 +19,19 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.net.MalformedURLException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +39,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import net.es.iri.api.facility.utils.Common;
+import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
  * An incident resource groups events in time and across resources.
@@ -42,14 +48,15 @@ import net.es.iri.api.facility.utils.Common;
  */
 @Data
 @SuperBuilder(toBuilder = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "An incident groups events in time and across resources.")
 public class Incident extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/status/incidents/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/status/incidents/%s";
 
     @JsonProperty("status")
     @Schema(description = "The status of the resource associated with this incident.", example = "down")
@@ -74,12 +81,44 @@ public class Incident extends NamedObject {
     @Builder.Default
     private ResolutionType resolution = ResolutionType.PENDING;
 
-    // Include embedded here since including a generic embedded structure in NamedObject screws up
-    // the OpenAPI documentation.
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonProperty("_embedded")
-    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
-    private IncidentEmbedded embedded;
+    @JsonProperty("resource_uris")
+    @ArraySchema(
+        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Resources impacted by this Incident (mayImpact).",
+            example = "[\"https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/resources/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> resourceUris = new ArrayList<>();
+
+    @JsonProperty("event_uris")
+    @ArraySchema(
+        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Events associated with this Incident (hasEvent).",
+            example = "[\"https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/events/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> eventUris = new ArrayList<>();
+
+    /**
+     * Returns the URL template for use by the parent class for exposing the Self URL.
+     *
+     * @return The URL template for an instance of this resource.
+     */
+    @Override protected String getUrlTemplate() {
+        return URL_TEMPLATE;
+    }
+
+    /**
+     * Run the transform over all URI in the resource.
+     *
+     * @param transform The transform to run on the resource.
+     */
+    @Override
+    public void transformUri(UrlTransform transform) {
+        this.setSelfUri(transform(transform, this.getSelfUri()));
+        this.setResourceUris(transformList(transform, this.getResourceUris()));
+        this.setEventUris(transformList(transform, this.getEventUris()));
+    }
 
     /**
      * Determines if there is an overlap between this incident's time and the time
@@ -123,7 +162,7 @@ public class Incident extends NamedObject {
 
     /**
      * Determines if a resource identifier listed in the resources query parameter is
-     * present in the incident via the mayImpact relationship.
+     * present in the resources_uris list.
      *
      * @param resources The list of resources to match.
      * @return True if this incident contains a resource from the list.
@@ -133,9 +172,8 @@ public class Incident extends NamedObject {
             return true;
         }
         for (String resource : resources) {
-            for (Link link : this.getLinks()) {
-                if (Relationships.MAY_IMPACT.equalsIgnoreCase(link.getRel()) &&
-                    link.getHref().contains("/resources/" + resource)) {
+            for (String uri : this.getResourceUris()) {
+                if (uri.contains("/resources/" + resource)) {
                     return true;
                 }
             }

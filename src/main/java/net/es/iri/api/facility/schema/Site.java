@@ -19,16 +19,23 @@
  */
 package net.es.iri.api.facility.schema;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import net.es.iri.api.facility.utils.UrlTransform;
 
 /**
  *  The physical site of a resource that has an associated location and an operating organization.
@@ -42,19 +49,52 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "The location of a resource that has an associated physical location and an operating organization.")
 public class Site extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/status/sites/%s";
+    public static final String URL_TEMPLATE = "/api/v1/facility/sites/%s";
+
+    @JsonProperty("short_name")
+    @Schema(description = "The short name of the resource.", example = "LBNL")
+    private String shortName;
 
     @JsonProperty("operating_organization")
     @Schema(description = "The name of the organization operating the site.", example = "Lawrence Berkeley National Laboratory")
     private String operatingOrganization;
 
-    // Include embedded here since including a generic embedded structure in NamedObject screws up
-    // the OpenAPI documentation.
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonProperty("_embedded")
-    @Schema(description = "A set of embedded objects that were requested via the 'include' query parameter.")
-    private SiteEmbedded embedded;
+    @JsonProperty("location_uri")
+    @Schema(description = "A hyperlink reference (URI) to the location associated with this Site (hasLocation).",
+        format = "uri",
+        example = "https://example.com/api/v1/status/locations/03bdbf77-6f29-4f66-9809-7f4f77098171")
+    private String locationUri;
+
+    @JsonProperty("resource_uris")
+    @ArraySchema(
+        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Resources located at this Site (hasResource).",
+            example = "[\"https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/resources/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> resourceUris = new ArrayList<>();
+
+    /**
+     * Returns the URL template for use by the parent class for exposing the Self URL.
+     *
+     * @return The URL template for an instance of this resource.
+     */
+    @Override protected String getUrlTemplate() {
+        return URL_TEMPLATE;
+    }
+
+    /**
+     * Run the transform over all URI in the resource.
+     *
+     * @param transform The transform to run on the resource.
+     */
+    @Override
+    public void transformUri(UrlTransform transform) {
+        this.setSelfUri(transform(transform, this.getSelfUri()));
+        this.setLocationUri(transform(transform, this.getLocationUri()));
+        this.setResourceUris(transformList(transform, this.getResourceUris()));
+    }
 }

@@ -52,34 +52,36 @@ public class UrlTransform {
    *
    * @param uri
    * @return
-   * @throws MalformedURLException
    */
-  public UriComponentsBuilder getPath(String uri)
-          throws MalformedURLException {
-    if (uriTransform == null || uriTransform.isBlank()) {
-      return UriComponentsBuilder.fromUriString(uri);
-    }
-
-    // We want to manipulate the URL using string matching.
-    String fromUri = getFromURI(uriTransform);
-    String toUri = getToURI(uriTransform);
-
-    // Remove the URI prefix if one was provided.
-    if (fromUri != null && !fromUri.isBlank()) {
-      if (!uri.startsWith(fromUri)) {
-        // We do not have a matching URI prefix so return full URL.
+  public UriComponentsBuilder getPath(String uri) {
+    try {
+      if (uriTransform == null || uriTransform.isBlank()) {
         return UriComponentsBuilder.fromUriString(uri);
       }
 
-      uri = uri.replaceFirst(fromUri, "");
-    }
+      // We want to manipulate the URL using string matching.
+      String fromUri = getFromURI(uriTransform);
+      String toUri = getToURI(uriTransform);
 
-    // Add the URI prefix if one was provided.
-    if (toUri != null && !toUri.isBlank()) {
-      uri = toUri + uri;
-    }
+      // Remove the URI prefix if one was provided.
+      if (fromUri != null && !fromUri.isBlank()) {
+        if (!uri.startsWith(fromUri)) {
+          // We do not have a matching URI prefix so return full URL.
+          return UriComponentsBuilder.fromUriString(uri);
+        }
 
-    return UriComponentsBuilder.fromUriString(uri);
+        uri = uri.replaceFirst(fromUri, "");
+      }
+
+      // Add the URI prefix if one was provided.
+      if (toUri != null && !toUri.isBlank()) {
+        uri = toUri + uri;
+      }
+
+      return UriComponentsBuilder.fromUriString(uri);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

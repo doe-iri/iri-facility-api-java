@@ -77,6 +77,9 @@ public class OpenApiDescriptions {
   /*******************************************************************************************************
    * Query parameters.
    *******************************************************************************************************/
+  public static final String NAME_NAME = "name";
+  public static final String NAME_MSG = "The name of the resource.";
+
   public static final String SHORT_NAME_NAME = "short_name";
   public static final String SHORT_NAME_MSG = "The short name of the resource.";
 
@@ -102,20 +105,20 @@ public class OpenApiDescriptions {
       "The from query parameter must be in ISO 8601 format with timezone offsets.";
 
   public static final String TO_NAME = "to";
-  public static final String TO_MSG = "Search for incidents/events that are active before (and including) the specified to time.  " +
+  public static final String TO_MSG = "Search for incidents/events that are active before (and including) the specified 'to' time.  " +
       "The from query parameter must be in ISO 8601 format with timezone offsets.";
 
   public static final String RESOURCE_TYPE_NAME = "type";
   public static final String RESOURCE_TYPE_MSG = "Return only resources of this type.";
+
+  public static final String RESOURCE_CAPABILITY_NAME = "capability";
+  public static final String RESOURCE_CAPABILITY_MSG = "Return only resources with this capability.";
 
   public static final String CURRENT_STATUS_NAME = "current_status";
   public static final String CURRENT_STATUS_MSG = "Return only resources with these status values.";
 
   public static final String RESOURCES_NAME = "resources";
   public static final String RESOURCES_MSG = "A list of resources to match.";
-
-  public static final String INCLUDE_NAME = "include";
-  public static final String INCLUDE_MSG = "A list of relationships to dereference and include as embedded objects.";
 
   /*******************************************************************************************************
    * URL path parameters.

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "9b930fc2-7840-47b2-9268-42362b6fe9ee",
+    "name": "CPU Nodes",
+    "last_modified": "2025-07-24T02:31:08.000Z",
+    "units": [
+      "node_hours"
+    ]
+  },
+  {
+    "id": "dfa2eca9-bec0-47f3-9e1e-c15fc122ea25",
+    "name": "GPU Nodes",
+    "last_modified": "2025-07-24T02:31:08.000Z",
+    "units": [
+      "node_hours"
+    ]
+  },
+  {
+    "id": "87b7692f-8793-447f-ba75-bb0b9c37d9d9",
+    "name": "Tape Storage",
+    "last_modified": "2025-07-24T02:31:08.000Z",
+    "units": [
+      "bytes",
+      "inodes"
+    ]
+  },
+  {
+    "id": "80db7b6e-5746-4d63-8d87-84396a8c29ab",
+    "name": "GPFS Storage",
+    "last_modified": "2025-07-24T02:31:08.000Z",
+    "units": [
+      "bytes",
+      "inodes"
+    ]
+  }
+]
