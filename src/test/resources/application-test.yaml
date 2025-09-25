@@ -111,3 +111,6 @@ iri:
 
   account:
     capabilities: src/test/resources/capabilities.json
+    projects: src/test/resources/projects.json
+    project_allocations: src/test/resources/project_allocations.json
+    user_allocations: src/test/resources/user_allocations.json

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "be91d9c1-99bc-47c1-aaa9-3ee82bb8a7d0",
+    "self_uri": "/api/v1/account/user_allocations/be91d9c1-99bc-47c1-aaa9-3ee82bb8a7d0",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "3778d313-213d-4af4-b468-c66c5c29d8ab_gtorok",
+        "allocation": 59.41315315712641,
+        "usage": 15.385205137465656,
+        "unit": "node_hours"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/46dcde57-e88a-49a9-bf7a-c2120cf5a86b"
+  },
+  {
+    "id": "a98005a7-a7c0-46de-b64c-950fbc50b6fc",
+    "self_uri": "/api/v1/account/user_allocations/a98005a7-a7c0-46de-b64c-950fbc50b6fc",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "0e0dae51-45b9-44a2-a4c4-2280fd2a3c02_gtorok",
+        "allocation": 91.12396373652595,
+        "usage": 14.096590956908736,
+        "unit": "node_hours"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/237e42bf-62f0-40ea-99af-55a8d518b413"
+  },
+  {
+    "id": "85c8a6be-a220-4c0c-84ce-e454c9abcd16",
+    "self_uri": "/api/v1/account/user_allocations/85c8a6be-a220-4c0c-84ce-e454c9abcd16",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "6e988323-a9b4-4dee-bd97-2c1187888938_gtorok",
+        "allocation": 91.30069218685705,
+        "usage": 12.088578799441411,
+        "unit": "bytes"
+      },
+      {
+        "id": "11ba6ab8-b0f0-4547-a3b1-0d49ffb9415b_gtorok",
+        "allocation": 79.82342395440843,
+        "usage": 17.945442718038922,
+        "unit": "inodes"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/5053d076-2e12-40f2-a098-71164629131a"
+  },
+  {
+    "id": "d2bb025c-5ecf-4245-9fee-6e8f4a228cdc",
+    "self_uri": "/api/v1/account/user_allocations/d2bb025c-5ecf-4245-9fee-6e8f4a228cdc",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "90f9e4e0-29cc-48eb-958a-c937342e9b4f_gtorok",
+        "allocation": 88.28998279170693,
+        "usage": 18.69158023109438,
+        "unit": "bytes"
+      },
+      {
+        "id": "6518756c-809e-411d-ab2d-64b5323da888_gtorok",
+        "allocation": 58.02152820442791,
+        "usage": 10.306524764853869,
+        "unit": "inodes"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/c5eea9d4-c20b-438b-b8f2-df0199bad3bb"
+  },
+  {
+    "id": "a8d3c5f7-fb01-4134-9cb3-bb51e68458eb",
+    "self_uri": "/api/v1/account/user_allocations/a8d3c5f7-fb01-4134-9cb3-bb51e68458eb",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "367ec122-2a15-4a9c-b740-e2d5c55c0695_gtorok",
+        "allocation": 77.13407039956905,
+        "usage": 13.483053584262217,
+        "unit": "node_hours"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/3a2c9d4c-180c-44c7-a59d-df21f963d83d"
+  },
+  {
+    "id": "8e2b256e-b5f5-4195-80e3-92335499ad09",
+    "self_uri": "/api/v1/account/user_allocations/8e2b256e-b5f5-4195-80e3-92335499ad09",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "15b73a7c-108a-4ee2-be68-6a37740fc70e_gtorok",
+        "allocation": 53.86849424533953,
+        "usage": 13.503884235506646,
+        "unit": "node_hours"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/43076d5e-a23e-440a-a02f-aca936262dc8"
+  },
+  {
+    "id": "c2c6e8f7-2504-4861-b9e1-37e96b3b55b0",
+    "self_uri": "/api/v1/account/user_allocations/c2c6e8f7-2504-4861-b9e1-37e96b3b55b0",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "93b70285-c691-45b8-95f8-4d2421c4c577_gtorok",
+        "allocation": 92.89771371161751,
+        "usage": 14.00914685223143,
+        "unit": "bytes"
+      },
+      {
+        "id": "8c25ff72-6357-4589-9798-799e99e42707_gtorok",
+        "allocation": 74.73951694732725,
+        "usage": 17.419914589052553,
+        "unit": "inodes"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/6ddbd7c4-1872-4490-9313-f0d7090449ac"
+  },
+  {
+    "id": "6f74f68d-07ae-4a11-b97d-4e6d57b6e62f",
+    "self_uri": "/api/v1/account/user_allocations/6f74f68d-07ae-4a11-b97d-4e6d57b6e62f",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "user_id": "gtorok",
+    "entries": [
+      {
+        "id": "a54c6b55-039a-412d-a559-503856fbb802_gtorok",
+        "allocation": 80.02683366563474,
+        "usage": 19.23073357750356,
+        "unit": "bytes"
+      },
+      {
+        "id": "12f15599-8440-4c41-b035-9da674cb02d7_gtorok",
+        "allocation": 61.19122627693694,
+        "usage": 17.43804731794477,
+        "unit": "inodes"
+      }
+    ],
+    "project_allocation_uri": "/api/v1/account/project_allocations/1308fbef-b29a-411f-86c1-c471154108ed"
+  }
+]

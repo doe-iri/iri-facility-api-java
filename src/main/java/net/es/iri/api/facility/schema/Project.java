@@ -55,13 +55,25 @@ public class Project extends NamedObject {
 
     @JsonProperty("user_ids")
     @ArraySchema(
-        arraySchema = @Schema(description = "A list of user identifiers associated with this project (hasUser).",
+        arraySchema = @Schema(
+            description = "A list of user identifiers associated with this project (hasUser).",
             example = "[\"BillyJoeBob\",\"Jane\"]"),
         schema = @Schema(type = "string"),
         uniqueItems = true
     )
     @Builder.Default
     private List<String> userIds = new ArrayList<>();
+
+    @JsonProperty("project_allocation_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "A list of hyperlink reference (URI) to zero or more ProjectAllocations (hasProjectAllocation).",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> projectAllocationUris = new ArrayList<>();
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
@@ -80,5 +92,6 @@ public class Project extends NamedObject {
     @Override
     public void transformUri(UrlTransform transform) {
         this.setSelfUri(transform(transform, this.getSelfUri()));
+        this.setProjectAllocationUris(transformList(transform, this.getProjectAllocationUris()));
     }
 }

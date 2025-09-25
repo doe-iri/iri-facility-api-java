@@ -60,4 +60,7 @@ iri:
 
   account:
     capabilities: /iri/config/capabilities.json
+    projects: /iri/config/projects.json
+    project_allocations: /iri/config/project_allocations.json
+    user_allocations: /iri/config/user_allocations.json
 

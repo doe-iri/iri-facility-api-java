@@ -120,6 +120,9 @@ public class OpenApiDescriptions {
   public static final String RESOURCES_NAME = "resources";
   public static final String RESOURCES_MSG = "A list of resources to match.";
 
+  public static final String USERIDS_NAME = "user_ids";
+  public static final String USERIDS_MSG = "Return only projects containing any of the listed users.";
+
   /*******************************************************************************************************
    * URL path parameters.
    *******************************************************************************************************/

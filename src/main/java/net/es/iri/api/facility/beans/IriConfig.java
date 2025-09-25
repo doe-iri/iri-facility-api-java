@@ -60,4 +60,13 @@ public class IriConfig {
 
     @Value("${iri.account.capabilities}")
     private String capabilities;
+
+    @Value("${iri.account.projects}")
+    private String projects;
+
+    @Value("${iri.account.project_allocations}")
+    private String projectAllocations;
+
+    @Value("${iri.account.user_allocations}")
+    private String userAllocations;
 }

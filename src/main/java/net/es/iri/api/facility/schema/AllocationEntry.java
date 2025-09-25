@@ -33,7 +33,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
- *  This class defines an IRI allocation.
+ *  This class defines an IRI allocation entry.
  *
  * @author hacksaw
  */
@@ -45,6 +45,10 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "Defines an allocation.")
 public class AllocationEntry {
+    @JsonProperty("id")
+    @Schema(description ="Unique identifier for this allocation entry.", example = "98820b64-d3ac-4eff-8e74-80decd80b37c")
+    private String id;
+
     @JsonProperty("allocation")
     @Schema(description ="How much this allocation can spend.", example = "123.45")
     private Float allocation;

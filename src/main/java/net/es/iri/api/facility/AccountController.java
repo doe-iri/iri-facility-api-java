@@ -55,11 +55,14 @@ import net.es.iri.api.facility.schema.IncidentType;
 import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.MediaTypes;
+import net.es.iri.api.facility.schema.Project;
+import net.es.iri.api.facility.schema.ProjectAllocation;
 import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.Site;
 import net.es.iri.api.facility.schema.StatusType;
+import net.es.iri.api.facility.schema.UserAllocation;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.ResourceAnnotation;
 import net.es.iri.api.facility.utils.UrlTransform;
@@ -191,16 +194,7 @@ public class AccountController {
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getMetaData] Exception caught", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[AccountController::getMetaData] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -239,7 +233,7 @@ public class AccountController {
                         description = OpenApiDescriptions.LAST_MODIFIED_DESC,
                         schema = @Schema(implementation = String.class))
                 },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Site.class)),
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Capability.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             ),
             @ApiResponse(
@@ -367,16 +361,7 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getCapabilities] Exception caught in GET of /capabilities", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[AccountController::getCapabilities] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -419,7 +404,7 @@ public class AccountController {
                 },
                 content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Site.class)
+                    schema = @Schema(implementation = Capability.class)
                 )
             ),
             @ApiResponse(
@@ -496,7 +481,7 @@ public class AccountController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getCapability", version = "v1", type = MediaTypes.SITE)
+    @ResourceAnnotation(name = "getCapability", version = "v1", type = MediaTypes.CAPABILITY)
     public ResponseEntity<?> getCapability(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -540,27 +525,1038 @@ public class AccountController {
             }
 
             log.error("[AccountController::getCapability] capability not found {}", location);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[AccountController::getCapability] Exception caught in GET of /capabilities/{}", id, ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[AccountController::getCapability] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the projects associated with this facility.
+     * <p>
+     * Operation: GET /api/v1/account/projects
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all models with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get a list of projects associated with a facility.",
+        description = "Returns a list of IRI projects matching the query.",
+        tags = {"getProjects"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Project.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(path = {"/api/v1/account/projects"},
+        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getProjects", version = "v1", type = MediaTypes.PROJECTS)
+    public ResponseEntity<?> getProjects(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.USERIDS_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.USERIDS_MSG) List<String> userIds) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getProjects] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            List<Project> results = repository.findAllProjects();
+
+            results.forEach(c ->
+                log.debug("[AccountController::getProjects] id = {}, object = {}", c.getId(), c));
+
+            // Parse the If-Modified-Since header if it is present.
+            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+
+            // Find the latest modified timestamp among all resources
+            OffsetDateTime latestModified = results.stream()
+                .map(Project::getLastModified)
+                .filter(Objects::nonNull)
+                .max(OffsetDateTime::compareTo)
+                .orElse(OffsetDateTime.now());
+
+            // Populate the header
+            headers.setLastModified(latestModified.toInstant());
+
+            // If the request contained an If-Modified-Since header we check the entire
+            // list of resources against the specified date.  If one is newer we return
+            // them all.
+            if (ifms != null) {
+                log.debug("[AccountController::getProjects] ifms {}, latestModified {}",
+                    ifms, latestModified);
+                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
+                    // The resource has not been modified since specified time.
+                    log.debug("[AccountController::getProjects] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                }
+            }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources with the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the userId filter if requested.
+            if (userIds != null && !userIds.isEmpty()) {
+                  // Normalize inputs once
+                final List<String> normalized = userIds.stream()
+                    .filter(Objects::nonNull)
+                    .map(Common::stripQuotes)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .distinct()
+                    .toList();
+                if (!normalized.isEmpty()) {
+                    results = results.stream()
+                        .filter(r -> {
+                            List<String> uris = r.getUserIds();
+                            return normalized.stream().anyMatch(cap -> Common.contains(cap, uris));
+                        })
+                        .collect(Collectors.toList());
+                }
+            }
+
+            // We have success, so return the models we have found.
+            return new ResponseEntity<>(results, headers, HttpStatus.OK);
+        } catch (Exception ex) {
+            log.error("[AccountController::getProjects] Exception caught in GET of /projects", ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the project associated with the specified id.
+     * <p>
+     * Operation: GET /api/v1/account/project/{id}
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all resources with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @param id The identifier of the target resource.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get the project associated with the specified id.",
+        description = "Returns the project matching the specified id.",
+        tags = {"getProject"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = Project.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
+                description = OpenApiDescriptions.NOT_FOUND_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(
+        path = {"/api/v1/account/projects/{id}"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getProject", version = "v1", type = MediaTypes.PROJECT)
+    public ResponseEntity<?> getProject(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @PathVariable(OpenApiDescriptions.ID_NAME)
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getProject] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            Project result = repository.findProjectById(id);
+            if (result != null) {
+                OffsetDateTime lastModified = result.getLastModified();
+                if (lastModified != null) {
+                    // Populate the header
+                    headers.setLastModified(lastModified.toInstant());
+                }
+
+                // Parse the If-Modified-Since header if it is present.
+                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+                if (ifms != null && lastModified != null) {
+                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
+                        // The resource has not been modified since the specified time.
+                        log.debug("[AccountController::getProject] returning NOT_MODIFIED");
+                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Return the matching site.
+                return new ResponseEntity<>(result, headers, HttpStatus.OK);
+            }
+
+            log.error("[AccountController::getProject] project not found {}", location);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            log.error("[AccountController::getProject] Exception caught in GET of /projects/{}", id, ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the project allocations associated with this facility.
+     * <p>
+     * Operation: GET /api/v1/account/project_allocations
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all models with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get a list of project allocations associated with a facility.",
+        description = "Returns a list of IRI project allocations matching the query.",
+        tags = {"getProjectAllocations"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectAllocation.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(path = {"/api/v1/account/project_allocations"},
+        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getProjectAllocations", version = "v1", type = MediaTypes.PROJECT_ALLOCATIONS)
+    public ResponseEntity<?> getProjectAllocations(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.USERIDS_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.USERIDS_MSG) List<String> userIds) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getProjectAllocations] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            List<ProjectAllocation> results = repository.findAllProjectAllocations();
+
+            results.forEach(c ->
+                log.debug("[AccountController::getProjectAllocations] id = {}, object = {}", c.getId(), c));
+
+            // Parse the If-Modified-Since header if it is present.
+            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+
+            // Find the latest modified timestamp among all resources
+            OffsetDateTime latestModified = results.stream()
+                .map(ProjectAllocation::getLastModified)
+                .filter(Objects::nonNull)
+                .max(OffsetDateTime::compareTo)
+                .orElse(OffsetDateTime.now());
+
+            // Populate the header
+            headers.setLastModified(latestModified.toInstant());
+
+            // If the request contained an If-Modified-Since header we check the entire
+            // list of resources against the specified date.  If one is newer we return
+            // them all.
+            if (ifms != null) {
+                log.debug("[AccountController::getProjectAllocations] ifms {}, latestModified {}",
+                    ifms, latestModified);
+                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
+                    // The resource has not been modified since specified time.
+                    log.debug("[AccountController::getProjectAllocations] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                }
+            }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources with the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
+                    .collect(Collectors.toList());
+            }
+
+            // We have success, so return the models we have found.
+            return new ResponseEntity<>(results, headers, HttpStatus.OK);
+        } catch (Exception ex) {
+            log.error("[AccountController::getProjectAllocations] Exception caught in GET of /project_allocations", ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the project allocation associated with the specified id.
+     * <p>
+     * Operation: GET /api/v1/account/project_allocations/{id}
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all resources with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @param id The identifier of the target resource.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get the project allocation associated with the specified id.",
+        description = "Returns the project allocation matching the specified id.",
+        tags = {"getProjectAllocation"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ProjectAllocation.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
+                description = OpenApiDescriptions.NOT_FOUND_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(
+        path = {"/api/v1/account/project_allocations/{id}"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getProjectAllocation", version = "v1", type = MediaTypes.PROJECT_ALLOCATION)
+    public ResponseEntity<?> getProjectAllocation(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @PathVariable(OpenApiDescriptions.ID_NAME)
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getProjectAllocation] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            ProjectAllocation result = repository.findProjectAllocationById(id);
+            if (result != null) {
+                OffsetDateTime lastModified = result.getLastModified();
+                if (lastModified != null) {
+                    // Populate the header
+                    headers.setLastModified(lastModified.toInstant());
+                }
+
+                // Parse the If-Modified-Since header if it is present.
+                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+                if (ifms != null && lastModified != null) {
+                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
+                        // The resource has not been modified since the specified time.
+                        log.debug("[AccountController::getProjectAllocation] returning NOT_MODIFIED");
+                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Return the matching site.
+                return new ResponseEntity<>(result, headers, HttpStatus.OK);
+            }
+
+            log.error("[AccountController::getProjectAllocation] project not found {}", location);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            log.error("[AccountController::getProjectAllocation] Exception caught in GET of /project_allocations/{}", id, ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the user allocations associated with this facility.
+     * <p>
+     * Operation: GET /api/v1/account/user_allocations
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all models with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get a list of user allocations associated with a facility.",
+        description = "Returns a list of IRI user allocations matching the query.",
+        tags = {"getUserAllocations"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserAllocation.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(path = {"/api/v1/account/user_allocations"},
+        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getUserAllocations", version = "v1", type = MediaTypes.USER_ALLOCATIONS)
+    public ResponseEntity<?> getUserAllocations(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.USERIDS_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.USERIDS_MSG) List<String> userIds) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getUserAllocations] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            List<UserAllocation> results = repository.findAllUserAllocations();
+
+            results.forEach(c ->
+                log.debug("[AccountController::getUserAllocations] id = {}, object = {}", c.getId(), c));
+
+            // Parse the If-Modified-Since header if it is present.
+            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+
+            // Find the latest modified timestamp among all resources
+            OffsetDateTime latestModified = results.stream()
+                .map(UserAllocation::getLastModified)
+                .filter(Objects::nonNull)
+                .max(OffsetDateTime::compareTo)
+                .orElse(OffsetDateTime.now());
+
+            // Populate the header
+            headers.setLastModified(latestModified.toInstant());
+
+            // If the request contained an If-Modified-Since header we check the entire
+            // list of resources against the specified date.  If one is newer we return
+            // them all.
+            if (ifms != null) {
+                log.debug("[AccountController::getUserAllocations] ifms {}, latestModified {}",
+                    ifms, latestModified);
+                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
+                    // The resource has not been modified since specified time.
+                    log.debug("[AccountController::getUserAllocations] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                }
+            }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources with the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
+                    .collect(Collectors.toList());
+            }
+
+            // We have success, so return the models we have found.
+            return new ResponseEntity<>(results, headers, HttpStatus.OK);
+        } catch (Exception ex) {
+            log.error("[AccountController::getUserAllocations] Exception caught in GET of /user_allocations", ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns the user allocation associated with the specified id.
+     * <p>
+     * Operation: GET /api/v1/account/user_allocations/{id}
+     *
+     * @param accept Provides media types that are acceptable for the response.
+     *    At the moment 'application/json' is the supported response encoding.
+     *
+     * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
+     *    header requesting all resources with lastModified after the specified
+     *    date. The date must be specified in RFC 1123 format.
+     *
+     * @param id The identifier of the target resource.
+     *
+     * @return A RESTful response.
+     */
+    @Operation(
+        summary = "Get the user allocation associated with the specified id.",
+        description = "Returns the user allocation matching the specified id.",
+        tags = {"getUserAllocation"},
+        method = "GET")
+    @ApiResponses(
+        value = {
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.OK_CODE,
+                description = OpenApiDescriptions.OK_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.LOCATION,
+                        description = OpenApiDescriptions.LOCATION_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = UserAllocation.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
+                description = OpenApiDescriptions.NOT_MODIFIED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class)),
+                    @Header(name = HttpHeaders.LAST_MODIFIED,
+                        description = OpenApiDescriptions.LAST_MODIFIED_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content()
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.NOT_FOUND_CODE,
+                description = OpenApiDescriptions.NOT_FOUND_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
+                description = OpenApiDescriptions.BAD_REQUEST_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
+                description = OpenApiDescriptions.UNAUTHORIZED_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
+                description = OpenApiDescriptions.FORBIDDEN_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            @ApiResponse(
+                responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
+                description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
+                headers = {
+                    @Header(name = HttpHeaders.CONTENT_TYPE,
+                        description = OpenApiDescriptions.CONTENT_TYPE_DESC,
+                        schema = @Schema(implementation = String.class))
+                },
+                content = @Content(schema = @Schema(implementation = Error.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+        })
+    @RequestMapping(
+        path = {"/api/v1/account/user_allocations/{id}"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseBody
+    @ResourceAnnotation(name = "getUserAllocation", version = "v1", type = MediaTypes.USER_ALLOCATION)
+    public ResponseEntity<?> getUserAllocation(
+        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
+        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @PathVariable(OpenApiDescriptions.ID_NAME)
+        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        try {
+            log.debug("[AccountController::getUserAllocation] GET operation = {}, accept = {}, "
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+
+            // Populate the content location header with our URL location.
+            final HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // We will collect the matching resources in this list.
+            UserAllocation result = repository.findUserAllocationById(id);
+            if (result != null) {
+                OffsetDateTime lastModified = result.getLastModified();
+                if (lastModified != null) {
+                    // Populate the header
+                    headers.setLastModified(lastModified.toInstant());
+                }
+
+                // Parse the If-Modified-Since header if it is present.
+                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+                if (ifms != null && lastModified != null) {
+                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
+                        // The resource has not been modified since the specified time.
+                        log.debug("[AccountController::getUserAllocation] returning NOT_MODIFIED");
+                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                    }
+                }
+
+                // Return the matching site.
+                return new ResponseEntity<>(result, headers, HttpStatus.OK);
+            }
+
+            log.error("[AccountController::getUserAllocation] user not found {}", location);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            log.error("[AccountController::getUserAllocation] Exception caught in GET of /user_allocations/{}", id, ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

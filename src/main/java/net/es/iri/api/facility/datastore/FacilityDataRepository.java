@@ -39,8 +39,11 @@ import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.NamedObject;
+import net.es.iri.api.facility.schema.Project;
+import net.es.iri.api.facility.schema.ProjectAllocation;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.Site;
+import net.es.iri.api.facility.schema.UserAllocation;
 import net.es.iri.api.facility.utils.UrlTransform;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -119,6 +122,22 @@ public class FacilityDataRepository {
             capability.transformUri(utilities);
             objects.put(capability.getId(), capability);
         });
+
+        this.facilityData.getProjects().forEach(project -> {
+            project.transformUri(utilities);
+            objects.put(project.getId(), project);
+        });
+
+        this.facilityData.getProjectAllocations().forEach(allocation -> {
+            allocation.transformUri(utilities);
+            objects.put(allocation.getId(), allocation);
+        });
+
+        this.facilityData.getUserAllocations().forEach(allocation -> {
+            allocation.transformUri(utilities);
+            objects.put(allocation.getId(), allocation);
+        });
+
         log.debug("[FacilityDataRepository::init] repository initialized.");
     }
 
@@ -742,7 +761,7 @@ public class FacilityDataRepository {
     /**
      * Return a list of Capabilities.
      *
-     * @return List of sites.
+     * @return List of capabilities.
      */
     public List<Capability> findAllCapabilities() {
         return objects.values().stream()
@@ -764,6 +783,90 @@ public class FacilityDataRepository {
             .map(Capability.class::cast)
             .map(e -> e.toBuilder().build())
             .map(Capability.class::cast)
+            .orElse(null);
+    }
+
+    /**
+     * Return a list of Projects.
+     *
+     * @return List of projects.
+     */
+    public List<Project> findAllProjects() {
+        return objects.values().stream()
+            .filter(Project.class::isInstance)
+            .map(Project.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(Project.class::cast)
+            .toList();
+    }
+
+    /**
+     * Return Project matching id.
+     *
+     * @return The Project matching id or null.
+     */
+    public Project findProjectById(String id) {
+        return Optional.ofNullable(objects.get(id))
+            .filter(Project.class::isInstance)
+            .map(Project.class::cast)
+            .map(e -> e.toBuilder().build())
+            .map(Project.class::cast)
+            .orElse(null);
+    }
+
+    /**
+     * Return a list of ProjectAllocations.
+     *
+     * @return List of ProjectAllocations.
+     */
+    public List<ProjectAllocation> findAllProjectAllocations() {
+        return objects.values().stream()
+            .filter(ProjectAllocation.class::isInstance)
+            .map(ProjectAllocation.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(ProjectAllocation.class::cast)
+            .toList();
+    }
+
+    /**
+     * Return ProjectAllocation matching id.
+     *
+     * @return The ProjectAllocation matching id or null.
+     */
+    public ProjectAllocation findProjectAllocationById(String id) {
+        return Optional.ofNullable(objects.get(id))
+            .filter(ProjectAllocation.class::isInstance)
+            .map(ProjectAllocation.class::cast)
+            .map(e -> e.toBuilder().build())
+            .map(ProjectAllocation.class::cast)
+            .orElse(null);
+    }
+
+    /**
+     * Return a list of UserAllocations.
+     *
+     * @return List of UserAllocations.
+     */
+    public List<UserAllocation> findAllUserAllocations() {
+        return objects.values().stream()
+            .filter(UserAllocation.class::isInstance)
+            .map(UserAllocation.class::cast)
+            .map(s -> s.toBuilder().build())
+            .map(UserAllocation.class::cast)
+            .toList();
+    }
+
+    /**
+     * Return UserAllocation matching id.
+     *
+     * @return The UserAllocation matching id or null.
+     */
+    public UserAllocation findUserAllocationById(String id) {
+        return Optional.ofNullable(objects.get(id))
+            .filter(UserAllocation.class::isInstance)
+            .map(UserAllocation.class::cast)
+            .map(e -> e.toBuilder().build())
+            .map(UserAllocation.class::cast)
             .orElse(null);
     }
 }

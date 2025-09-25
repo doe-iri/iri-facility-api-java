@@ -1,0 +1,34 @@
+[
+  {
+    "id": "d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "name": "Staff research project",
+    "description": "Compute and storage allocation for staff research use",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "self_uri": "/api/v1/account/projects/d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "user_ids": [
+      "gtorok"
+    ],
+    "project_allocation_uris": [
+      "/api/v1/account/project_allocations/46dcde57-e88a-49a9-bf7a-c2120cf5a86b",
+      "/api/v1/account/project_allocations/237e42bf-62f0-40ea-99af-55a8d518b413",
+      "/api/v1/account/project_allocations/5053d076-2e12-40f2-a098-71164629131a",
+      "/api/v1/account/project_allocations/c5eea9d4-c20b-438b-b8f2-df0199bad3bb"
+    ]
+  },
+  {
+    "id": "863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "name": "Test project",
+    "description": "Compute and storage allocation for testing use",
+    "last_modified": "2025-06-03T10:04:25.000Z",
+    "self_uri": "/api/v1/account/projects/863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "user_ids": [
+      "gtorok"
+    ],
+    "project_allocation_uris": [
+      "/api/v1/account/project_allocations/3a2c9d4c-180c-44c7-a59d-df21f963d83d",
+      "/api/v1/account/project_allocations/43076d5e-a23e-440a-a02f-aca936262dc8",
+      "/api/v1/account/project_allocations/6ddbd7c4-1872-4490-9313-f0d7090449ac",
+      "/api/v1/account/project_allocations/1308fbef-b29a-411f-86c1-c471154108ed"
+    ]
+  }
+]

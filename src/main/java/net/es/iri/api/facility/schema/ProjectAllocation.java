@@ -25,6 +25,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -71,6 +72,17 @@ public class ProjectAllocation extends NamedObject {
         example = "https://example.com/api/v1/account/capabilities/03bdbf77-6f29-4f66-9809-7f4f77098171")
     private String capabilityUri;
 
+    @JsonProperty("user_allocation_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "A list of hyperlink reference (URI) to zero or more UserAllocation (hasUserAllocation).",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> userAllocationUris = new ArrayList<>();
+
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
      *
@@ -90,5 +102,6 @@ public class ProjectAllocation extends NamedObject {
         this.setSelfUri(transform(transform, this.getSelfUri()));
         this.setProjectUri(transform(transform, this.getProjectUri()));
         this.setCapabilityUri(transform(transform, this.getCapabilityUri()));
+        this.setUserAllocationUris(transformList(transform, this.getUserAllocationUris()));
     }
 }

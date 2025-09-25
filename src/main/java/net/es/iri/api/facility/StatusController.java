@@ -426,15 +426,7 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getResources] Exception caught in GET of /resources", ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getResources] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -600,25 +592,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getResource] resource not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getResource] Exception caught in GET of /resources/{}", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getResource] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -843,15 +820,7 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidents] Exception caught in GET of /incidents", ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getIncidents] returning error: {}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1017,25 +986,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getIncidents] incident not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidents] Exception caught in GET of /incidents/{}", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getIncidents] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1077,10 +1031,8 @@ public class StatusController {
                         description = OpenApiDescriptions.LAST_MODIFIED_DESC,
                         schema = @Schema(implementation = String.class))
                 },
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Incident.class)
-                )
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Event.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.NOT_MODIFIED_CODE,
@@ -1218,25 +1170,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getEventsByIncident] event not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getEventsByIncident] Exception caught in GET of /incidents/{}/events", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getEventsByIncident] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1441,15 +1378,7 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getEvents] Exception caught in GET of /events", ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getEvents] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1615,25 +1544,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getEvent] event not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The event " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getEvent] Exception caught in GET of /events/{}", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getEvent] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1802,25 +1716,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getResourceByEvent] event not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The event " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getResourceByEvent] Exception caught in GET of /events/{}/resource", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getResourceByEvent] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1989,25 +1888,10 @@ public class StatusController {
             }
 
             log.error("[StatusController::getIncidentByEvent] incident not found {}", location);
-            Error error = Error.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The incident " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidentByEvent] Exception caught in GET of /events/{}/incident", id, ex);
-            Error error = Error.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[StatusController::getIncidentByEvent] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

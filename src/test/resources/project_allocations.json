@@ -1,0 +1,162 @@
+[
+  {
+    "id": "46dcde57-e88a-49a9-bf7a-c2120cf5a86b",
+    "self_uri": "/api/v1/account/project_allocations/46dcde57-e88a-49a9-bf7a-c2120cf5a86b",
+    "entries": [
+      {
+        "id": "3778d313-213d-4af4-b468-c66c5c29d8ab",
+        "allocation": 594.1315315712641,
+        "usage": 153.85205137465655,
+        "unit": "node_hours"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "capability_uri": "/api/v1/account/capabilities/a88c9662-4f7a-4ac8-af44-6c1e1f23999d",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/be91d9c1-99bc-47c1-aaa9-3ee82bb8a7d0"
+    ]
+  },
+  {
+    "id": "237e42bf-62f0-40ea-99af-55a8d518b413",
+    "self_uri": "/api/v1/account/project_allocations/237e42bf-62f0-40ea-99af-55a8d518b413",
+    "entries": [
+      {
+        "id": "0e0dae51-45b9-44a2-a4c4-2280fd2a3c02",
+        "allocation": 911.2396373652596,
+        "usage": 140.96590956908736,
+        "unit": "node_hours"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "capability_uri": "/api/v1/account/capabilities/3022dda3-deb4-4a53-8c79-7f24d3cdac28",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/a98005a7-a7c0-46de-b64c-950fbc50b6fc"
+    ]
+  },
+  {
+    "id": "5053d076-2e12-40f2-a098-71164629131a",
+    "self_uri": "/api/v1/account/project_allocations/5053d076-2e12-40f2-a098-71164629131a",
+    "entries": [
+      {
+        "id": "6e988323-a9b4-4dee-bd97-2c1187888938",
+        "allocation": 913.0069218685704,
+        "usage": 120.8857879944141,
+        "unit": "bytes"
+      },
+      {
+        "id": "11ba6ab8-b0f0-4547-a3b1-0d49ffb9415b",
+        "allocation": 798.2342395440843,
+        "usage": 179.45442718038922,
+        "unit": "inodes"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "capability_uri": "/api/v1/account/capabilities/fdb642aa-319f-4631-81f9-8639d60aa069",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/85c8a6be-a220-4c0c-84ce-e454c9abcd16"
+    ]
+  },
+  {
+    "id": "c5eea9d4-c20b-438b-b8f2-df0199bad3bb",
+    "self_uri": "/api/v1/account/project_allocations/c5eea9d4-c20b-438b-b8f2-df0199bad3bb",
+    "entries": [
+      {
+        "id": "90f9e4e0-29cc-48eb-958a-c937342e9b4f",
+        "allocation": 882.8998279170694,
+        "usage": 186.9158023109438,
+        "unit": "bytes"
+      },
+      {
+        "id": "6518756c-809e-411d-ab2d-64b5323da888",
+        "allocation": 580.2152820442791,
+        "usage": 103.06524764853869,
+        "unit": "inodes"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/d6bdb597-8393-4747-8f90-6db08ae018ac",
+    "capability_uri": "/api/v1/account/capabilities/0226e726-9a52-443f-b6cb-f7cb064d29f0",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/d2bb025c-5ecf-4245-9fee-6e8f4a228cdc"
+    ]
+  },
+  {
+    "id": "3a2c9d4c-180c-44c7-a59d-df21f963d83d",
+    "self_uri": "/api/v1/account/project_allocations/3a2c9d4c-180c-44c7-a59d-df21f963d83d",
+    "entries": [
+      {
+        "id": "367ec122-2a15-4a9c-b740-e2d5c55c0695",
+        "allocation": 771.3407039956905,
+        "usage": 134.83053584262217,
+        "unit": "node_hours"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "capability_uri": "/api/v1/account/capabilities/a88c9662-4f7a-4ac8-af44-6c1e1f23999d",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/a8d3c5f7-fb01-4134-9cb3-bb51e68458eb"
+    ]
+  },
+  {
+    "id": "43076d5e-a23e-440a-a02f-aca936262dc8",
+    "self_uri": "/api/v1/account/project_allocations/43076d5e-a23e-440a-a02f-aca936262dc8",
+    "entries": [
+      {
+        "id": "15b73a7c-108a-4ee2-be68-6a37740fc70e",
+        "allocation": 538.6849424533953,
+        "usage": 135.03884235506646,
+        "unit": "node_hours"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "capability_uri": "/api/v1/account/capabilities/3022dda3-deb4-4a53-8c79-7f24d3cdac28",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/8e2b256e-b5f5-4195-80e3-92335499ad09"
+    ]
+  },
+  {
+    "id": "6ddbd7c4-1872-4490-9313-f0d7090449ac",
+    "self_uri": "/api/v1/account/project_allocations/6ddbd7c4-1872-4490-9313-f0d7090449ac",
+    "entries": [
+      {
+        "id": "93b70285-c691-45b8-95f8-4d2421c4c577",
+        "allocation": 928.9771371161751,
+        "usage": 140.0914685223143,
+        "unit": "bytes"
+      },
+      {
+        "id": "8c25ff72-6357-4589-9798-799e99e42707",
+        "allocation": 747.3951694732725,
+        "usage": 174.19914589052553,
+        "unit": "inodes"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "capability_uri": "/api/v1/account/capabilities/fdb642aa-319f-4631-81f9-8639d60aa069",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/c2c6e8f7-2504-4861-b9e1-37e96b3b55b0"
+    ]
+  },
+  {
+    "id": "1308fbef-b29a-411f-86c1-c471154108ed",
+    "self_uri": "/api/v1/account/project_allocations/1308fbef-b29a-411f-86c1-c471154108ed",
+    "entries": [
+      {
+        "id": "a54c6b55-039a-412d-a559-503856fbb802",
+        "allocation": 800.2683366563474,
+        "usage": 192.3073357750356,
+        "unit": "bytes"
+      },
+      {
+        "id": "12f15599-8440-4c41-b035-9da674cb02d7",
+        "allocation": 611.9122627693694,
+        "usage": 174.38047317944768,
+        "unit": "inodes"
+      }
+    ],
+    "project_uri": "/api/v1/account/projects/863a48f9-447e-4c22-82fb-72bcc6686d4c",
+    "capability_uri": "/api/v1/account/capabilities/0226e726-9a52-443f-b6cb-f7cb064d29f0",
+    "user_allocation_uris": [
+      "/api/v1/account/user_allocations/6f74f68d-07ae-4a11-b97d-4e6d57b6e62f"
+    ]
+  }
+]

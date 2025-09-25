@@ -27,6 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -173,11 +174,11 @@ public class FacilityController {
     @RequestMapping(path = {"/api/v1"}, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getMetaData", version = "v1", type = MediaTypes.DISCOVERY)
-    public ResponseEntity<?> getMetaData() {
-        try {
-            // We need the request URL to build fully qualified resource URLs.
-            final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+    public ResponseEntity<?> getMetaData(Locale locale) {
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        try {
             log.debug("[FacilityController::getMetaData] GET operation = {}", location);
 
             // We will populate some HTTP response headers.
@@ -195,16 +196,8 @@ public class FacilityController {
             List<Discovery> discovery = getDiscovery(utilities, location.toASCIIString(),  methods);
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
-            log.error("[FacilityController::getMetaData] Exception caught", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getMetaData] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("[FacilityController::getMetaData] Exception caught for {}", location, ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -392,20 +385,10 @@ public class FacilityController {
             // We have success, so return the models we have found.
             return new ResponseEntity<>(facility, headers, HttpStatus.OK);
         } catch (IllegalArgumentException ex) {
-            log.error("[FacilityController] getFacility failed", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController] getFacility returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("[FacilityController] getFacility failed for {}", location, ex);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     /**
      * Returns the sites associated with this facility.
@@ -567,16 +550,7 @@ public class FacilityController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getSites] Exception caught in GET of /sites", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getSites] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -740,27 +714,10 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getSite] site not found {}", location);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getSite] Exception caught in GET of /sites/{}", id, ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getSite] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -927,27 +884,10 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getLocationBySite] site not found {}", location);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The resource " + location + " was not found.")
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocationBySite] Exception caught in GET of /sites/{}/location", id, ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getLocationBySite] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1101,16 +1041,7 @@ public class FacilityController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocations] Exception caught in GET of /locations", ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(location)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getLocations] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1230,7 +1161,7 @@ public class FacilityController {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getLocation", version = "v1", type = MediaTypes.LOCATIONS)
+    @ResourceAnnotation(name = "getLocation", version = "v1", type = MediaTypes.LOCATION)
     public ResponseEntity<?> getLocation(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
@@ -1274,27 +1205,10 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getLocation] location not found {}", loc);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .detail("The location " + loc + " was not found.")
-                .instance(loc)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            return new ResponseEntity<>(error, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Common.notFoundError(loc), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocation] Exception caught in GET of /locations/{}", id, ex);
-            Error error = Error.builder()
-                .type(URI.create("about:blank"))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .detail(ex.getMessage())
-                .instance(loc)
-                .build();
-            error.putExtension("timestamp", OffsetDateTime.now().toString());
-            log.error("[FacilityController::getLocation] returning error:\n{}", error);
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Common.internalServerError(loc, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

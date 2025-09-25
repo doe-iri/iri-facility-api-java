@@ -19,9 +19,12 @@
  */
 package net.es.iri.api.facility.utils;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import net.es.iri.api.facility.schema.Error;
 
 /**
  * Contains common HTTP message manipulation methods for controllers.
@@ -67,15 +70,35 @@ public class Common {
       return false;
     }
 
-    // normalize: caller may pass "foo" or "/foo"
-    final String segment = input.charAt(0) == '/' ? input.substring(1) : input;
-    final String suffix = "/" + segment;
-
     for (String uri : uris) {
-      if (uri != null && uri.endsWith(suffix)) {
+      if (uri != null && uri.equalsIgnoreCase(input)) {
         return true;
       }
     }
     return false;
+  }
+
+  public static Error notFoundError(URI location) {
+    Error error = Error.builder()
+        .type(URI.create("about:blank"))
+        .status(HttpStatus.NOT_FOUND.value())
+        .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+        .detail("The resource " + location + " was not found.")
+        .instance(location)
+        .build();
+    error.putExtension("timestamp", OffsetDateTime.now().toString());
+    return error;
+  }
+
+  public static Error internalServerError(URI location, Exception ex) {
+    Error error = Error.builder()
+        .type(URI.create("about:blank"))
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+        .detail(ex.getMessage())
+        .instance(location)
+        .build();
+    error.putExtension("timestamp", OffsetDateTime.now().toString());
+    return error;
   }
 }

@@ -28,8 +28,11 @@ import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
+import net.es.iri.api.facility.schema.Project;
+import net.es.iri.api.facility.schema.ProjectAllocation;
 import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.Site;
+import net.es.iri.api.facility.schema.UserAllocation;
 import net.es.iri.api.facility.utils.JsonParser;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -53,6 +56,9 @@ public class FacilityData {
 
     // Load Account API data from individual files.
     private List<Capability> capabilities = new CopyOnWriteArrayList<>();
+    private List<Project> projects = new CopyOnWriteArrayList<>();
+    private List<ProjectAllocation> projectAllocations = new CopyOnWriteArrayList<>();
+    private List<UserAllocation> userAllocations = new CopyOnWriteArrayList<>();
 
     public FacilityData(IriConfig iriConfig) {
         // Load Status API data from individual files.
@@ -83,6 +89,18 @@ public class FacilityData {
         // Load Account API data from individual files.
         Optional.ofNullable(iriConfig.getCapabilities()).ifPresent(file ->
             this.capabilities.addAll(JsonParser.listFromFile(file, Capability.class))
+        );
+
+        Optional.ofNullable(iriConfig.getProjects()).ifPresent(file ->
+            this.projects.addAll(JsonParser.listFromFile(file, Project.class))
+        );
+
+        Optional.ofNullable(iriConfig.getProjectAllocations()).ifPresent(file ->
+            this.projectAllocations.addAll(JsonParser.listFromFile(file, ProjectAllocation.class))
+        );
+
+        Optional.ofNullable(iriConfig.getUserAllocations()).ifPresent(file ->
+            this.userAllocations.addAll(JsonParser.listFromFile(file, UserAllocation.class))
         );
     }
 }
