@@ -129,6 +129,33 @@ public class OpenApiDescriptions {
   public static final String ID_NAME = "id";
   public static final String ID_MSG = "The UUID uniquely identifying the IRI resource.";
 
+  public static final String SID_NAME = "site_id";
+  public static final String SID_MSG = "The UUID uniquely identifying the IRI site resource.";
+
+  public static final String LID_NAME = "location_id";
+  public static final String LID_MSG = "The UUID uniquely identifying the IRI location resource.";
+
+  public static final String RID_NAME = "resource_id";
+  public static final String RID_MSG = "The UUID uniquely identifying the IRI resource resource.";
+
+  public static final String IID_NAME = "incident_id";
+  public static final String IID_MSG = "The UUID uniquely identifying the IRI incident resource.";
+
+  public static final String EID_NAME = "event_id";
+  public static final String EID_MSG = "The UUID uniquely identifying the IRI event resource.";
+
+  public static final String CID_NAME = "capability_id";
+  public static final String CID_MSG = "The UUID uniquely identifying the IRI capability resource.";
+
+  public static final String PID_NAME = "project_id";
+  public static final String PID_MSG = "The UUID uniquely identifying the IRI project resource.";
+
+  public static final String PAID_NAME = "project_allocation_id";
+  public static final String PAID_MSG = "The UUID uniquely identifying the IRI project allocation resource.";
+
+  public static final String UAID_NAME = "user_allocation_id";
+  public static final String UAID_MSG = "The UUID uniquely identifying the IRI user allocation resource.";
+
   /*******************************************************************************************************
    * HTTP Response Codes and messages.
    *******************************************************************************************************/

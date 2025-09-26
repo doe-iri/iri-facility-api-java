@@ -1033,7 +1033,7 @@
     "self_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6",
     "name": "planned outage on group websites",
     "description": "Auto-generated incident of type planned",
-    "last_modified": "2025-09-24T02:33:44.000Z",
+    "last_modified": "2025-09-26T02:56:37.000Z",
     "status": "down",
     "type": "planned",
     "start": "2025-07-24T11:31:08.519Z",
@@ -1046,14 +1046,14 @@
       "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d"
     ],
     "event_uris": [
-      "http://localhost:8081/api/v1/status/events/2e020fd0-4499-496a-99d7-3ed9987bdc8d",
-      "http://localhost:8081/api/v1/status/events/b83e168c-8ba5-4ed0-bc68-2e6bce0b22bb",
-      "http://localhost:8081/api/v1/status/events/7f8227d9-e3b2-4141-8dbe-c730c0fe9ab7",
-      "http://localhost:8081/api/v1/status/events/0e006763-a345-4a32-a65f-ebd0b7b3d1b3",
-      "http://localhost:8081/api/v1/status/events/dbff2173-7ed0-4015-870c-67b9403da669",
-      "http://localhost:8081/api/v1/status/events/be3eade5-972f-4889-b20b-0d8db990c1fb",
-      "http://localhost:8081/api/v1/status/events/890c2f8d-9f57-44e1-90c9-e0513b25a171",
-      "http://localhost:8081/api/v1/status/events/f7062c96-dc2f-4017-8967-33d02a5ab901"
+      "http://localhost:8081/api/v1/status/events/a75b6496-396b-410e-9043-2f32c69fa157",
+      "http://localhost:8081/api/v1/status/events/394b0a43-4541-4cef-8fdd-8e28cbe6a847",
+      "http://localhost:8081/api/v1/status/events/4c3ee8d2-bb2d-45fa-8541-afa79fdd7cf5",
+      "http://localhost:8081/api/v1/status/events/0c0d9393-3601-42eb-9f9c-670ce2e0bc9c",
+      "http://localhost:8081/api/v1/status/events/0d73da1f-b331-4770-ac96-0e7f9b9b555c",
+      "http://localhost:8081/api/v1/status/events/133df82e-8290-45c0-b135-627deb5f43d3",
+      "http://localhost:8081/api/v1/status/events/9bdf3bec-5855-4732-b46c-03507d5ddaec",
+      "http://localhost:8081/api/v1/status/events/eb8ec33f-e11e-4b07-96cd-d33e84c735bf"
     ]
   },
   {
@@ -2976,62 +2976,6 @@
     ]
   },
   {
-    "id": "8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76",
-    "self_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76",
-    "name": "System startup",
-    "description": "The system has been started.",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "type": "unplanned",
-    "start": "2025-09-24T02:33:13.772Z",
-    "end": "2025-09-24T02:33:13.772Z",
-    "resolution": "completed",
-    "resource_uris": [
-      "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
-      "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
-      "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
-      "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
-      "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
-      "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
-      "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
-      "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
-      "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
-      "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
-      "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
-      "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
-      "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
-      "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-      "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
-      "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
-      "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
-      "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
-      "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-      "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
-    ],
-    "event_uris": [
-      "http://localhost:8081/api/v1/status/events/3b6c2edc-a5d4-4a34-b033-7ab04b224924",
-      "http://localhost:8081/api/v1/status/events/90b7172a-97a0-4f7f-b951-8fa2961019cf",
-      "http://localhost:8081/api/v1/status/events/0ffbd14e-66f8-492b-848e-873d911c9c19",
-      "http://localhost:8081/api/v1/status/events/841dc5aa-793c-4354-bfef-a8a6dfde6754",
-      "http://localhost:8081/api/v1/status/events/fac80c92-5240-4169-8b85-4399b739a7ba",
-      "http://localhost:8081/api/v1/status/events/2d3bef7b-a429-4d17-b43a-29fc7c8471b4",
-      "http://localhost:8081/api/v1/status/events/ef3126ca-4df1-4a73-9a32-ea20d11666e3",
-      "http://localhost:8081/api/v1/status/events/1eca67d7-f802-40ec-bb96-cb0a05bb10ba",
-      "http://localhost:8081/api/v1/status/events/5771a0e4-cd47-4857-8a05-958f3b2f5628",
-      "http://localhost:8081/api/v1/status/events/31e05731-6512-47fe-9adf-cc2e6818955c",
-      "http://localhost:8081/api/v1/status/events/a16e5348-6d7a-4a86-8ed7-307ee5f275c7",
-      "http://localhost:8081/api/v1/status/events/fd55fd7c-e559-4639-babb-d581e8924455",
-      "http://localhost:8081/api/v1/status/events/2bdec62a-7411-482d-8830-84b832f011ed",
-      "http://localhost:8081/api/v1/status/events/62c7a380-1c8c-4a5e-a920-13802b8f301f",
-      "http://localhost:8081/api/v1/status/events/c11ecace-2633-4cfd-926f-e650b6e6d9ff",
-      "http://localhost:8081/api/v1/status/events/c1c200c0-b2df-4894-a816-debae35db8a3",
-      "http://localhost:8081/api/v1/status/events/1676487c-b45c-4715-adca-62558aea2c2c",
-      "http://localhost:8081/api/v1/status/events/3c893844-c876-45b2-9357-13295b4627d1",
-      "http://localhost:8081/api/v1/status/events/6e6b8c51-c758-48ad-8c02-45d91d9b201c",
-      "http://localhost:8081/api/v1/status/events/fa9f867f-18fe-4331-9363-a876697f0822"
-    ]
-  },
-  {
     "id": "0240606e-0ebf-4159-9ce5-55580bb7e15c",
     "self_uri": "http://localhost:8081/api/v1/status/incidents/0240606e-0ebf-4159-9ce5-55580bb7e15c",
     "name": "unplanned outage on group websites",
@@ -4585,6 +4529,25 @@
       "http://localhost:8081/api/v1/status/events/25ba7108-9abd-452d-9c1a-dd2fe659b699",
       "http://localhost:8081/api/v1/status/events/827bc296-b358-4025-beed-3259e983d6ea",
       "http://localhost:8081/api/v1/status/events/6dca8c84-77d3-4409-9763-95ce7275c00d"
+    ]
+  },
+  {
+    "id": "a3e23b8d-8ca6-446b-ad53-927fe0b76822",
+    "self_uri": "http://localhost:8081/api/v1/status/incidents/a3e23b8d-8ca6-446b-ad53-927fe0b76822",
+    "name": "planned outage on group services",
+    "description": "Auto-generated incident of type planned",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "down",
+    "type": "planned",
+    "start": "2025-09-26T14:56:07.262Z",
+    "end": "2025-09-26T16:56:07.262Z",
+    "resolution": "pending",
+    "resource_uris": [
+      "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
+      "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
+      "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
+      "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
+      "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc"
     ]
   },
   {
@@ -6640,6 +6603,62 @@
       "http://localhost:8081/api/v1/status/events/a066e5c0-fa53-4870-a307-1a8d72eb2595",
       "http://localhost:8081/api/v1/status/events/f1571b89-2716-45e0-ad82-c24fb94b6b51",
       "http://localhost:8081/api/v1/status/events/14696115-427d-4527-914f-d4eefb820570"
+    ]
+  },
+  {
+    "id": "48fce393-b93c-4c61-8485-63dde97f348c",
+    "self_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c",
+    "name": "System startup",
+    "description": "The system has been started.",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "type": "unplanned",
+    "start": "2025-09-26T02:56:07.258Z",
+    "end": "2025-09-26T02:56:07.258Z",
+    "resolution": "completed",
+    "resource_uris": [
+      "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
+      "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
+      "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
+      "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
+      "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
+      "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
+      "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
+      "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
+      "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
+      "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+      "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
+      "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
+      "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
+      "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
+      "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
+      "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
+      "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
+      "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
+      "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+      "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
+    ],
+    "event_uris": [
+      "http://localhost:8081/api/v1/status/events/df2dd320-3cc0-4e05-8d9c-bc763344ba02",
+      "http://localhost:8081/api/v1/status/events/3040ab9b-b201-4c83-a254-7b042502597e",
+      "http://localhost:8081/api/v1/status/events/4fd7186c-1027-418a-9211-bcdba413dabe",
+      "http://localhost:8081/api/v1/status/events/8015dfb1-48f8-432e-a0ef-ccc742db4754",
+      "http://localhost:8081/api/v1/status/events/f74b18f7-1dbd-49f3-ad4b-f4eaab57ce79",
+      "http://localhost:8081/api/v1/status/events/adf5166c-8a0c-4600-93e6-5ce7d4df5401",
+      "http://localhost:8081/api/v1/status/events/79d1ec71-d859-4de6-adb0-f183ac9899d8",
+      "http://localhost:8081/api/v1/status/events/998d75e9-ad64-4e6e-95be-34f553bcaf9e",
+      "http://localhost:8081/api/v1/status/events/115aba39-1044-472d-a70f-c3e052eb0fac",
+      "http://localhost:8081/api/v1/status/events/3dd15f36-ed32-4a22-8d1f-4480f48262f4",
+      "http://localhost:8081/api/v1/status/events/f3f56a2e-562b-401c-9cc4-8ab0647872fb",
+      "http://localhost:8081/api/v1/status/events/325041d9-f281-4ad4-b4a5-fa5bb5c7a3c0",
+      "http://localhost:8081/api/v1/status/events/3da3c91b-ddcc-4e2a-a11d-5c596956146b",
+      "http://localhost:8081/api/v1/status/events/725abcc8-fc9f-454b-8021-2d383cbd7c85",
+      "http://localhost:8081/api/v1/status/events/0d161827-ff89-426b-8e60-ca9deb45554e",
+      "http://localhost:8081/api/v1/status/events/166ec664-d24f-43b1-a3cc-7e1f2962579b",
+      "http://localhost:8081/api/v1/status/events/25d43cac-a582-4341-b7cf-73d7b700738d",
+      "http://localhost:8081/api/v1/status/events/9f9645a2-74e7-483e-bf93-6b394ae3a079",
+      "http://localhost:8081/api/v1/status/events/2ac29e0d-4824-45c2-9e36-dbf0364612c1",
+      "http://localhost:8081/api/v1/status/events/7c4d599c-2287-4610-8daa-dbaebe16ac7e"
     ]
   },
   {
@@ -11373,27 +11392,6 @@
       "http://localhost:8081/api/v1/status/events/585263fe-52d3-449c-80fd-a4e7ef612193",
       "http://localhost:8081/api/v1/status/events/9a54ffed-b521-48dc-adc9-165ac742ff9e",
       "http://localhost:8081/api/v1/status/events/6ded7206-ad05-40f7-8d04-5f3a92014a86"
-    ]
-  },
-  {
-    "id": "afd28a7e-7f32-420e-8f26-b4c592f0868c",
-    "self_uri": "http://localhost:8081/api/v1/status/incidents/afd28a7e-7f32-420e-8f26-b4c592f0868c",
-    "name": "planned outage on group storage",
-    "description": "Auto-generated incident of type planned",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "down",
-    "type": "planned",
-    "start": "2025-09-24T16:33:13.775Z",
-    "end": "2025-09-24T23:33:13.775Z",
-    "resolution": "pending",
-    "resource_uris": [
-      "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
-      "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
-      "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
-      "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
-      "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
-      "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
-      "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55"
     ]
   },
   {

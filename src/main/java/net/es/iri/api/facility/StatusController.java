@@ -87,7 +87,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Slf4j
 @RestController
-@Tag(name = "IRI Facility Status API", description = "Integrated Research Infrastructure Facility Status API endpoint")
+@Tag(name = "IRI Status API", description = "Integrated Research Infrastructure Status API endpoint")
 public class StatusController {
     // Spring application context.
     private final ApplicationContext context;
@@ -207,7 +207,6 @@ public class StatusController {
      * Returns the resources associated with this facility.
      * <p>
      * Operation: GET /api/v1/status/resources
-     *            GET /api/v1/facility/resources
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -303,7 +302,7 @@ public class StatusController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/status/resources", "/api/v1/facility/resources"},
+    @RequestMapping(path = {"/api/v1/status/resources"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getResources", version = "v1", type = MediaTypes.RESOURCES)
@@ -433,8 +432,7 @@ public class StatusController {
     /**
      * Returns the resource associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/status/resources/{id}
-     *            GET /api/v1/facility/resources/{id}
+     * Operation: GET /api/v1/status/resources/{resource_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -443,7 +441,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target resource.
+     * @param rid The resource_id of the target resource.
      *
      * @return A RESTful response.
      */
@@ -543,8 +541,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/resources/{id}",
-            "/api/v1/facility/resources/{id}"},
+        path = {"/api/v1/status/resources/{resource_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -554,22 +551,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.RID_NAME)
+        @Parameter(description = OpenApiDescriptions.RID_NAME, required = true) String rid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getResource] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, rid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the resource targeted by id.
-            Resource resource = repository.findResourceById(id);
+            Resource resource = repository.findResourceById(rid);
             if (resource != null) {
                 OffsetDateTime lastModified = resource.getLastModified();
                 if (lastModified != null) {
@@ -594,7 +591,7 @@ public class StatusController {
             log.error("[StatusController::getResource] resource not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getResource] Exception caught in GET of /resources/{}", id, ex);
+            log.error("[StatusController::getResource] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -603,7 +600,6 @@ public class StatusController {
      * Returns a list of "incident" resources.
      * <p>
      * Operation: GET /api/v1/status/incidents
-     *            GET /api/v1/facility/incidents
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -697,7 +693,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents", "/api/v1/facility/incidents" },
+        path = {"/api/v1/status/incidents"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -819,7 +815,7 @@ public class StatusController {
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
-            log.error("[StatusController::getIncidents] Exception caught in GET of /incidents", ex);
+            log.error("[StatusController::getIncidents] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -827,8 +823,7 @@ public class StatusController {
     /**
      * Returns the incident resource associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/status/incident/{id}
-     *            GET /api/v1/facility/incident/{id}
+     * Operation: GET /api/v1/status/incident/{incident_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -837,7 +832,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param iid The incident_id of the target incident resource.
      *
      * @return A RESTful response.
      */
@@ -937,8 +932,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{id}",
-            "/api/v1/facility/incidents/{id}"},
+        path = {"/api/v1/status/incidents/{incident_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -948,22 +942,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.IID_NAME)
+        @Parameter(description = OpenApiDescriptions.IID_NAME, required = true) String iid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, iid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the incident matching the specified id.
-            Incident incident = repository.findIncidentById(id);
+            Incident incident = repository.findIncidentById(iid);
             if (incident != null) {
                 OffsetDateTime lastModified = incident.getLastModified();
                 if (lastModified != null) {
@@ -988,7 +982,7 @@ public class StatusController {
             log.error("[StatusController::getIncidents] incident not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getIncidents] Exception caught in GET of /incidents/{}", id, ex);
+            log.error("[StatusController::getIncidents] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -996,8 +990,7 @@ public class StatusController {
     /**
      * Returns the events associated with the specified incident.
      * <p>
-     * Operation: GET /api/v1/status/incident/{id}/events
-     *            GET /api/v1/facility/incident/{id}/events
+     * Operation: GET /api/v1/status/incident/{incident_id}/events
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -1006,7 +999,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param iid The incident_id of the target incident resource.
      *
      * @return A RESTful response.
      */
@@ -1104,8 +1097,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{id}/events",
-            "/api/v1/facility/incidents/{id}/events"},
+        path = {"/api/v1/status/incidents/{incident_id}/events"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1115,22 +1107,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.IID_NAME)
+        @Parameter(description = OpenApiDescriptions.IID_NAME, required = true) String iid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getEventsByIncident] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, iid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the incident matching the specified id.
-            Incident incident = repository.findIncidentById(id);
+            Incident incident = repository.findIncidentById(iid);
             if (incident != null) {
                 // Look up the resource associated with the event.
                 List<Event> events = new ArrayList<>();
@@ -1172,7 +1164,7 @@ public class StatusController {
             log.error("[StatusController::getEventsByIncident] event not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getEventsByIncident] Exception caught in GET of /incidents/{}/events", id, ex);
+            log.error("[StatusController::getEventsByIncident] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1181,7 +1173,6 @@ public class StatusController {
      * Returns a list of events.
      * <p>
      * Operation: GET /api/v1/status/events
-     *            GET /api/v1/facility/events
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1274,7 +1265,7 @@ public class StatusController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/status/events", "/api/v1/facility/events"},
+    @RequestMapping(path = {"/api/v1/status/events"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getEvents", version = "v1", type = MediaTypes.EVENTS)
@@ -1377,7 +1368,7 @@ public class StatusController {
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
-            log.error("[StatusController::getEvents] Exception caught in GET of /events", ex);
+            log.error("[StatusController::getEvents] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1385,8 +1376,7 @@ public class StatusController {
     /**
      *
      * <p>
-     * Operation: GET /api/v1/status/events/{id}
-     *            GET /api/v1/facility/events/{id}
+     * Operation: GET /api/v1/status/events/{event_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1395,7 +1385,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param eid The event_id of the target event resource.
      *
      * @return A RESTful response.
      */
@@ -1495,8 +1485,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{id}",
-            "/api/v1/facility/events/{id}"},
+        path = {"/api/v1/status/events/{event_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1506,22 +1495,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.EID_NAME)
+        @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Get the event matching the specified id.
-            Event event = repository.findEventById(id);
+            Event event = repository.findEventById(eid);
             if (event != null) {
                 OffsetDateTime lastModified = event.getLastModified();
                 if (lastModified != null) {
@@ -1546,7 +1535,7 @@ public class StatusController {
             log.error("[StatusController::getEvent] event not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getEvent] Exception caught in GET of /events/{}", id, ex);
+            log.error("[StatusController::getEvent] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1554,8 +1543,7 @@ public class StatusController {
     /**
      * Returns the resource impacted by the specified event.
      * <p>
-     * Operation: GET /api/v1/status/events/{id}/resource
-     *            GET /api/v1/facility/events/{id}/resource
+     * Operation: GET /api/v1/status/events/{event_id}/resource
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1564,7 +1552,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param eid The event_id of the target event resource.
      *
      * @return A RESTful response.
      */
@@ -1664,8 +1652,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{id}/resource",
-            "/api/v1/facility/events/{id}/resource"},
+        path = {"/api/v1/status/events/{event_id}/resource"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1675,22 +1662,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.EID_NAME)
+        @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getResourceByEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the specified event, then the impacted resources.
-            Event event = repository.findEventById(id);
+            Event event = repository.findEventById(eid);
             if (event != null) {
                 // Look up the resource associated with the event.
                 Resource resource = repository.findResourceByHref(event.getResourceUri());
@@ -1718,7 +1705,7 @@ public class StatusController {
             log.error("[StatusController::getResourceByEvent] event not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getResourceByEvent] Exception caught in GET of /events/{}/resource", id, ex);
+            log.error("[StatusController::getResourceByEvent] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1726,8 +1713,7 @@ public class StatusController {
     /**
      * Returns the incident related to the specified event.
      * <p>
-     * Operation: GET /api/v1/status/events/{id}/incident
-     *            GET /api/v1/facility/events/{id}/incident
+     * Operation: GET /api/v1/status/events/{event_id}/incident
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1736,7 +1722,7 @@ public class StatusController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param eid The event_id of the target incident resource.
      *
      * @return A RESTful response.
      */
@@ -1836,8 +1822,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{id}/incident",
-            "/api/v1/facility/events/{id}/incident"},
+        path = {"/api/v1/status/events/{event_id}/incident"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1847,22 +1832,22 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.EID_NAME)
+        @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[StatusController::getIncidentByEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Locate the specified event, then find the generatedBy relationship to identify Incident.
-            Event event = repository.findEventById(id);
+            Event event = repository.findEventById(eid);
             if (event != null) {
                 // Look up the resource associated with the event.
                 Incident incident = repository.findIncidentByHref(event.getIncidentUri());
@@ -1890,7 +1875,7 @@ public class StatusController {
             log.error("[StatusController::getIncidentByEvent] incident not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getIncidentByEvent] Exception caught in GET of /events/{}/incident", id, ex);
+            log.error("[StatusController::getIncidentByEvent] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

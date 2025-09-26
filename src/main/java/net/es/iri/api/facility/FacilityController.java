@@ -89,7 +89,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Slf4j
 @RestController
-@Tag(name = "IRI Facility API", description = "Integrated Research Infrastructure Facility API endpoint")
+@Tag(name = "IRI Facility API", description = "The Integrated Research Infrastructure Facility API endpoint.")
 public class FacilityController {
     // Spring application context.
     private final ApplicationContext context;
@@ -557,7 +557,7 @@ public class FacilityController {
     /**
      * Returns the site associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/facility/sites/{id}
+     * Operation: GET /api/v1/facility/sites/{site_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -566,7 +566,7 @@ public class FacilityController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target resource.
+     * @param sid The site_id of the target resource.
      *
      * @return A RESTful response.
      */
@@ -666,7 +666,7 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/facility/sites/{id}"},
+        path = {"/api/v1/facility/sites/{site_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -676,22 +676,22 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_MSG, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.SID_NAME)
+        @Parameter(description = OpenApiDescriptions.SID_MSG, required = true) String sid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[FacilityController::getSite] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, sid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
-            Site site = repository.findSiteById(id);
+            Site site = repository.findSiteById(sid);
             if (site != null) {
                 OffsetDateTime lastModified = site.getLastModified();
                 if (lastModified != null) {
@@ -716,7 +716,7 @@ public class FacilityController {
             log.error("[FacilityController::getSite] site not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[FacilityController::getSite] Exception caught in GET of /sites/{}", id, ex);
+            log.error("[FacilityController::getSite] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -724,7 +724,7 @@ public class FacilityController {
     /**
      * Returns the location related to the specified site.
      * <p>
-     * Operation: GET /api/v1/status/sites/{id}/location
+     * Operation: GET /api/v1/status/sites/{site_id}/location
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -733,7 +733,7 @@ public class FacilityController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target incident resource.
+     * @param sid The site_id of the target location resource.
      *
      * @return A RESTful response.
      */
@@ -833,7 +833,7 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/facility/sites/{id}/location"},
+        path = {"/api/v1/facility/sites/{site_id}/location"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -843,22 +843,22 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.SID_NAME)
+        @Parameter(description = OpenApiDescriptions.SID_NAME, required = true) String sid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[FacilityController::getLocationBySite] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, sid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
-            Site site = repository.findSiteById(id);
+            Site site = repository.findSiteById(sid);
             if (site!= null) {
                 OffsetDateTime lastModified = site.getLastModified();
                 if (lastModified != null) {
@@ -886,7 +886,7 @@ public class FacilityController {
             log.error("[FacilityController::getLocationBySite] site not found {}", location);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[FacilityController::getLocationBySite] Exception caught in GET of /sites/{}/location", id, ex);
+            log.error("[FacilityController::getLocationBySite] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -1048,7 +1048,7 @@ public class FacilityController {
     /**
      * Returns the location associated with the specified id.
      * <p>
-     * Operation: GET /api/v1/facility/locations/{id}
+     * Operation: GET /api/v1/facility/locations/{location_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -1057,7 +1057,7 @@ public class FacilityController {
      *    header requesting all resources with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
      *
-     * @param id The identifier of the target resource.
+     * @param lid The location_id of the target resource.
      *
      * @return A RESTful response.
      */
@@ -1157,7 +1157,7 @@ public class FacilityController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/facility/locations/{id}"},
+        path = {"/api/v1/facility/locations/{location_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1167,22 +1167,22 @@ public class FacilityController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
-        @PathVariable(OpenApiDescriptions.ID_NAME)
-        @Parameter(description = OpenApiDescriptions.ID_NAME, required = true) String id) {
+        @PathVariable(OpenApiDescriptions.LID_NAME)
+        @Parameter(description = OpenApiDescriptions.LID_NAME, required = true) String lid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI loc = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[FacilityController::getLocation] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", loc, accept, ifModifiedSince, id);
+                + "If-Modified-Since = {}, id = {}", loc, accept, ifModifiedSince, lid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, loc.toASCIIString());
 
             // Find the resource targeted by id.
-            Location location = repository.findLocationById(id);
+            Location location = repository.findLocationById(lid);
             if (location != null) {
                 OffsetDateTime lastModified = location.getLastModified();
                 if (lastModified != null) {
@@ -1207,7 +1207,7 @@ public class FacilityController {
             log.error("[FacilityController::getLocation] location not found {}", loc);
             return new ResponseEntity<>(Common.notFoundError(loc), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[FacilityController::getLocation] Exception caught in GET of /locations/{}", id, ex);
+            log.error("[FacilityController::getLocation] Exception caught in GET of {}", loc, ex);
             return new ResponseEntity<>(Common.internalServerError(loc, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

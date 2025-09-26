@@ -3,7 +3,7 @@
   "self_uri": "http://localhost:8081/api/v1/facility",
   "name": "National Energy Research Scientific Computing Center",
   "description": "NERSC is the mission scientific computing facility for the U.S. Department of Energy Office of Science, the nation’s single largest supporter of basic research in the physical sciences.",
-  "last_modified": "2025-09-24T02:33:13.000Z",
+  "last_modified": "2025-09-26T02:56:07.000Z",
   "short_name": "NERSC",
   "organization_name": "Lawrence Berkeley National Laboratory",
   "support_uri": "https://help.nersc.gov/",
@@ -447,7 +447,7 @@
     "http://localhost:8081/api/v1/status/incidents/c3b2ff57-8239-4ff5-9fe4-9261b6410054",
     "http://localhost:8081/api/v1/status/incidents/c199b78b-be24-46ea-be82-e14be5ea66ad",
     "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6",
-    "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76",
-    "http://localhost:8081/api/v1/status/incidents/afd28a7e-7f32-420e-8f26-b4c592f0868c"
+    "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c",
+    "http://localhost:8081/api/v1/status/incidents/a3e23b8d-8ca6-446b-ad53-927fe0b76822"
   ]
 }

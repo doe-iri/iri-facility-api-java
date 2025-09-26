@@ -25,11 +25,15 @@ ENDPOINTS=(
     "http://localhost:8081/api/v1 meta-data.json"
     "http://localhost:8081/api/v1/status status-meta-data.json"
     "http://localhost:8081/api/v1/facility facility.json"
+    "http://localhost:8081/api/v1/facility/sites sites.json"
+    "http://localhost:8081/api/v1/facility/locations locations.json"
     "http://localhost:8081/api/v1/status/resources resources.json"
     "http://localhost:8081/api/v1/status/incidents incidents.json"
     "http://localhost:8081/api/v1/status/events events.json"
-    "http://localhost:8081/api/v1/facility/sites sites.json"
-    "http://localhost:8081/api/v1/facility/locations locations.json"
+    "http://localhost:8081/api/v1/account/projects projects.json"
+    "http://localhost:8081/api/v1/account/user_allocations user_allocations.json"
+    "http://localhost:8081/api/v1/account/project_allocations project_allocations.json"
+    "http://localhost:8081/api/v1/account/capabilities capabilities.json"
 )
 
 # Function to fetch data

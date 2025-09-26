@@ -658,6 +658,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/4cc0c46d-5813-4fe2-abbe-4af789e99674"
   },
   {
+    "id": "3da3c91b-ddcc-4e2a-a11d-5c596956146b",
+    "self_uri": "http://localhost:8081/api/v1/status/events/3da3c91b-ddcc-4e2a-a11d-5c596956146b",
+    "name": "portal[auth].nersc.gov is up",
+    "description": "Up event for resource b951a092-7f0a-4263-bc9a-700c7ceed415",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "3ccc8c8d-5472-46c3-b523-2564679d82b7",
     "self_uri": "http://localhost:8081/api/v1/status/events/3ccc8c8d-5472-46c3-b523-2564679d82b7",
     "name": "HPSS Archive (User)",
@@ -2256,6 +2266,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/374b8dac-7a03-41f9-801d-021b661c9d87"
   },
   {
+    "id": "3dd15f36-ed32-4a22-8d1f-4480f48262f4",
+    "self_uri": "http://localhost:8081/api/v1/status/events/3dd15f36-ed32-4a22-8d1f-4480f48262f4",
+    "name": "Login Nodes is up",
+    "description": "Up event for resource b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "288ed23b-c430-4948-bd59-b785a98804e1",
     "self_uri": "http://localhost:8081/api/v1/status/events/288ed23b-c430-4948-bd59-b785a98804e1",
     "name": "global_homes is down",
@@ -2392,6 +2412,17 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/33e3d08f-d555-4091-ad49-c4766477b6ef"
   },
   {
+    "id": "0d73da1f-b331-4770-ac96-0e7f9b9b555c",
+    "self_uri": "http://localhost:8081/api/v1/status/events/0d73da1f-b331-4770-ac96-0e7f9b9b555c",
+    "name": "iris.nersc.gov",
+    "description": "iris.nersc.gov is UP",
+    "last_modified": "2025-09-26T02:56:37.000Z",
+    "status": "up",
+    "occurred_at": "2025-09-26T02:56:37.556Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
+  },
+  {
     "id": "4c100ca4-d34d-475e-b9c0-8527c1027ff7",
     "self_uri": "http://localhost:8081/api/v1/status/events/4c100ca4-d34d-475e-b9c0-8527c1027ff7",
     "name": "sfapi is down",
@@ -2400,6 +2431,16 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/b0785be8-b31e-4615-aa82-033993ae302e"
+  },
+  {
+    "id": "3040ab9b-b201-4c83-a254-7b042502597e",
+    "self_uri": "http://localhost:8081/api/v1/status/events/3040ab9b-b201-4c83-a254-7b042502597e",
+    "name": "CPU Nodes is up",
+    "description": "Up event for resource f8a06086-b79b-4f45-beec-abb8bee38fa1",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "48b2310c-c60a-4e5f-aa2b-4c466d5b2aa1",
@@ -5379,6 +5420,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/a9eecd6d-38f5-448d-9628-0738c2738dac"
   },
   {
+    "id": "f3f56a2e-562b-401c-9cc4-8ab0647872fb",
+    "self_uri": "http://localhost:8081/api/v1/status/events/f3f56a2e-562b-401c-9cc4-8ab0647872fb",
+    "name": "CFS is up",
+    "description": "Up event for resource b06f8043-f96b-4279-8f0a-0e128a73cc32",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "4819a58a-191b-477c-a29c-e93f83ce26ab",
     "self_uri": "http://localhost:8081/api/v1/status/events/4819a58a-191b-477c-a29c-e93f83ce26ab",
     "name": "HPSS Archive (User)",
@@ -6119,6 +6170,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/e5a7afd6-215e-4573-91dc-ab0df293f1e8"
   },
   {
+    "id": "998d75e9-ad64-4e6e-95be-34f553bcaf9e",
+    "self_uri": "http://localhost:8081/api/v1/status/events/998d75e9-ad64-4e6e-95be-34f553bcaf9e",
+    "name": "Scratch is up",
+    "description": "Up event for resource 29ea05ad-86de-4df8-b208-f0691aafbaa2",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "b4b82557-14cc-41e0-85c3-e8bd14423604",
     "self_uri": "http://localhost:8081/api/v1/status/events/b4b82557-14cc-41e0-85c3-e8bd14423604",
     "name": "iris is down",
@@ -6491,6 +6552,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/6fe9df29-afbc-4ae4-8b0f-f921df9cddb8"
   },
   {
+    "id": "2ac29e0d-4824-45c2-9e36-dbf0364612c1",
+    "self_uri": "http://localhost:8081/api/v1/status/events/2ac29e0d-4824-45c2-9e36-dbf0364612c1",
+    "name": "jupyter.nersc.gov is up",
+    "description": "Up event for resource d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "92727ed2-5188-4ca1-bcd8-b96bb093ca99",
     "self_uri": "http://localhost:8081/api/v1/status/events/92727ed2-5188-4ca1-bcd8-b96bb093ca99",
     "name": "sfapi is down",
@@ -6499,16 +6570,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/33e3d08f-d555-4091-ad49-c4766477b6ef"
-  },
-  {
-    "id": "fa9f867f-18fe-4331-9363-a876697f0822",
-    "self_uri": "http://localhost:8081/api/v1/status/events/fa9f867f-18fe-4331-9363-a876697f0822",
-    "name": "Global Common is up",
-    "description": "Up event for resource 097c3750-4ba1-4b51-accf-b160be683d55",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "9698007a-3aab-44c8-8a02-58483eeda37f",
@@ -7130,16 +7191,6 @@
     "occurred_at": "2025-06-19T03:04:25.396Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/ce698ec7-a19c-470a-9c44-4ab65732c7dc"
-  },
-  {
-    "id": "ef3126ca-4df1-4a73-9a32-ea20d11666e3",
-    "self_uri": "http://localhost:8081/api/v1/status/events/ef3126ca-4df1-4a73-9a32-ea20d11666e3",
-    "name": "HPSS Regent (Backup) is up",
-    "description": "Up event for resource be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "e1e49d7a-96ae-40f8-9021-54bb91416009",
@@ -7917,6 +7968,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/895956d4-cd42-4f2d-a11d-ab6bde34b3c7"
   },
   {
+    "id": "325041d9-f281-4ad4-b4a5-fa5bb5c7a3c0",
+    "self_uri": "http://localhost:8081/api/v1/status/events/325041d9-f281-4ad4-b4a5-fa5bb5c7a3c0",
+    "name": "GPU Nodes is up",
+    "description": "Up event for resource 8b61b346-b53c-4a8e-83b4-776eaa14cc67",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "809e995d-3f36-41b2-b3a9-c184593d8105",
     "self_uri": "http://localhost:8081/api/v1/status/events/809e995d-3f36-41b2-b3a9-c184593d8105",
     "name": "gpu is down",
@@ -7958,16 +8019,6 @@
     "occurred_at": "2025-06-25T04:34:25.288Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f68fb464-0a94-4738-833c-f17ac8b2229f"
-  },
-  {
-    "id": "0ffbd14e-66f8-492b-848e-873d911c9c19",
-    "self_uri": "http://localhost:8081/api/v1/status/events/0ffbd14e-66f8-492b-848e-873d911c9c19",
-    "name": "Gitlab is up",
-    "description": "Up event for resource 72c11ef6-ff6b-409e-adfd-2f3763daac4f",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "d7fe4077-962a-40ea-a72c-9abdc317918a",
@@ -8587,16 +8638,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/e1ac2f0a-9b60-4f55-aa64-becfe788827a"
-  },
-  {
-    "id": "2d3bef7b-a429-4d17-b43a-29fc7c8471b4",
-    "self_uri": "http://localhost:8081/api/v1/status/events/2d3bef7b-a429-4d17-b43a-29fc7c8471b4",
-    "name": "Spin is up",
-    "description": "Up event for resource 0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "de190c1c-df0a-42fa-bdbb-9820dcd75144",
@@ -11146,6 +11187,17 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/a6ab8a90-671a-4012-80cb-f3376caa7378"
   },
   {
+    "id": "a75b6496-396b-410e-9043-2f32c69fa157",
+    "self_uri": "http://localhost:8081/api/v1/status/events/a75b6496-396b-410e-9043-2f32c69fa157",
+    "name": "iris.nersc.gov",
+    "description": "iris.nersc.gov is down",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "down",
+    "occurred_at": "2025-09-26T02:56:07.555Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
+  },
+  {
     "id": "049012d3-92bf-442b-8158-133b10ec5e39",
     "self_uri": "http://localhost:8081/api/v1/status/events/049012d3-92bf-442b-8158-133b10ec5e39",
     "name": "Network",
@@ -11879,6 +11931,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/e3a81e81-64e3-40a8-b717-3ed1fb45d7af"
   },
   {
+    "id": "4fd7186c-1027-418a-9211-bcdba413dabe",
+    "self_uri": "http://localhost:8081/api/v1/status/events/4fd7186c-1027-418a-9211-bcdba413dabe",
+    "name": "Gitlab is up",
+    "description": "Up event for resource 72c11ef6-ff6b-409e-adfd-2f3763daac4f",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "a332568c-eb99-463d-bc2e-da5d8b03259e",
     "self_uri": "http://localhost:8081/api/v1/status/events/a332568c-eb99-463d-bc2e-da5d8b03259e",
     "name": "global_common is down",
@@ -12284,16 +12346,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/8b428684-ced1-4fde-9da3-20ef76eee253"
   },
   {
-    "id": "1eca67d7-f802-40ec-bb96-cb0a05bb10ba",
-    "self_uri": "http://localhost:8081/api/v1/status/events/1eca67d7-f802-40ec-bb96-cb0a05bb10ba",
-    "name": "Scratch is up",
-    "description": "Up event for resource 29ea05ad-86de-4df8-b208-f0691aafbaa2",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "c1a155ba-0dc5-4f65-aba5-db7dd2ada2bd",
     "self_uri": "http://localhost:8081/api/v1/status/events/c1a155ba-0dc5-4f65-aba5-db7dd2ada2bd",
     "name": "Globus",
@@ -12565,6 +12617,17 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/6fc559fd-c42c-4182-92a5-fdb7bdb6a2e9"
+  },
+  {
+    "id": "9bdf3bec-5855-4732-b46c-03507d5ddaec",
+    "self_uri": "http://localhost:8081/api/v1/status/events/9bdf3bec-5855-4732-b46c-03507d5ddaec",
+    "name": "help.nersc.gov",
+    "description": "help.nersc.gov is UP",
+    "last_modified": "2025-09-26T02:56:37.000Z",
+    "status": "up",
+    "occurred_at": "2025-09-26T02:56:37.556Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "a081dd14-c240-464d-9a58-3be93d6a940b",
@@ -13263,17 +13326,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/7e9dd967-664e-4186-a031-ee534669a0c4"
   },
   {
-    "id": "be3eade5-972f-4889-b20b-0d8db990c1fb",
-    "self_uri": "http://localhost:8081/api/v1/status/events/be3eade5-972f-4889-b20b-0d8db990c1fb",
-    "name": "portal[auth].nersc.gov",
-    "description": "portal[auth].nersc.gov is UP",
-    "last_modified": "2025-09-24T02:33:44.000Z",
-    "status": "up",
-    "occurred_at": "2025-09-24T02:33:44.034Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
-  },
-  {
     "id": "8e8f85f7-c78b-48ee-abb3-fc5cee15a69b",
     "self_uri": "http://localhost:8081/api/v1/status/events/8e8f85f7-c78b-48ee-abb3-fc5cee15a69b",
     "name": "HPSS Regent (Backup)",
@@ -13561,16 +13613,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/dc249e63-ba88-46a7-be8d-d6c9a0de4e87"
   },
   {
-    "id": "5771a0e4-cd47-4857-8a05-958f3b2f5628",
-    "self_uri": "http://localhost:8081/api/v1/status/events/5771a0e4-cd47-4857-8a05-958f3b2f5628",
-    "name": "Globus is up",
-    "description": "Up event for resource 13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "e606c3e9-f8f7-40c7-90c6-ce5d26ec6879",
     "self_uri": "http://localhost:8081/api/v1/status/events/e606c3e9-f8f7-40c7-90c6-ce5d26ec6879",
     "name": "service_now is down",
@@ -13832,16 +13874,6 @@
     "occurred_at": "2025-05-11T03:04:25.279Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/e379ad93-26d5-4e0d-ad87-a4b7da67c882"
-  },
-  {
-    "id": "a16e5348-6d7a-4a86-8ed7-307ee5f275c7",
-    "self_uri": "http://localhost:8081/api/v1/status/events/a16e5348-6d7a-4a86-8ed7-307ee5f275c7",
-    "name": "CFS is up",
-    "description": "Up event for resource b06f8043-f96b-4279-8f0a-0e128a73cc32",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "99ff506f-b6a7-473d-a68c-c92d40fab1f2",
@@ -14268,16 +14300,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/9280a4f9-da88-44a1-81ae-da52430cd230"
-  },
-  {
-    "id": "2bdec62a-7411-482d-8830-84b832f011ed",
-    "self_uri": "http://localhost:8081/api/v1/status/events/2bdec62a-7411-482d-8830-84b832f011ed",
-    "name": "portal[auth].nersc.gov is up",
-    "description": "Up event for resource b951a092-7f0a-4263-bc9a-700c7ceed415",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "f18bae95-5470-4483-91db-e4868963c5bf",
@@ -14926,6 +14948,17 @@
     "occurred_at": "2025-06-09T09:04:25.290Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/4f9e7e4e-16ee-400b-ba74-7c4e51dfaa65"
+  },
+  {
+    "id": "eb8ec33f-e11e-4b07-96cd-d33e84c735bf",
+    "self_uri": "http://localhost:8081/api/v1/status/events/eb8ec33f-e11e-4b07-96cd-d33e84c735bf",
+    "name": "jupyter.nersc.gov",
+    "description": "jupyter.nersc.gov is UP",
+    "last_modified": "2025-09-26T02:56:37.000Z",
+    "status": "up",
+    "occurred_at": "2025-09-26T02:56:37.556Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "6126e08e-0048-4bf5-9ebc-c008b0a589a7",
@@ -17372,6 +17405,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/33816884-3f2d-420d-a627-60f749d8f7d6"
   },
   {
+    "id": "9f9645a2-74e7-483e-bf93-6b394ae3a079",
+    "self_uri": "http://localhost:8081/api/v1/status/events/9f9645a2-74e7-483e-bf93-6b394ae3a079",
+    "name": "HPSS Regent (Backup) is up",
+    "description": "Up event for resource 43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "a66535c5-8dcc-4e07-b982-f5423f20051b",
     "self_uri": "http://localhost:8081/api/v1/status/events/a66535c5-8dcc-4e07-b982-f5423f20051b",
     "name": "iris is down",
@@ -18058,17 +18101,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/2c6e29e5-209b-467c-a942-30451d894d27"
   },
   {
-    "id": "b83e168c-8ba5-4ed0-bc68-2e6bce0b22bb",
-    "self_uri": "http://localhost:8081/api/v1/status/events/b83e168c-8ba5-4ed0-bc68-2e6bce0b22bb",
-    "name": "portal[auth].nersc.gov",
-    "description": "portal[auth].nersc.gov is down",
-    "last_modified": "2025-09-24T02:33:14.000Z",
-    "status": "down",
-    "occurred_at": "2025-09-24T02:33:14.032Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
-  },
-  {
     "id": "8c1eac8c-ee1a-4fc3-81c7-f3abd7788efb",
     "self_uri": "http://localhost:8081/api/v1/status/events/8c1eac8c-ee1a-4fc3-81c7-f3abd7788efb",
     "name": "gitlab is down",
@@ -18567,17 +18599,6 @@
     "occurred_at": "2025-06-02T13:34:30.278Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/31b76d25-327f-4c87-b860-79d7da975c30"
-  },
-  {
-    "id": "0e006763-a345-4a32-a65f-ebd0b7b3d1b3",
-    "self_uri": "http://localhost:8081/api/v1/status/events/0e006763-a345-4a32-a65f-ebd0b7b3d1b3",
-    "name": "jupyter.nersc.gov",
-    "description": "jupyter.nersc.gov is down",
-    "last_modified": "2025-09-24T02:33:14.000Z",
-    "status": "down",
-    "occurred_at": "2025-09-24T02:33:14.032Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "fd30f011-7181-4236-9833-d490d15490d0",
@@ -19606,16 +19627,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/ecbb88a0-a38c-4f5b-b58b-9882374bfa66"
   },
   {
-    "id": "62c7a380-1c8c-4a5e-a920-13802b8f301f",
-    "self_uri": "http://localhost:8081/api/v1/status/events/62c7a380-1c8c-4a5e-a920-13802b8f301f",
-    "name": "help.nersc.gov is up",
-    "description": "Up event for resource 289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "cc1cc233-2e86-44a3-8801-e34820f90a10",
     "self_uri": "http://localhost:8081/api/v1/status/events/cc1cc233-2e86-44a3-8801-e34820f90a10",
     "name": "scratch is down",
@@ -19635,6 +19646,17 @@
     "occurred_at": "2025-06-19T03:04:25.396Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/ce698ec7-a19c-470a-9c44-4ab65732c7dc"
+  },
+  {
+    "id": "0c0d9393-3601-42eb-9f9c-670ce2e0bc9c",
+    "self_uri": "http://localhost:8081/api/v1/status/events/0c0d9393-3601-42eb-9f9c-670ce2e0bc9c",
+    "name": "jupyter.nersc.gov",
+    "description": "jupyter.nersc.gov is down",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "down",
+    "occurred_at": "2025-09-26T02:56:07.555Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "20aadc59-789b-4c48-90ad-50793ec5c210",
@@ -20593,6 +20615,16 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/ff5893fd-36ae-4523-ab67-9fec01d116be"
+  },
+  {
+    "id": "f74b18f7-1dbd-49f3-ad4b-f4eaab57ce79",
+    "self_uri": "http://localhost:8081/api/v1/status/events/f74b18f7-1dbd-49f3-ad4b-f4eaab57ce79",
+    "name": "Data Transfer Nodes is up",
+    "description": "Up event for resource 057c3750-4ba1-4b51-accf-b160be683d80",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "633b476e-9a5a-45a6-9e5a-3b099d879596",
@@ -22265,17 +22297,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/39fa1785-b5ad-4044-a157-15081831b721"
   },
   {
-    "id": "2e020fd0-4499-496a-99d7-3ed9987bdc8d",
-    "self_uri": "http://localhost:8081/api/v1/status/events/2e020fd0-4499-496a-99d7-3ed9987bdc8d",
-    "name": "iris.nersc.gov",
-    "description": "iris.nersc.gov is down",
-    "last_modified": "2025-09-24T02:33:14.000Z",
-    "status": "down",
-    "occurred_at": "2025-09-24T02:33:14.032Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
-  },
-  {
     "id": "a800b3a8-bcff-43fe-9bf6-336c2590b8a8",
     "self_uri": "http://localhost:8081/api/v1/status/events/a800b3a8-bcff-43fe-9bf6-336c2590b8a8",
     "name": "HPSS Regent (Backup)",
@@ -22862,6 +22883,16 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/90113add-9fd5-47bf-85f8-4fab33379f5e"
+  },
+  {
+    "id": "725abcc8-fc9f-454b-8021-2d383cbd7c85",
+    "self_uri": "http://localhost:8081/api/v1/status/events/725abcc8-fc9f-454b-8021-2d383cbd7c85",
+    "name": "help.nersc.gov is up",
+    "description": "Up event for resource 289d38f2-e93c-4840-b037-8b78d8ec36cc",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "89bf32f0-197a-4dd8-9cd7-87a7bbc827e9",
@@ -25876,6 +25907,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f148e9e6-f823-45f3-994c-d7c7caaf4372"
   },
   {
+    "id": "115aba39-1044-472d-a70f-c3e052eb0fac",
+    "self_uri": "http://localhost:8081/api/v1/status/events/115aba39-1044-472d-a70f-c3e052eb0fac",
+    "name": "Globus is up",
+    "description": "Up event for resource 13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "61d08ee9-8c3f-437c-9d27-c3670e8efcc4",
     "self_uri": "http://localhost:8081/api/v1/status/events/61d08ee9-8c3f-437c-9d27-c3670e8efcc4",
     "name": "Globus",
@@ -26731,6 +26772,17 @@
     "occurred_at": "2025-06-05T06:04:35.276Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/fafebbac-d0d6-4fe9-915e-521cb54b3b14"
+  },
+  {
+    "id": "133df82e-8290-45c0-b135-627deb5f43d3",
+    "self_uri": "http://localhost:8081/api/v1/status/events/133df82e-8290-45c0-b135-627deb5f43d3",
+    "name": "portal[auth].nersc.gov",
+    "description": "portal[auth].nersc.gov is UP",
+    "last_modified": "2025-09-26T02:56:37.000Z",
+    "status": "up",
+    "occurred_at": "2025-09-26T02:56:37.556Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "68f3e78a-2d83-4852-b3e7-15cfef6db9ca",
@@ -29086,16 +29138,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/bf1c9337-a7a2-4f03-aea6-394e54e71376"
   },
   {
-    "id": "c11ecace-2633-4cfd-926f-e650b6e6d9ff",
-    "self_uri": "http://localhost:8081/api/v1/status/events/c11ecace-2633-4cfd-926f-e650b6e6d9ff",
-    "name": "Superfacility API is up",
-    "description": "Up event for resource a0d96526-6fd3-413e-8f9e-ff12d602539e",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "dbbe8767-6565-4184-8c9b-425ef83aeb6c",
     "self_uri": "http://localhost:8081/api/v1/status/events/dbbe8767-6565-4184-8c9b-425ef83aeb6c",
     "name": "jupyter is up",
@@ -29370,6 +29412,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/c1b1ded0-ffee-4259-a745-61304892276b"
   },
   {
+    "id": "25d43cac-a582-4341-b7cf-73d7b700738d",
+    "self_uri": "http://localhost:8081/api/v1/status/events/25d43cac-a582-4341-b7cf-73d7b700738d",
+    "name": "Global Homes is up",
+    "description": "Up event for resource ff415c87-6596-41c7-93fd-b772994a92d4",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "a470fb24-9d2d-41f6-8227-4be4033801fd",
     "self_uri": "http://localhost:8081/api/v1/status/events/a470fb24-9d2d-41f6-8227-4be4033801fd",
     "name": "CFS",
@@ -29601,16 +29653,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f229147b-e480-4e87-a9fb-62d613fa8ab1"
   },
   {
-    "id": "fac80c92-5240-4169-8b85-4399b739a7ba",
-    "self_uri": "http://localhost:8081/api/v1/status/events/fac80c92-5240-4169-8b85-4399b739a7ba",
-    "name": "Data Transfer Nodes is up",
-    "description": "Up event for resource 057c3750-4ba1-4b51-accf-b160be683d80",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "9b5400bd-c9b8-4af7-a3ea-22ed2b91c0d8",
     "self_uri": "http://localhost:8081/api/v1/status/events/9b5400bd-c9b8-4af7-a3ea-22ed2b91c0d8",
     "name": "Gitlab",
@@ -29620,6 +29662,17 @@
     "occurred_at": "2025-06-12T12:04:30.279Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/c7187e63-89a1-4933-b6f1-0ae763138b16"
+  },
+  {
+    "id": "4c3ee8d2-bb2d-45fa-8541-afa79fdd7cf5",
+    "self_uri": "http://localhost:8081/api/v1/status/events/4c3ee8d2-bb2d-45fa-8541-afa79fdd7cf5",
+    "name": "help.nersc.gov",
+    "description": "help.nersc.gov is down",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "down",
+    "occurred_at": "2025-09-26T02:56:07.555Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "1407046d-8967-4066-9f25-6159294f6ce9",
@@ -29683,6 +29736,16 @@
     "occurred_at": "2025-04-18T12:34:25.276Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/560eaac5-f344-49ca-ad6e-508a6e968b7d"
+  },
+  {
+    "id": "79d1ec71-d859-4de6-adb0-f183ac9899d8",
+    "self_uri": "http://localhost:8081/api/v1/status/events/79d1ec71-d859-4de6-adb0-f183ac9899d8",
+    "name": "HPSS Regent (Backup) is up",
+    "description": "Up event for resource be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "0b742fc3-4a91-42fe-b043-73ea04d2299a",
@@ -29882,6 +29945,16 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/7ba7cd9e-53f7-4913-bcd9-3dd4a3710ae7"
+  },
+  {
+    "id": "adf5166c-8a0c-4600-93e6-5ce7d4df5401",
+    "self_uri": "http://localhost:8081/api/v1/status/events/adf5166c-8a0c-4600-93e6-5ce7d4df5401",
+    "name": "Spin is up",
+    "description": "Up event for resource 0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "c4d8ebe9-dea1-498d-9925-39900a5c711e",
@@ -30097,6 +30170,16 @@
     "occurred_at": "2025-04-18T16:34:30.275Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/9677c00e-d76e-49d4-b5f2-8f4f3ac252af"
+  },
+  {
+    "id": "7c4d599c-2287-4610-8daa-dbaebe16ac7e",
+    "self_uri": "http://localhost:8081/api/v1/status/events/7c4d599c-2287-4610-8daa-dbaebe16ac7e",
+    "name": "Global Common is up",
+    "description": "Up event for resource 097c3750-4ba1-4b51-accf-b160be683d55",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "e691277a-6572-4879-80f0-0385fafb88f2",
@@ -31085,17 +31168,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/42dd44d0-8cc9-4f2c-91c4-f7a278a1ef4b"
   },
   {
-    "id": "7f8227d9-e3b2-4141-8dbe-c730c0fe9ab7",
-    "self_uri": "http://localhost:8081/api/v1/status/events/7f8227d9-e3b2-4141-8dbe-c730c0fe9ab7",
-    "name": "help.nersc.gov",
-    "description": "help.nersc.gov is down",
-    "last_modified": "2025-09-24T02:33:14.000Z",
-    "status": "down",
-    "occurred_at": "2025-09-24T02:33:14.032Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
-  },
-  {
     "id": "5ba7e770-a902-45b2-893b-36bb9a630202",
     "self_uri": "http://localhost:8081/api/v1/status/events/5ba7e770-a902-45b2-893b-36bb9a630202",
     "name": "Data Transfer Nodes",
@@ -31189,16 +31261,6 @@
     "occurred_at": "2025-06-07T04:04:25.305Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/7ac78ed4-b519-45c1-9ea6-0327db0432e9"
-  },
-  {
-    "id": "3c893844-c876-45b2-9357-13295b4627d1",
-    "self_uri": "http://localhost:8081/api/v1/status/events/3c893844-c876-45b2-9357-13295b4627d1",
-    "name": "HPSS Regent (Backup) is up",
-    "description": "Up event for resource 43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "a08261fd-d831-48eb-8464-80d03448a433",
@@ -31918,16 +31980,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/be497078-ea3a-4984-a9f2-20239950a916"
-  },
-  {
-    "id": "c1c200c0-b2df-4894-a816-debae35db8a3",
-    "self_uri": "http://localhost:8081/api/v1/status/events/c1c200c0-b2df-4894-a816-debae35db8a3",
-    "name": "Network is up",
-    "description": "Up event for resource 3594b493-f811-43b9-9c14-a3dd23542ffc",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "4c9a0b9f-7060-4fc9-bf70-a77d67e87c8e",
@@ -33315,17 +33367,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/9677c00e-d76e-49d4-b5f2-8f4f3ac252af"
   },
   {
-    "id": "dbff2173-7ed0-4015-870c-67b9403da669",
-    "self_uri": "http://localhost:8081/api/v1/status/events/dbff2173-7ed0-4015-870c-67b9403da669",
-    "name": "iris.nersc.gov",
-    "description": "iris.nersc.gov is UP",
-    "last_modified": "2025-09-24T02:33:44.000Z",
-    "status": "up",
-    "occurred_at": "2025-09-24T02:33:44.034Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
-  },
-  {
     "id": "a2e32283-4003-41ca-a589-6540fad30378",
     "self_uri": "http://localhost:8081/api/v1/status/events/a2e32283-4003-41ca-a589-6540fad30378",
     "name": "service_now is down",
@@ -33781,17 +33822,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/e4596328-a920-4d25-a871-559eef79b104"
-  },
-  {
-    "id": "890c2f8d-9f57-44e1-90c9-e0513b25a171",
-    "self_uri": "http://localhost:8081/api/v1/status/events/890c2f8d-9f57-44e1-90c9-e0513b25a171",
-    "name": "help.nersc.gov",
-    "description": "help.nersc.gov is UP",
-    "last_modified": "2025-09-24T02:33:44.000Z",
-    "status": "up",
-    "occurred_at": "2025-09-24T02:33:44.034Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "f02b60fe-1dd5-41e7-bd2b-f413b7f7b66a",
@@ -34567,6 +34597,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/af49846c-a69b-4ef4-95e8-e901b347d1ed"
   },
   {
+    "id": "df2dd320-3cc0-4e05-8d9c-bc763344ba02",
+    "self_uri": "http://localhost:8081/api/v1/status/events/df2dd320-3cc0-4e05-8d9c-bc763344ba02",
+    "name": "iris.nersc.gov is up",
+    "description": "Up event for resource 29989783-bc70-4cc8-880f-f2176d6cec20",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "cea70646-be6c-4ed9-bb41-fcfec59f4720",
     "self_uri": "http://localhost:8081/api/v1/status/events/cea70646-be6c-4ed9-bb41-fcfec59f4720",
     "name": "sfapi is down",
@@ -34970,6 +35010,17 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f5dbe861-0a28-4557-9ead-320900171630"
   },
   {
+    "id": "394b0a43-4541-4cef-8fdd-8e28cbe6a847",
+    "self_uri": "http://localhost:8081/api/v1/status/events/394b0a43-4541-4cef-8fdd-8e28cbe6a847",
+    "name": "portal[auth].nersc.gov",
+    "description": "portal[auth].nersc.gov is down",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "down",
+    "occurred_at": "2025-09-26T02:56:07.555Z",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
+  },
+  {
     "id": "5916889f-159e-4b29-a483-c5f2423a19eb",
     "self_uri": "http://localhost:8081/api/v1/status/events/5916889f-159e-4b29-a483-c5f2423a19eb",
     "name": "cpu is down",
@@ -35172,16 +35223,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/166a8bfb-a91c-4fe1-b66a-99b42c5852dc"
   },
   {
-    "id": "90b7172a-97a0-4f7f-b951-8fa2961019cf",
-    "self_uri": "http://localhost:8081/api/v1/status/events/90b7172a-97a0-4f7f-b951-8fa2961019cf",
-    "name": "CPU Nodes is up",
-    "description": "Up event for resource f8a06086-b79b-4f45-beec-abb8bee38fa1",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "f2c3093e-bc2e-42ab-b38c-378d673db908",
     "self_uri": "http://localhost:8081/api/v1/status/events/f2c3093e-bc2e-42ab-b38c-378d673db908",
     "name": "HPSS Regent (Backup)",
@@ -35352,16 +35393,6 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f884c27a-8c60-4636-940e-90c9fb7b5bfb"
   },
   {
-    "id": "31e05731-6512-47fe-9adf-cc2e6818955c",
-    "self_uri": "http://localhost:8081/api/v1/status/events/31e05731-6512-47fe-9adf-cc2e6818955c",
-    "name": "Login Nodes is up",
-    "description": "Up event for resource b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
-  },
-  {
     "id": "cd62e2b3-3d9f-4844-aa42-edab4b780c27",
     "self_uri": "http://localhost:8081/api/v1/status/events/cd62e2b3-3d9f-4844-aa42-edab4b780c27",
     "name": "Data Transfer Nodes",
@@ -35510,17 +35541,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/5068d6aa-5399-41db-a793-865422872e4e"
-  },
-  {
-    "id": "f7062c96-dc2f-4017-8967-33d02a5ab901",
-    "self_uri": "http://localhost:8081/api/v1/status/events/f7062c96-dc2f-4017-8967-33d02a5ab901",
-    "name": "jupyter.nersc.gov",
-    "description": "jupyter.nersc.gov is UP",
-    "last_modified": "2025-09-24T02:33:44.000Z",
-    "status": "up",
-    "occurred_at": "2025-09-24T02:33:44.034Z",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/4c03e9c9-a338-47ba-ae89-a2ba90ed83f6"
   },
   {
     "id": "31cf1d94-5bf7-4af6-bd04-0a040300f74b",
@@ -35875,6 +35895,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/374b8dac-7a03-41f9-801d-021b661c9d87"
   },
   {
+    "id": "0d161827-ff89-426b-8e60-ca9deb45554e",
+    "self_uri": "http://localhost:8081/api/v1/status/events/0d161827-ff89-426b-8e60-ca9deb45554e",
+    "name": "Superfacility API is up",
+    "description": "Up event for resource a0d96526-6fd3-413e-8f9e-ff12d602539e",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "a55f47ea-e907-4bc4-a671-74993d2e928b",
     "self_uri": "http://localhost:8081/api/v1/status/events/a55f47ea-e907-4bc4-a671-74993d2e928b",
     "name": "help.nersc.gov",
@@ -36031,6 +36061,16 @@
     "occurred_at": "2025-06-09T17:34:25.282Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/a6ab8a90-671a-4012-80cb-f3376caa7378"
+  },
+  {
+    "id": "166ec664-d24f-43b1-a3cc-7e1f2962579b",
+    "self_uri": "http://localhost:8081/api/v1/status/events/166ec664-d24f-43b1-a3cc-7e1f2962579b",
+    "name": "Network is up",
+    "description": "Up event for resource 3594b493-f811-43b9-9c14-a3dd23542ffc",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
   },
   {
     "id": "4079a92c-13ab-4012-822f-d8ef0e06c312",
@@ -36267,16 +36307,6 @@
     "occurred_at": "2025-05-17T19:34:30.276Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f948b28c-d531-426d-bca0-bdff2fca4f0a"
-  },
-  {
-    "id": "1676487c-b45c-4715-adca-62558aea2c2c",
-    "self_uri": "http://localhost:8081/api/v1/status/events/1676487c-b45c-4715-adca-62558aea2c2c",
-    "name": "Global Homes is up",
-    "description": "Up event for resource ff415c87-6596-41c7-93fd-b772994a92d4",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "fdd5faa4-d3a5-4924-84be-cd53e1556e77",
@@ -36593,16 +36623,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/8067d939-db2e-4b24-b552-1aef799b2061"
-  },
-  {
-    "id": "fd55fd7c-e559-4639-babb-d581e8924455",
-    "self_uri": "http://localhost:8081/api/v1/status/events/fd55fd7c-e559-4639-babb-d581e8924455",
-    "name": "GPU Nodes is up",
-    "description": "Up event for resource 8b61b346-b53c-4a8e-83b4-776eaa14cc67",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "9abe6cb8-1464-46c1-96cc-72b4b9bd3cc0",
@@ -39301,6 +39321,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/6a21ecad-d9af-4a55-985a-57021511104f"
   },
   {
+    "id": "8015dfb1-48f8-432e-a0ef-ccc742db4754",
+    "self_uri": "http://localhost:8081/api/v1/status/events/8015dfb1-48f8-432e-a0ef-ccc742db4754",
+    "name": "HPSS Archive (User) is up",
+    "description": "Up event for resource 303a692d-c52b-47f0-8699-045f962650e2",
+    "last_modified": "2025-09-26T02:56:07.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/48fce393-b93c-4c61-8485-63dde97f348c"
+  },
+  {
     "id": "b3c0ac8f-0f2e-47b7-8b81-39261e3bff66",
     "self_uri": "http://localhost:8081/api/v1/status/events/b3c0ac8f-0f2e-47b7-8b81-39261e3bff66",
     "name": "scratch is down",
@@ -39767,16 +39797,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/cbd3d84a-9d65-416f-ae42-9d088d4cb86a"
-  },
-  {
-    "id": "6e6b8c51-c758-48ad-8c02-45d91d9b201c",
-    "self_uri": "http://localhost:8081/api/v1/status/events/6e6b8c51-c758-48ad-8c02-45d91d9b201c",
-    "name": "jupyter.nersc.gov is up",
-    "description": "Up event for resource d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "b431ca95-e57b-4a18-ad9d-a041b61fa814",
@@ -40670,16 +40690,6 @@
     "occurred_at": "2025-05-17T01:34:25.279Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/b0feef64-4ede-4441-ba07-2cffd73b2799"
-  },
-  {
-    "id": "3b6c2edc-a5d4-4a34-b033-7ab04b224924",
-    "self_uri": "http://localhost:8081/api/v1/status/events/3b6c2edc-a5d4-4a34-b033-7ab04b224924",
-    "name": "iris.nersc.gov is up",
-    "description": "Up event for resource 29989783-bc70-4cc8-880f-f2176d6cec20",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "1794df66-cb0c-44e1-bd04-4d39431ef25e",
@@ -42205,16 +42215,6 @@
     "occurred_at": "2025-06-27T01:34:30.276Z",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/abbae25a-53b9-4888-b73c-9ade6d1a9a2b"
-  },
-  {
-    "id": "841dc5aa-793c-4354-bfef-a8a6dfde6754",
-    "self_uri": "http://localhost:8081/api/v1/status/events/841dc5aa-793c-4354-bfef-a8a6dfde6754",
-    "name": "HPSS Archive (User) is up",
-    "description": "Up event for resource 303a692d-c52b-47f0-8699-045f962650e2",
-    "last_modified": "2025-09-24T02:33:13.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/8a5bea2d-9ffb-4198-9223-c2ff4e4d2e76"
   },
   {
     "id": "ff426f1f-3416-4c23-9e8d-d04d677fac2c",

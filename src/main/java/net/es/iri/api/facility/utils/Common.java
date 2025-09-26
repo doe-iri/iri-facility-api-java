@@ -90,6 +90,18 @@ public class Common {
     return error;
   }
 
+  public static Error badRequestError(URI location, String reason) {
+    Error error = Error.builder()
+        .type(URI.create("about:blank"))
+        .status(HttpStatus.BAD_REQUEST.value())
+        .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+        .detail("The request is invalid: " + reason)
+        .instance(location)
+        .build();
+    error.putExtension("timestamp", OffsetDateTime.now().toString());
+    return error;
+  }
+
   public static Error internalServerError(URI location, Exception ex) {
     Error error = Error.builder()
         .type(URI.create("about:blank"))

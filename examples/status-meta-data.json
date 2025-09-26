@@ -5,18 +5,7 @@
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/resources/%7Bid%7D",
-        "type": "application/vnd.doe.iri.resource+json"
-      }
-    ]
-  },
-  {
-    "id": "getResource",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/resources/%7Bid%7D",
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/resources/%7Bresource_id%7D",
         "type": "application/vnd.doe.iri.resource+json"
       }
     ]
@@ -33,34 +22,12 @@
     ]
   },
   {
-    "id": "getResources",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/resources",
-        "type": "application/vnd.doe.iri.resource.collection+json"
-      }
-    ]
-  },
-  {
     "id": "getEventsByIncident",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/incidents/%7Bid%7D/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
-      }
-    ]
-  },
-  {
-    "id": "getEventsByIncident",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/incidents/%7Bid%7D/events",
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/incidents/%7Bincident_id%7D/events",
         "type": "application/vnd.doe.iri.event.collection+json"
       }
     ]
@@ -71,18 +38,7 @@
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bid%7D/resource",
-        "type": "application/vnd.doe.iri.resource+json"
-      }
-    ]
-  },
-  {
-    "id": "getResourceByEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/events/%7Bid%7D/resource",
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bevent_id%7D/resource",
         "type": "application/vnd.doe.iri.resource+json"
       }
     ]
@@ -93,41 +49,8 @@
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bid%7D/incident",
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bevent_id%7D/incident",
         "type": "application/vnd.doe.iri.incident+json"
-      }
-    ]
-  },
-  {
-    "id": "getIncidentByEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/events/%7Bid%7D/incident",
-        "type": "application/vnd.doe.iri.incident+json"
-      }
-    ]
-  },
-  {
-    "id": "getEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bid%7D",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ]
-  },
-  {
-    "id": "getEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/events/%7Bid%7D",
-        "type": "application/vnd.doe.iri.event+json"
       }
     ]
   },
@@ -143,13 +66,13 @@
     ]
   },
   {
-    "id": "getEvents",
+    "id": "getEvent",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/events/%7Bevent_id%7D",
+        "type": "application/vnd.doe.iri.event+json"
       }
     ]
   },
@@ -176,34 +99,12 @@
     ]
   },
   {
-    "id": "getIncidents",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/incidents",
-        "type": "application/vnd.doe.iri.incident.collection+json"
-      }
-    ]
-  },
-  {
     "id": "getIncident",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/status/incidents/%7Bid%7D",
-        "type": "application/vnd.doe.iri.incident+json"
-      }
-    ]
-  },
-  {
-    "id": "getIncident",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/api/v1/facility/incidents/%7Bid%7D",
+        "href": "http://localhost:8081/api/v1/status/api/v1/status/incidents/%7Bincident_id%7D",
         "type": "application/vnd.doe.iri.incident+json"
       }
     ]

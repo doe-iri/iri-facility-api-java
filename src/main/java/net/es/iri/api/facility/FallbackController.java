@@ -21,7 +21,7 @@ package net.es.iri.api.facility;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.schema.Error;
 import org.springframework.http.HttpStatus;
@@ -31,17 +31,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * The FallbackController provides a catchall for operations targeting invalid endpoint URL..
+ * The FallbackController provides a catchall for operations targeting invalid REST API endpoint URL.
  *
  * @author hacksaw
  */
 @Slf4j
+@Hidden
 @RestController
-@Tag(name = "IRI Facility API error endpoint", description = "Error handling endpoint.")
 class FallbackController {
 
     // Catch-all for anything not matched by more specific mappings
-    @RequestMapping(path = "/{*path}")
+    @RequestMapping(path = "/api/{*path}")
     public ResponseEntity<Error> fallback(@PathVariable String path) {
         log.error("[FallbackController::fallback] entering");
         net.es.iri.api.facility.schema.Error error = Error.builder()
