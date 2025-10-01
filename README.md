@@ -1,207 +1,220 @@
-# IRI Facility API Reference Implementation (Java)
+# IRI Facility API — Java Reference Implementation
 
-The **IRI Facility API** is a draft implementation of the **Integrated Research Infrastructure Facility Status** specification. It provides endpoints to query facility statuses, incidents, events, and related resources to support facility monitoring and status reporting.
+The **IRI Facility API** is a Java/Spring Boot reference implementation of the DOE Integrated Research Infrastructure (IRI) Facility Status interface. It exposes read-only endpoints for facility metadata, resources, incidents, events, sites, and locations and ships with example data and OpenAPI docs.
 
-## Table of Contents
+---
+
+## Contents
 - [Overview](#overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
+- [Quick start](#quick-start)
+- [API documentation](#api-documentation)
 - [Configuration](#configuration)
 - [Endpoints](#endpoints)
-- [Usage](#usage)
+- [Examples](#examples)
 - [Development](#development)
+- [Container usage](#container-usage)
+- [Support](#support)
 - [License](#license)
 
 ---
 
 ## Overview
-The **IRI Facility API** enables users to query facility-related resources, including:
-- Facility details
-- Status updates
-- Incidents and events
-- Sites and Geographical locations
 
-This implementation is built with **Spring Boot** and follows RESTful API design principles.
+- **Runtime:** Java 21, Spring Boot (parent 3.5.x)  
+- **Build:** Maven (wrapper included)  
+- **Docs:** OpenAPI + Swagger UI enabled  
+- **Data source:** JSON files configurable via `iri.*` settings (defaults provided)
 
 ---
 
-## Features
-✅ RESTful API endpoints for querying facility statuses, resources, incidents, events, and sites/locations  
-✅ Built with **Spring Boot** for scalable and modular development  
-✅ Uses **ConcurrentMap** for in-memory storage of data  
-✅ Implements proper exception handling and response codes  
-✅ Supports `If-Modified-Since` and `Last-Modified` headers for efficient caching
-✅ Supports swagger-ui at http://localhost:8081/swagger-ui/index.html
-✅ Supports OpenAPI specification generation at http://localhost:8081/v3/api-docs
+## Quick start
+
+### Prerequisites
+- Java **21+**
+- Maven **3.8+** (or use `./mvnw`)
+
+### Build & run (dev)
+```bash
+git clone https://github.com/doe-iri/iri-facility-api-java.git
+cd iri-facility-api-java
+./mvnw clean install
+./mvnw spring-boot:run
+````
+
+By default the app starts on **[http://localhost:8081](http://localhost:8081)**.
 
 ---
 
-## Prerequisites
-Ensure the following are installed before proceeding:
-- **Java 21+**
-- **Maven 3.8+**
-- **Docker (optional for containerized deployment)**
+## API documentation
 
----
+* **Swagger UI:** `http://localhost:8081/v3/swagger-ui`
+* **OpenAPI JSON:** `http://localhost:8081/v3/api-docs`
 
-## Installation
-
-1. **Clone the Repository**
-```sh
-$ git clone https://github.com/doe-iri/iri-facility-api-java.git
-$ cd iri-facility-api-java
-```
-
-2. **Build the Application**
-```sh
-$ mvn clean install
-```
-
-3. **Run the Application**
-```sh
-$ mvn spring-boot:run
-```
-
-4. **Docker Deployment (Optional)**
-   To run the application inside a Docker container:
-```sh
-$ docker build -t iri-facility-api-java .
-$ docker run -p 8081:8081 iri-facility-api-java
-
-```
+> These paths are controlled by `springdoc` settings in `application.yaml`.
 
 ---
 
 ## Configuration
-The API can be configured through **application.yml** located in `/src/main/resources/`.
 
-### Sample Configuration
+Application configuration is YAML-based. The repository includes:
+
+* `src/main/resources/application.yaml` (dev defaults)
+* `compose/config/application.yaml` (TLS example for containerized run)
+
+Key settings:
+
 ```yaml
-# Standard spring runtime configuration.
 server:
-   port: 8081  # Change to the desired port number
-   shutdown: graceful
-   servlet:
-      context-path: /
-   compression:
-      enabled: true
-   server-header: "DOE IRI Demo Server"
+  port: 8081          # dev default (compose example uses 8443 + TLS)
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
 
-# Standard logging runtime configuration.
-logging:
-   level:
-      root: INFO
-      net.es.iri.api.facility: DEBUG  # Change package-level logging
-
-# This is the path to expose the swagger-generated documentation.
 springdoc:
-   api-docs:
-      enabled: true
-      path: /v3/api-docs
-   swagger-ui:
-      enabled: true
-      path: /v3/swagger-ui
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /v3/swagger-ui
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+iri:
+  server:
+    root: "http://localhost:8081"     # or 8443 in the compose example
+    # proxy: "https://iri.es.net"
+  status:
+    facility: src/test/resources/facility.json
+    sites: src/test/resources/sites.json
+    locations: src/test/resources/locations.json
+    incidents: src/test/resources/incidents.json
+    events: src/test/resources/events.json
+    resources: src/test/resources/resources.json
+  account:
+    capabilities: src/test/resources/capabilities.json
+    projects: src/test/resources/projects.json
+    project_allocations: src/test/resources/project_allocations.json
+    user_allocations: src/test/resources/user_allocations.json
 ```
+
+> Swap any of the `iri.status.*` or `iri.account.*` file paths to point at your own JSON sources.
 
 ---
 
 ## Endpoints
-### **Facility Endpoints**
-| Method  | Endpoint                     | Description                             |
-|---------|------------------------------|-----------------------------------------|
-| `GET`   | `/v3/api-docs`               | Retrieves the OpenAPI specification     |
-| `GET`   | `/api/v1/facility`           | Retrieves facility details              |
-| `GET`   | `/api/v1/status/incidents`   | Retrieves a list of incidents           |
-| `GET`   | `/api/v1/status/events`      | Retrieves a list of events              |
-| `GET`   | `/api/v1/status/resources`   | Retrieves a list of available resources |
-| `GET`   | `/api/v1/facility/sites`     | Retrieves a list of physical sites      |
-| `GET`   | `/api/v1/facility/locations` | Retrieves a list of locations           |
 
-### **Sample Request**
-```http
-GET /api/v1/status/resources HTTP/1.1
-Host: localhost:8081
-Accept: application/json
-If-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT
-```
+Collection endpoints exposed by the reference server:
 
-### **Sample Response**
-```json
-[
-   {
-      "id" : "29ea05ad-86de-4df8-b208-f0691aafbaa2",
-      "name" : "Scratch",
-      "short_name" : "scratch",
-      "description" : "The Perlmutter Scratch File System is an all-flash file system.",
-      "last_modified" : "2025-08-14T05:24:30.000Z",
-      "_links" : [ {
-         "rel" : "self",
-         "href" : "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
-         "type" : "application/vnd.doe.iri.resource+json"
-      }, {
-         "rel" : "https://schema.doe.gov/iri/facility/status#memberOf",
-         "href" : "/api/v1/status/facility",
-         "type" : "application/vnd.doe.iri.facility+json"
-      }, {
-         "rel" : "https://schema.doe.gov/iri/facility/status#hasIncident",
-         "href" : "/api/v1/status/incidents/10c0cadf-dbac-47c3-bf52-319b893d7f84",
-         "type" : "application/vnd.doe.iri.incident+json"
-      }, {
-         "rel" : "https://schema.doe.gov/iri/facility/status#impactedBy",
-         "href" : "/api/v1/status/events/ddca3418-9895-4a9d-b258-52dcb3eb4752",
-         "type" : "application/vnd.doe.iri.event+json"
-      } ],
-      "type" : "storage",
-      "group" : "perlmutter",
-      "current_status" : "up"
-   }
-]
-```
+| Method | Path                         | Description             |
+| -----: | ---------------------------- | ----------------------- |
+|    GET | `/api/v1/facility`           | Facility details        |
+|    GET | `/api/v1/facility/sites`     | Facility sites          |
+|    GET | `/api/v1/facility/locations` | Facility locations      |
+|    GET | `/api/v1/status/resources`   | Resource collection     |
+|    GET | `/api/v1/status/incidents`   | Incident collection     |
+|    GET | `/api/v1/status/events`      | Event collection        |
+|    GET | `/v3/api-docs`               | OpenAPI document (JSON) |
+
+> Individual items are discoverable via the `self_uri` fields returned by the collections (e.g., `/api/v1/status/resources/{id}`).
 
 ---
 
-## Usage
+## Examples
 
-1. **Fetching All Facilities**
-```sh
-curl -X GET http://localhost:8081/api/v1/status/facility
+**List resources**
+
+```bash
+curl -s http://localhost:8081/api/v1/status/resources | jq .
 ```
 
-2. **Fetching Resources**
-```sh
-curl -X GET http://localhost:8081/api/v1/status/resources
+**Use conditional fetch**
+
+```bash
+curl -s \
+  -H 'If-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT' \
+  http://localhost:8081/api/v1/status/incidents
 ```
 
-3. **Requesting Conditional Data**
-   Add the `If-Modified-Since` header for optimized data retrieval:
-```sh
-curl -X GET http://localhost:8081/api/v1/status/incidents -H "If-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT"
+**Sample resource (truncated)**
+
+```json
+{
+  "id": "29ea05ad-86de-4df8-b208-f0691aafbaa2",
+  "name": "Scratch",
+  "description": "The Perlmutter Scratch File System is an all-flash file system.",
+  "last_modified": "2025-08-14T05:24:30.000Z",
+  "self_uri": "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
+  "member_of_uri": "/api/v1/facility"
+}
 ```
 
 ---
 
 ## Development
-### Running Tests
-```sh
-$ mvn test
+
+Run the test suite:
+
+```bash
+./mvnw test
 ```
 
-### Code Style
-Follow standard Java best practices. For consistent formatting, we recommend:
-- **Checkstyle** for code style enforcement
-- **SpotBugs** for static analysis
+Jar artifact after build:
+
+```
+target/iri-facility-api-java-1.0.0.jar
+```
+
+---
+
+## Container usage
+
+A multi-stage Dockerfile is provided.
+
+**Build image**
+
+```bash
+docker build -t iri-facility-api-java .
+```
+
+**Run (HTTP, 8081)**
+
+```bash
+docker run --rm -p 8081:8081 iri-facility-api-java
+```
+
+**Run with the provided TLS example (8443)**
+Mount the example config (includes `application.yaml` with `ssl.enabled: true` and a demo keystore) and publish 8443:
+
+```bash
+docker run --rm \
+  -p 8443:8443 \
+  -v "$(pwd)/compose/config:/iri/config" \
+  iri-facility-api-java
+```
+
+Environment overrides recognized by the image:
+
+* `CONFIG` — path/URL to an external Spring config (defaults to `file:/iri/config/application.yaml`)
+* `LOGBACK` — path/URL to a Logback XML (defaults to `file:/iri/config/logback.xml`)
+* `SSL_OPTS`, `DEBUG_OPTS` — passed through to the JVM invocation
+
+---
+
+## Support
+
+Questions and contributions are welcome.
+
+* **Email:** [software@es.net](mailto:software@es.net)
+* **Program context:** IRI Interfaces Technical Subcommittee — see the IRI site.
 
 ---
 
 ## License
-The IRI Facility API Reference Implementation is licensed under the **BSD 3-Clause License**. See the [LICENSE](LICENSE) file for more details.
 
----
-
-## Contact
-For issues, improvements, or questions, please contact:
-**The IRI Interfaces Subcommittee**  
-📧 Email: [software@es.net](mailto:software@es.net)  
-🌐 Website: [https://iri.science/ts/interfaces/](https://iri.science/ts/interfaces/)
-
+Please see the repository’s `LICENSE` file for terms. (If you need an SPDX identifier, review the file—this repository includes an LBNL notice; no SPDX identifier is asserted here.)
