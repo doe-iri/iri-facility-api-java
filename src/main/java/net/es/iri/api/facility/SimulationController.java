@@ -162,7 +162,7 @@ public class SimulationController {
             r.setLastModified(now);
             r.setCurrentStatus(StatusType.UP);
 
-            linkEvent(incident, event, r);
+            linkEvent(facility, incident, event, r);
 
             // Save what we have modified here.
             repository.saveAndFlush(event);
@@ -267,7 +267,7 @@ public class SimulationController {
                 r.setLastModified(now);
                 r.setCurrentStatus(StatusType.DOWN);
 
-                linkEvent(incident, event, r);
+                linkEvent(facility, incident, event, r);
 
                 // Save what we have modified here.
                 repository.saveAndFlush(event);
@@ -291,6 +291,8 @@ public class SimulationController {
         log.debug("[SimulationController::transitionIncidents] executed at: {}",
             java.time.LocalDateTime.now());
 
+        Facility facility = repository.findAllFacilities().getFirst();
+
         // Care and feeding for existing incidents.
         double random = Math.random();
         List<Incident> incidents = repository.findAllIncidents().stream()
@@ -308,7 +310,7 @@ public class SimulationController {
                     if (random < 0.90) {
                         log.debug("[SimulationController::transitionIncidents] incident {} : to completed",
                             incident.getId());
-                        transitionToCompleted(incident);
+                        transitionToCompleted(facility, incident);
                     } else {
                         log.debug("[SimulationController::transitionIncidents] incident {} : to extended",
                             incident.getId());
@@ -319,13 +321,13 @@ public class SimulationController {
                 if (ifPastEndTime(incident)) {
                     log.debug("[SimulationController::transitionIncidents] incident {} : to completed",
                         incident.getId());
-                    transitionToCompleted(incident);
+                    transitionToCompleted(facility, incident);
                 }
             } else if (incident.getResolution() == ResolutionType.PENDING) {
                 if (ifPastStartTime(incident)) {
                     log.debug("[SimulationController::transitionIncidents] incident {} : to unresolved",
                         incident.getId());
-                    transitionToUnResolved(incident);
+                    transitionToUnResolved(facility, incident);
                 }
             }
         }
@@ -336,7 +338,7 @@ public class SimulationController {
      *
      * @param incident The incident to transition to completed.
      */
-    public void transitionToCompleted(Incident incident) {
+    public void transitionToCompleted(Facility facility, Incident incident) {
         // We need to get the list of resources associated with this
         // incident and create events.
         OffsetDateTime now = OffsetDateTime.now();
@@ -361,7 +363,7 @@ public class SimulationController {
             r.setLastModified(now);
             r.setCurrentStatus(StatusType.UP);
 
-            linkEvent(incident, event, r);
+            linkEvent(facility, incident, event, r);
 
             repository.saveAndFlush(event);
             repository.saveAndFlush(r);
@@ -392,7 +394,7 @@ public class SimulationController {
      *
      * @param incident The incident to transition to unresolved.
      */
-    public void transitionToUnResolved(Incident incident) {
+    public void transitionToUnResolved(Facility facility, Incident incident) {
         // We need to get the list of resources associated with this
         // incident and create events.
         OffsetDateTime now = OffsetDateTime.now();
@@ -418,7 +420,7 @@ public class SimulationController {
             r.setLastModified(now);
             r.setCurrentStatus(incident.getStatus());
 
-            linkEvent(incident, event, r);
+            linkEvent(facility, incident, event, r);
 
             repository.saveAndFlush(event);
             repository.saveAndFlush(r);
@@ -436,9 +438,12 @@ public class SimulationController {
      * @param event The event to be linked.
      * @param resource The resource impacted by the event.
      */
-    private void linkEvent(Incident incident, Event event, Resource resource) {
+    private void linkEvent(Facility facility, Incident incident, Event event, Resource resource) {
         // Add the event's self link.
         event.setSelfUri(event.self(this.root));
+
+        // Add Event to Facility.
+        facility.getEventUris().add(event.getSelfUri());
 
         // Link the event to the resource.
         event.setResourceUri(resource.self(this.root));

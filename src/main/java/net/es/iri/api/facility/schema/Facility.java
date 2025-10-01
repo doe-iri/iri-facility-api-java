@@ -134,6 +134,39 @@ public class Facility extends NamedObject {
     @Builder.Default
     private List<String> capabilityUris = new ArrayList<>();
 
+    @JsonProperty("project_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "A list of hyperlink reference (URI) to zero or more Projects associated with allocations.",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> projectUris = new ArrayList<>();
+
+    @JsonProperty("project_allocation_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "A list of hyperlink reference (URI) to zero or more Project Allocations.",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> projectAllocationUris = new ArrayList<>();
+
+    @JsonProperty("user_allocation_uris")
+    @ArraySchema(
+        arraySchema = @Schema(
+            description = "A list of hyperlink reference (URI) to zero or more User Allocations.",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        ),
+        schema = @Schema(type = "string", format = "uri")
+    )
+    @Builder.Default
+    private List<String> userAllocationUris = new ArrayList<>();
+
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
      *
@@ -158,5 +191,8 @@ public class Facility extends NamedObject {
         this.setEventUris(transformList(transform, this.getEventUris()));
         this.setIncidentUris(transformList(transform, this.getIncidentUris()));
         this.setCapabilityUris(transformList(transform, this.getCapabilityUris()));
+        this.setProjectUris(transformList(transform, this.getProjectUris()));
+        this.setProjectAllocationUris(transformList(transform, this.getProjectAllocationUris()));
+        this.setUserAllocationUris(transformList(transform, this.getUserAllocationUris()));
     }
 }

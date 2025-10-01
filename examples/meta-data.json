@@ -22,17 +22,6 @@
     ]
   },
   {
-    "id": "getMetaData",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/api/v1",
-        "type": "application/vnd.doe.iri.discovery+json"
-      }
-    ]
-  },
-  {
     "id": "getFacility",
     "version": "v1",
     "_links": [
@@ -73,6 +62,17 @@
         "rel": "self",
         "href": "http://localhost:8081/api/v1/api/v1/facility/locations",
         "type": "application/vnd.doe.iri.location.collection+json"
+      }
+    ]
+  },
+  {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/api/v1",
+        "type": "application/vnd.doe.iri.discovery+json"
       }
     ]
   },
@@ -132,39 +132,6 @@
     ]
   },
   {
-    "id": "getEvents",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/api/v1/status/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
-      }
-    ]
-  },
-  {
-    "id": "getEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/api/v1/status/events/%7Bevent_id%7D",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ]
-  },
-  {
-    "id": "getMetaData",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/api/v1/status",
-        "type": "application/vnd.doe.iri.discovery+json"
-      }
-    ]
-  },
-  {
     "id": "getIncidents",
     "version": "v1",
     "_links": [
@@ -183,6 +150,39 @@
         "rel": "self",
         "href": "http://localhost:8081/api/v1/api/v1/status/incidents/%7Bincident_id%7D",
         "type": "application/vnd.doe.iri.incident+json"
+      }
+    ]
+  },
+  {
+    "id": "getEvent",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/api/v1/status/events/%7Bevent_id%7D",
+        "type": "application/vnd.doe.iri.event+json"
+      }
+    ]
+  },
+  {
+    "id": "getEvents",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/api/v1/status/events",
+        "type": "application/vnd.doe.iri.event.collection+json"
+      }
+    ]
+  },
+  {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/api/v1/status",
+        "type": "application/vnd.doe.iri.discovery+json"
       }
     ]
   },
@@ -242,17 +242,6 @@
     ]
   },
   {
-    "id": "getMetaData",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/api/v1/account",
-        "type": "application/vnd.doe.iri.discovery+json"
-      }
-    ]
-  },
-  {
     "id": "getCapability",
     "version": "v1",
     "_links": [
@@ -282,6 +271,17 @@
         "rel": "self",
         "href": "http://localhost:8081/api/v1/api/v1/account/projects/%7Bproject_id%7D",
         "type": "application/vnd.doe.iri.project+json"
+      }
+    ]
+  },
+  {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/api/v1/account",
+        "type": "application/vnd.doe.iri.discovery+json"
       }
     ]
   },

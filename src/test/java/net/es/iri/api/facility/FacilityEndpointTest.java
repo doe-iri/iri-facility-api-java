@@ -110,7 +110,7 @@ class FacilityEndpointTest {
 
         // Count and resolve resource href.
         assertEquals(20, facility.getResourceUris().size());
-        assertEquals(6, facility.getEventUris().size());
+        assertEquals(4005, facility.getEventUris().size());
         assertEquals(403, facility.getIncidentUris().size());
         assertEquals(1, facility.getSiteUris().size());
         assertEquals(1, facility.getLocationUris().size());

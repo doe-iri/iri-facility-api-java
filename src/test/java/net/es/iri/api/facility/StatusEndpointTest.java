@@ -142,7 +142,7 @@ class StatusEndpointTest {
             assertEquals(uuid, event.getBody().getId());
         }
 
-        assertEquals(6, hasEvent);
+        assertEquals(4005, hasEvent);
 
         int hasIncident = 0;
         for (String uri : facility.getIncidentUris()) {

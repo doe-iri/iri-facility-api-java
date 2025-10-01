@@ -93,6 +93,70 @@ public class FacilityDataRepository {
     public void init() {
         log.debug("[FacilityDataRepository::init] initializing status data.");
         this.facilityData.getFacilities().forEach(facility -> {
+            // Load all Locations into the Facility.
+            this.facilityData.getLocations().forEach(location -> {
+                if (!facility.getLocationUris().contains(location.getSelfUri())) {
+                    facility.getLocationUris().add(location.getSelfUri());
+                }
+            });
+
+            // Load all Sites into the Facility.
+            this.facilityData.getSites().forEach(site -> {
+                if (!facility.getSiteUris().contains(site.getSelfUri())) {
+                    facility.getSiteUris().add(site.getSelfUri());
+                }
+            });
+
+            // Load all Resources into the Facility.
+            this.facilityData.getResources().forEach(resource -> {
+                if (!facility.getResourceUris().contains(resource.getSelfUri())) {
+                    facility.getResourceUris().add(resource.getSelfUri());
+                }
+            });
+
+            // Load all Incidents into the Facility.
+            this.facilityData.getIncidents().forEach(incident -> {
+                if (!facility.getIncidentUris().contains(incident.getSelfUri())) {
+                    facility.getIncidentUris().add(incident.getSelfUri());
+                }
+            });
+
+            // Load all Events into the Facility.
+            this.facilityData.getEvents().forEach(event -> {
+                if (!facility.getEventUris().contains(event.getSelfUri())) {
+                    facility.getEventUris().add(event.getSelfUri());
+                }
+            });
+
+            // Load all Capabilities into the Facility.
+            this.facilityData.getCapabilities().forEach(capability -> {
+                if (!facility.getCapabilityUris().contains(capability.getSelfUri())) {
+                    facility.getCapabilityUris().add(capability.getSelfUri());
+                }
+            });
+
+            // Load all Projects into the Facility.
+            this.facilityData.getProjects().forEach(project -> {
+                if (!facility.getProjectUris().contains(project.getSelfUri())) {
+                    facility.getProjectUris().add(project.getSelfUri());
+                }
+            });
+
+            // Load all Project Allocations into the Facility.
+            this.facilityData.getProjectAllocations().forEach(pa -> {
+                if (!facility.getProjectAllocationUris().contains(pa.getSelfUri())) {
+                    facility.getProjectAllocationUris().add(pa.getSelfUri());
+                }
+            });
+
+            // Load all User Allocations into the Facility.
+            this.facilityData.getUserAllocations().forEach(ua -> {
+                if (!facility.getUserAllocationUris().contains(ua.getSelfUri())) {
+                    facility.getUserAllocationUris().add(ua.getSelfUri());
+                }
+            });
+
+            // Transform all the URI to fully qualified URL.
             facility.transformUri(utilities);
             objects.put(facility.getId(), facility);
         });
