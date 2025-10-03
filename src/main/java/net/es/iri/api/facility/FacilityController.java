@@ -20,17 +20,14 @@
 package net.es.iri.api.facility;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,18 +47,10 @@ import net.es.iri.api.facility.datastore.FacilityDataRepository;
 import net.es.iri.api.facility.openapi.OpenApiDescriptions;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
-import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.Incident;
-import net.es.iri.api.facility.schema.IncidentType;
-import net.es.iri.api.facility.schema.Link;
 import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.MediaTypes;
-import net.es.iri.api.facility.schema.Relationships;
-import net.es.iri.api.facility.schema.ResolutionType;
-import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.Site;
-import net.es.iri.api.facility.schema.StatusType;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.ResourceAnnotation;
 import net.es.iri.api.facility.utils.UrlTransform;
@@ -78,7 +67,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * The FacilityController provides API access to the IRI Facility functionality.
@@ -185,6 +173,7 @@ public class FacilityController {
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Get a list of all available methods to search for annotations.
             List<Method> methods = Stream.of(
                     FacilityController.class.getMethods(),
                     StatusController.class.getMethods(),
@@ -193,47 +182,16 @@ public class FacilityController {
                 .flatMap(Arrays::stream)
                 .toList();
 
-            List<Discovery> discovery = getDiscovery(utilities, location.toASCIIString(),  methods);
+            // Create the list of metadata entries.
+            List<Discovery> discovery = Discovery.getDiscovery(utilities, location.toASCIIString(),
+                methods, "/api/*");
+
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getMetaData] Exception caught for {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    public static List<Discovery> getDiscovery(UrlTransform transform, String location, List<Method> methods)
-            throws MalformedURLException {
-        List<Discovery> discovery = new ArrayList<>();
-        for (Method m : methods) {
-            if (m.isAnnotationPresent(ResourceAnnotation.class)) {
-                ResourceAnnotation ra = m.getAnnotation(ResourceAnnotation.class);
-                RequestMapping rm = m.getAnnotation(RequestMapping.class);
-                if (ra == null || rm == null) {
-                    continue;
-                }
-
-                // Construct the URL to this resource.
-                for (String p : rm.path()) {
-                    // Construct the discovery entry.
-                    Discovery resource = new Discovery();
-                    resource.setId(ra.name());
-                    resource.setVersion(ra.version());
-                    UriComponentsBuilder path = transform.getPath(location);
-                    path.path(p);
-                    Link link = Link.builder()
-                        .rel(Relationships.SELF)
-                        .href(path.build().encode().toUriString())
-                        .type(ra.type())
-                        .build();
-                    resource.getLinks().add(link);
-                    discovery.add(resource);
-                }
-            }
-        }
-
-        return discovery;
-    }
-
 
     /**
      * Returns the facility resource associated with this endpoint.

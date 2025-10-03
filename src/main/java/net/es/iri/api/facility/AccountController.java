@@ -174,7 +174,8 @@ public class AccountController {
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             List<Method> methods = Stream.of(AccountController.class.getMethods()).toList();
-            List<Discovery> discovery = FacilityController.getDiscovery(utilities, location.toASCIIString(),  methods);
+            List<Discovery> discovery = Discovery.getDiscovery(utilities, location.toASCIIString(),
+                methods, "/api/*/account");
 
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {

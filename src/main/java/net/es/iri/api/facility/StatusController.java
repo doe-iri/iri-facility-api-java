@@ -108,8 +108,23 @@ public class StatusController {
     public StatusController(ApplicationContext context, IriConfig config, FacilityDataRepository repository) {
         this.context = context;
         this.repository = repository;
-        this.utilities = new UrlTransform(Optional.ofNullable(config.getServer())
-            .map(ServerConfig::getProxy).orElse(null));
+
+        if (config.getServer() != null) {
+            String root = Optional.ofNullable(config.getServer().getRoot()).orElse("/");
+            String proxy = Optional.ofNullable(config.getServer().getProxy()).orElse(config.getServer().getRoot());
+
+            StringBuilder url = new StringBuilder("(");
+            url.append(root);
+            url.append("|");
+            url.append(proxy);
+            url.append(")");
+            this.utilities = new UrlTransform(url.toString());
+
+            log.debug("[StatusController] root = {}, proxy = {}, url = {}",
+                config.getServer().getRoot(), config.getServer().getProxy(), url);
+        } else {
+            this.utilities = new UrlTransform(null);
+        }
     }
 
     /**
@@ -186,7 +201,8 @@ public class StatusController {
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             List<Method> methods = Stream.of(StatusController.class.getMethods()).toList();
-            List<Discovery> discovery = FacilityController.getDiscovery(utilities, location.toASCIIString(),  methods);
+            List<Discovery> discovery = Discovery.getDiscovery(utilities, location.toASCIIString(),
+                methods, "/api/*/status");
 
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
@@ -207,6 +223,7 @@ public class StatusController {
      * Returns the resources associated with this facility.
      * <p>
      * Operation: GET /api/v1/status/resources
+     *            GET /api/v1/facility/resources
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -433,6 +450,7 @@ public class StatusController {
      * Returns the resource associated with the specified id.
      * <p>
      * Operation: GET /api/v1/status/resources/{resource_id}
+     *            GET /api/v1/facility/resources/{resource_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -541,7 +559,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/resources/{resource_id}"},
+        path = {"/api/v1/status/resources/{resource_id}", "/api/v1/facility/resources/{resource_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -600,6 +618,7 @@ public class StatusController {
      * Returns a list of "incident" resources.
      * <p>
      * Operation: GET /api/v1/status/incidents
+     *            GET /api/v1/facility/incidents
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -693,7 +712,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents"},
+        path = {"/api/v1/status/incidents", "/api/v1/facility/incidents"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -824,6 +843,7 @@ public class StatusController {
      * Returns the incident resource associated with the specified id.
      * <p>
      * Operation: GET /api/v1/status/incident/{incident_id}
+     *            GET /api/v1/facility/incident/{incident_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -932,7 +952,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{incident_id}"},
+        path = {"/api/v1/status/incidents/{incident_id}", "/api/v1/facility/incidents/{incident_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -991,6 +1011,7 @@ public class StatusController {
      * Returns the events associated with the specified incident.
      * <p>
      * Operation: GET /api/v1/status/incident/{incident_id}/events
+     *            GET /api/v1/facility/incident/{incident_id}/events
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -1097,7 +1118,8 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{incident_id}/events"},
+        path = {"/api/v1/status/incidents/{incident_id}/events",
+            "/api/v1/facility/incidents/{incident_id}/events"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1173,6 +1195,7 @@ public class StatusController {
      * Returns a list of events.
      * <p>
      * Operation: GET /api/v1/status/events
+     *            GET /api/v1/facility/events
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1265,7 +1288,7 @@ public class StatusController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/status/events"},
+    @RequestMapping(path = {"/api/v1/status/events", "/api/v1/facility/events"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getEvents", version = "v1", type = MediaTypes.EVENTS)
@@ -1377,6 +1400,7 @@ public class StatusController {
      *
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}
+     *            GET /api/v1/facility/events/{event_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1485,7 +1509,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}"},
+        path = {"/api/v1/status/events/{event_id}", "/api/v1/facility/events/{event_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1544,6 +1568,7 @@ public class StatusController {
      * Returns the resource impacted by the specified event.
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}/resource
+     *            GET "/api/v1/facility/events/{event_id}/resource"
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1652,7 +1677,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}/resource"},
+        path = {"/api/v1/status/events/{event_id}/resource", "/api/v1/facility/events/{event_id}/resource"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -1714,6 +1739,7 @@ public class StatusController {
      * Returns the incident related to the specified event.
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}/incident
+     *            GET /api/v1/facility/events/{event_id}/incident
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1822,7 +1848,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}/incident"},
+        path = {"/api/v1/status/events/{event_id}/incident", "/api/v1/facility/events/{event_id}/incident"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody

@@ -20,9 +20,13 @@
 package net.es.iri.api.facility.utils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import net.es.iri.api.facility.schema.Link;
 import org.springframework.http.HttpStatus;
 import net.es.iri.api.facility.schema.Error;
 
@@ -112,5 +116,52 @@ public class Common {
         .build();
     error.putExtension("timestamp", OffsetDateTime.now().toString());
     return error;
+  }
+
+  /**
+   *
+   * @param wildcard
+   * @param path
+   * @return
+   */
+  public static boolean urlMatch(String wildcard, String path) {
+    StringBuilder rx = new StringBuilder("^");
+    for (int i = 0; i < wildcard.length(); i++) {
+      char c = wildcard.charAt(i);
+      switch (c) {
+        case '*': rx.append("[^/]+"); break;     // one segment
+        case '?': rx.append("[^/]"); break;      // one char
+        case '.': rx.append("\\."); break;
+        case '\\': rx.append("\\\\"); break;
+        default:
+          if ("+()^${}|[]".indexOf(c) >= 0) rx.append('\\');
+          rx.append(c);
+      }
+    }
+    rx.append("(?:/.*)?$"); // allow extra segments afterward
+    return path.matches(rx.toString());
+  }
+
+  public static String combine(String location, String p) {
+    Objects.requireNonNull(location, "location must not be null");
+    Objects.requireNonNull(p, "path must not be null");
+
+    // Normalize quotes/spaces just in case they came from copy/paste
+    String baseStr = location.trim().replace('\u201C', '"').replace('\u201D', '"');
+    String pathStr = p.trim().replace('\u201C', '"').replace('\u201D', '"');
+
+    if (!pathStr.startsWith("/")) {
+      pathStr = "/" + pathStr; // ensure absolute path
+    }
+
+    URI base = URI.create(baseStr);
+    try {
+      // Build a new URI using scheme + authority from base, and path from p.
+      // (No query/fragment since your examples don't use them.)
+      URI out = new URI(base.getScheme(), base.getAuthority(), pathStr, null, null);
+      return out.toString();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Invalid URL components", e);
+    }
   }
 }

@@ -49,6 +49,15 @@ public class UrlTransform {
   }
 
   /**
+   * Get the transform string.
+   *
+   * @return Transform string.
+   */
+  public String getUriTransform() {
+    return  uriTransform;
+  }
+
+  /**
    *
    * @param uri
    * @return

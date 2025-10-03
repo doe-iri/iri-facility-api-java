@@ -1,5 +1,5 @@
 /*
- * IRI Facility API reference implementation Copyright (c) 2025,
+ * IRI Facility Status API reference implementation Copyright (c) 2025,
  * The Regents of the University of California, through Lawrence
  * Berkeley National Laboratory (subject to receipt of any required
  * approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -17,29 +17,25 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
-package net.es.iri.api.facility;
+package net.es.iri.api.facility.utils;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Profile;
 
 /**
- * A simple controller to redirect the root URL to the swagger GUI.
+ * Test methods in the Common class definition.
  *
  * @author hacksaw
  */
-@Slf4j
-@Controller
-public class HomeController {
-
-    /**
-     * Redirect the root URL to our swagger GUI.
-     *
-     * @return
-     */
-    @GetMapping("/")
-    public String redirectToSwagger() {
-        log.debug("[HomeController::redirectToSwagger] GET operation /");
-        return "redirect:/v3/swagger-ui/index.html";
+@Profile("test")
+public class CommonTest {
+    @Test
+    public void urlMatchTest() {
+        assertTrue(Common.urlMatch("/api/*/account", "/api/v1/account"));
+        assertTrue(Common.urlMatch("/api/*/account", "/api/v2/account"));
+        assertTrue(Common.urlMatch("/api/*", "/api/v1"));
+        assertTrue(Common.urlMatch("/api/*", "/api/v2"));
     }
 }
