@@ -52,14 +52,15 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "A DoE laboratory or production facility that offers resources for programmatic consumption.")
 public class Facility extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/facility/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/facility/%s";
 
     @JsonProperty("short_name")
     @Schema(description = "The short name of the resource.", example = "LBNL")
     private String shortName;
 
     @JsonProperty("organization_name")
-    @Schema(description = "The name of the organization hosting the facility.", example = "Lawrence Berkeley National Laboratory")
+    @Schema(description = "The name of the organization hosting the facility.",
+        example = "Lawrence Berkeley National Laboratory")
     private String organizationName;
 
     @JsonProperty("support_uri")
@@ -70,99 +71,90 @@ public class Facility extends NamedObject {
 
     @JsonProperty("site_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Sites.  A Facility can be hosted at zero or more physical Sites (hostedAt).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Site.  A Facility can be hosted at zero or more physical Sites (hostedAt).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> siteUris = new ArrayList<>();
 
     @JsonProperty("location_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Locations.  A Facility can be associated with zero or more geographical Locations (hasLocation).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Locations.  A Facility can be associated with zero or more geographical Locations (hasLocation).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> locationUris = new ArrayList<>();
 
     @JsonProperty("resource_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Resources contained within this Facility (hasResource).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Resources contained within this Facility (hasResource).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> resourceUris = new ArrayList<>();
 
     @JsonProperty("event_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Events that have occurred within this Facility (hasEvent).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to an Events that has occurred within this Facility (hasEvent).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> eventUris = new ArrayList<>();
 
     @JsonProperty("incident_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Incidents that have occurred, or may occur within this Facility (hasIncident).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to an Incidents that has occurred, or may occur within this Facility (hasIncident).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> incidentUris = new ArrayList<>();
 
     @JsonProperty("capability_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Capabilities associated with allocations.",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Capability associated with allocations.",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> capabilityUris = new ArrayList<>();
 
     @JsonProperty("project_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Projects associated with allocations.",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Project associated with allocations.",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> projectUris = new ArrayList<>();
 
     @JsonProperty("project_allocation_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more Project Allocations.",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Project Allocation.",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> projectAllocationUris = new ArrayList<>();
 
     @JsonProperty("user_allocation_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more User Allocations.",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a User Allocation.",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> userAllocationUris = new ArrayList<>();

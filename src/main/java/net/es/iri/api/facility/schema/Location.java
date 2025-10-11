@@ -52,7 +52,7 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "A location models the geographical location or region with which resources are associated.")
 public class Location extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/facility/locations/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/facility/locations/%s";
 
     @JsonProperty("short_name")
     @Schema(description = "The short name of the resource.", example = "LBNL")
@@ -92,9 +92,11 @@ public class Location extends NamedObject {
 
     @JsonProperty("site_uris")
     @ArraySchema(
-        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Sites located at this Location (hasSite).",
-            example = "[\"https://example.com/api/v1/status/sites/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/sites/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Site located at this Location (hasSite).",
+            example = "https://example.com/api/v1/status/sites/03bdbf77-6f29-4f66-9809-7f4f77098171",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> siteUris =  new ArrayList<>();

@@ -38,6 +38,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.UrlTransform;
 
@@ -46,6 +47,7 @@ import net.es.iri.api.facility.utils.UrlTransform;
  *
  * @author hacksaw
  */
+@Slf4j
 @Data
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
@@ -83,18 +85,22 @@ public class Incident extends NamedObject {
 
     @JsonProperty("resource_uris")
     @ArraySchema(
-        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Resources impacted by this Incident (mayImpact).",
-            example = "[\"https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/resources/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to the Resources impacted by this Incident (mayImpact).",
+            example = "https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> resourceUris = new ArrayList<>();
 
     @JsonProperty("event_uris")
     @ArraySchema(
-        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Events associated with this Incident (hasEvent).",
-            example = "[\"https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/events/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to the Event associated with this Incident (hasEvent).",
+            example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> eventUris = new ArrayList<>();
@@ -131,8 +137,34 @@ public class Incident extends NamedObject {
     public boolean isConflict(String from, String to) {
         OffsetDateTime fromFilter = Optional.ofNullable(Common.parseTime(from)).orElse(OffsetDateTime.MIN);
         OffsetDateTime toFilter = Optional.ofNullable(Common.parseTime(to)).orElse(OffsetDateTime.MAX);
+
+        // Check for overlap between the schedule and the new meeting
+        return this.isConflict(fromFilter, toFilter);
+    }
+
+    /**
+     * Determines if there is an overlap between this incident's time and the time
+     * duration specified in the parameters from and to.
+     *
+     * @param from The start of the period.
+     * @param to The end of the period.
+     * @return True if this incident clashes with the specified period.
+     */
+    public boolean isConflict(OffsetDateTime from, OffsetDateTime to) {
+        OffsetDateTime fromFilter = Optional.ofNullable(from).orElse(OffsetDateTime.MIN);
+        OffsetDateTime toFilter = Optional.ofNullable(to).orElse(OffsetDateTime.MAX);
         OffsetDateTime startTime = Optional.ofNullable(start).orElse(OffsetDateTime.MIN);
         OffsetDateTime endTime = Optional.ofNullable(end).orElse(OffsetDateTime.MAX);
+
+        if (fromFilter.isAfter(toFilter)) {
+            log.error("isConflict: throwing out fromFilter = {}, toFilter = {}.", fromFilter, toFilter);
+            return false;
+        }
+
+        if (startTime.isAfter(endTime)) {
+            log.error("isConflict: throwing out startTime = {}, endTime = {}.", startTime, endTime);
+            return false;
+        }
 
         // Check for overlap between the schedule and the new meeting
         return (fromFilter.isBefore(endTime) || fromFilter.isEqual(endTime)) &&
@@ -152,6 +184,18 @@ public class Incident extends NamedObject {
         }
 
         OffsetDateTime timeFilter = Optional.ofNullable(Common.parseTime(time)).orElse(OffsetDateTime.MIN);
+        return this.isOverlap(timeFilter);
+    }
+
+    /**
+     * Determines if there is an overlap between this incident's time and the instance
+     * in time specified in the query parameter "time".
+     *
+     * @param time The time to check for overlap.
+     * @return True if this incident clashes with the specified period.
+     */
+    public boolean isOverlap(OffsetDateTime time) {
+        OffsetDateTime timeFilter = Optional.ofNullable(time).orElse(OffsetDateTime.MIN);
         OffsetDateTime startTime = Optional.ofNullable(start).orElse(OffsetDateTime.MIN);
         OffsetDateTime endTime = Optional.ofNullable(end).orElse(OffsetDateTime.MAX);
 

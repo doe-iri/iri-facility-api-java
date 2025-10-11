@@ -53,8 +53,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Schema(description = "Parent object definition containing common properties for use in named objects.")
 public abstract class NamedObject {
     @JsonProperty("id")
-    @Schema(description = "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities."
-        , example = "09a22593-2be8-46f6-ae54-2904b04e13a4",
+    @Schema(description = "The unique identifier for the object.  Typically a UUID or URN to provide global uniqueness across facilities.",
+        example = "09a22593-2be8-46f6-ae54-2904b04e13a4",
         requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 

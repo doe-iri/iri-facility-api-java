@@ -22,13 +22,19 @@ package net.es.iri.api.facility.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.format.DateTimeParseException;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
-import net.es.iri.api.facility.schema.Link;
+import java.util.Optional;
+import net.es.iri.api.facility.schema.NamedObject;
 import org.springframework.http.HttpStatus;
 import net.es.iri.api.facility.schema.Error;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Contains common HTTP message manipulation methods for controllers.
@@ -36,132 +42,168 @@ import net.es.iri.api.facility.schema.Error;
  * @author hacksaw
  */
 public class Common {
-  /**
-   * Parse the ifModifiedSince HTTP header in RFC 1123 date format into a OffsetDateTime.
-   *
-   * @param ifModifiedSince The ifModifiedSince header string.
-   * @return The time value of ifModifiedSince as an OffsetDateTime.
-   */
-  public static OffsetDateTime parseIfModifiedSince(String ifModifiedSince) {
-    if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
-      // Parse the string into OffsetDateTime
-      return OffsetDateTime.parse(ifModifiedSince, DateTimeFormatter.RFC_1123_DATE_TIME);
-    }
-    return null;
-  }
+    /**
+     * Parse the ifModifiedSince HTTP header in RFC 1123 date format into a OffsetDateTime.
+     *
+     * @param ifModifiedSince The ifModifiedSince header string.
+     * @return The time value of ifModifiedSince as an OffsetDateTime.
+     */
+    public static OffsetDateTime parseIfModifiedSince(String ifModifiedSince, OffsetDateTime modifiedSince) {
+        if (modifiedSince != null) {
+            return modifiedSince;
+        }
 
-  public static OffsetDateTime parseTime(String time) {
-    if (time != null && !time.isEmpty()) {
-      // Parse the string into OffsetDateTime
-      return OffsetDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
-    }
-    return null;
-  }
+        if (ifModifiedSince == null || ifModifiedSince.isBlank()) {
+            return null;
+        }
 
-  public static String stripQuotes(String input) {
-    if (input == null || input.length() < 2) {
-      return input;
-    }
-    if ((input.startsWith("\"") && input.endsWith("\"")) ||
-        (input.startsWith("'") && input.endsWith("'"))) {
-      return input.substring(1, input.length() - 1);
-    }
-    return input;
-  }
-
-  public static boolean contains(String input, List<String> uris) {
-    if (input == null || input.isEmpty() || uris == null || uris.isEmpty()) {
-      return false;
+        try {
+            // RFC 1123 example: "Tue, 07 Oct 2025 15:30:00 GMT"
+            return OffsetDateTime.parse(ifModifiedSince, DateTimeFormatter.RFC_1123_DATE_TIME);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
-    for (String uri : uris) {
-      if (uri != null && uri.equalsIgnoreCase(input)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static Error notFoundError(URI location) {
-    Error error = Error.builder()
-        .type(URI.create("about:blank"))
-        .status(HttpStatus.NOT_FOUND.value())
-        .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-        .detail("The resource " + location + " was not found.")
-        .instance(location)
-        .build();
-    error.putExtension("timestamp", OffsetDateTime.now().toString());
-    return error;
-  }
-
-  public static Error badRequestError(URI location, String reason) {
-    Error error = Error.builder()
-        .type(URI.create("about:blank"))
-        .status(HttpStatus.BAD_REQUEST.value())
-        .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
-        .detail("The request is invalid: " + reason)
-        .instance(location)
-        .build();
-    error.putExtension("timestamp", OffsetDateTime.now().toString());
-    return error;
-  }
-
-  public static Error internalServerError(URI location, Exception ex) {
-    Error error = Error.builder()
-        .type(URI.create("about:blank"))
-        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-        .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-        .detail(ex.getMessage())
-        .instance(location)
-        .build();
-    error.putExtension("timestamp", OffsetDateTime.now().toString());
-    return error;
-  }
-
-  /**
-   *
-   * @param wildcard
-   * @param path
-   * @return
-   */
-  public static boolean urlMatch(String wildcard, String path) {
-    StringBuilder rx = new StringBuilder("^");
-    for (int i = 0; i < wildcard.length(); i++) {
-      char c = wildcard.charAt(i);
-      switch (c) {
-        case '*': rx.append("[^/]+"); break;     // one segment
-        case '?': rx.append("[^/]"); break;      // one char
-        case '.': rx.append("\\."); break;
-        case '\\': rx.append("\\\\"); break;
-        default:
-          if ("+()^${}|[]".indexOf(c) >= 0) rx.append('\\');
-          rx.append(c);
-      }
-    }
-    rx.append("(?:/.*)?$"); // allow extra segments afterward
-    return path.matches(rx.toString());
-  }
-
-  public static String combine(String location, String p) {
-    Objects.requireNonNull(location, "location must not be null");
-    Objects.requireNonNull(p, "path must not be null");
-
-    // Normalize quotes/spaces just in case they came from copy/paste
-    String baseStr = location.trim().replace('\u201C', '"').replace('\u201D', '"');
-    String pathStr = p.trim().replace('\u201C', '"').replace('\u201D', '"');
-
-    if (!pathStr.startsWith("/")) {
-      pathStr = "/" + pathStr; // ensure absolute path
+    public static OffsetDateTime parseTime(String time) {
+        if (time != null && !time.isEmpty()) {
+            // Parse the string into OffsetDateTime.
+            try {
+                return OffsetDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
+            } catch (DateTimeParseException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
-    URI base = URI.create(baseStr);
-    try {
-      // Build a new URI using scheme + authority from base, and path from p.
-      // (No query/fragment since your examples don't use them.)
-      URI out = new URI(base.getScheme(), base.getAuthority(), pathStr, null, null);
-      return out.toString();
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Invalid URL components", e);
+    public static Optional<OffsetDateTime> mostRecentTimestamp(Collection<? extends NamedObject> items) {
+        return items.stream()
+            .filter(Objects::nonNull)
+            .map(NamedObject::getLastModified)
+            .filter(Objects::nonNull)
+            .max(Comparator.naturalOrder());
     }
-  }
+
+    public static boolean notModified(OffsetDateTime ifms, OffsetDateTime latestModified) {
+        if (ifms != null && latestModified != null) {
+            // The resource has not been modified since specified time.
+            return ifms.isEqual(latestModified) || ifms.isAfter(latestModified);
+        }
+        return false;
+    }
+
+    public static String stripQuotes(String input) {
+        if (input == null || input.length() < 2) {
+            return input;
+        }
+        if ((input.startsWith("\"") && input.endsWith("\"")) ||
+            (input.startsWith("'") && input.endsWith("'"))) {
+            return input.substring(1, input.length() - 1);
+        }
+        return input;
+    }
+
+    public static boolean contains(String input, List<String> uris) {
+        if (input == null || input.isEmpty() || uris == null || uris.isEmpty()) {
+            return false;
+        }
+
+        for (String uri : uris) {
+            if (uri != null && uri.equalsIgnoreCase(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Error notFoundError(URI location) {
+        Error error = Error.builder()
+            .type(URI.create("about:blank"))
+            .status(HttpStatus.NOT_FOUND.value())
+            .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+            .detail("The resource " + location + " was not found.")
+            .instance(location)
+            .build();
+        error.putExtension("timestamp", OffsetDateTime.now().toString());
+        return error;
+    }
+
+    public static Error badRequestError(URI location, String reason) {
+        Error error = Error.builder()
+            .type(URI.create("about:blank"))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .detail("The request is invalid: " + reason)
+            .instance(location)
+            .build();
+        error.putExtension("timestamp", OffsetDateTime.now().toString());
+        return error;
+    }
+
+    public static Error internalServerError(URI location, Exception ex) {
+        Error error = Error.builder()
+            .type(URI.create("about:blank"))
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .detail(ex.getMessage())
+            .instance(location)
+            .build();
+        error.putExtension("timestamp", OffsetDateTime.now().toString());
+        return error;
+    }
+
+    /**
+     * @param wildcard
+     * @param path
+     * @return
+     */
+    public static boolean urlMatch(String wildcard, String path) {
+        StringBuilder rx = new StringBuilder("^");
+        for (int i = 0; i < wildcard.length(); i++) {
+            char c = wildcard.charAt(i);
+            switch (c) {
+                case '*':
+                    rx.append("[^/]+");
+                    break;     // one segment
+                case '?':
+                    rx.append("[^/]");
+                    break;      // one char
+                case '.':
+                    rx.append("\\.");
+                    break;
+                case '\\':
+                    rx.append("\\\\");
+                    break;
+                default:
+                    if ("+()^${}|[]".indexOf(c) >= 0) rx.append('\\');
+                    rx.append(c);
+            }
+        }
+        rx.append("(?:/.*)?$"); // allow extra segments afterward
+        return path.matches(rx.toString());
+    }
+
+    public static String combine(String location, String p) {
+        Objects.requireNonNull(location, "location must not be null");
+        Objects.requireNonNull(p, "path must not be null");
+
+        // Normalize quotes/spaces just in case they came from copy/paste
+        String baseStr = location.trim().replace('\u201C', '"').replace('\u201D', '"');
+        String pathStr = p.trim().replace('\u201C', '"').replace('\u201D', '"');
+
+        if (!pathStr.startsWith("/")) {
+            pathStr = "/" + pathStr; // ensure absolute path
+        }
+
+        URI base = URI.create(baseStr);
+        try {
+            // Build a new URI using scheme + authority from base, and path from p.
+            // (No query/fragment since your examples don't use them.)
+            URI out = new URI(base.getScheme(), base.getAuthority(), pathStr, null, null);
+            return out.toString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid URL components", e);
+        }
+    }
 }

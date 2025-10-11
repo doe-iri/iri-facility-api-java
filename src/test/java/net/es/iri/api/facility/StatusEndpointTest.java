@@ -88,7 +88,7 @@ class StatusEndpointTest {
         log.debug("[StatusEndpointTest::testGetFacility] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/facility";
+        String url = "http://localhost:" + port + "/api/v1/facility?limit=1000";
 
         RestClient client = RestClient.create();
 
@@ -231,7 +231,7 @@ class StatusEndpointTest {
         log.debug("[StatusEndpointTest::testGetResources] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/resources";
+        String url = "http://localhost:" + port + "/api/v1/status/resources?limit=1000";
 
         // Perform the GET /resources operation.
         RestClient client = RestClient.create();
@@ -352,7 +352,7 @@ class StatusEndpointTest {
         log.debug("[StatusEndpointTest::testGetIncidentsFrom] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+        String url = "http://localhost:" + port + "/api/v1/status/incidents?limit=1000";
 
         // Perform the GET /incidents operation.
         RestClient client = RestClient.create();
@@ -369,18 +369,38 @@ class StatusEndpointTest {
         List<Incident> incidents = response.getBody();
         assertNotNull(incidents);
 
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] incidents = {}.", incidents.size());
+
         // Filter incidents where the start time is equal to or after the specified startTime
+        OffsetDateTime from = OffsetDateTime.parse("2025-06-27T06:04:25.275Z");
         List<Incident> filteredIncidents = incidents.stream()
-            .filter(incident -> incident.isConflict("2025-06-27T06:04:25.275Z", null))
+            .filter(incident -> incident.isConflict(from, null))
             .sorted(Comparator.comparing((Incident i) -> Optional.ofNullable(i.getStart()).orElse(OffsetDateTime.MIN)))
             .toList();
 
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] incidents = {}, filtered = {}.", incidents.size(),  filteredIncidents.size());
+
+        int count = 0;
+        for (Incident incident : incidents) {
+            log.debug("[StatusEndpointTest::testGetIncidentsFrom] start = {}, end = {}", incident.getStart(),
+                incident.getEnd());
+            if (incident.isConflict(from, null)) {
+                log.debug("[StatusEndpointTest::testGetIncidentsFrom] FITS!! start = {}, from = {}, end = {}",
+                    incident.getStart(), from, incident.getEnd());
+                count++;
+            }
+        }
+
+        log.debug("[StatusEndpointTest::testGetIncidentsFrom] incidents = {}, filtered = {}, count = {}.",
+            incidents.size(),  filteredIncidents.size(), count);
+
+        assertEquals(filteredIncidents.size(), count);
+
         // Now we want to compare this to a similar list returned from a query.
-        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z";
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z&limit=1000";
 
         // Perform the GET /incidents operation.
-        response = client.get().uri(url_start).retrieve()
-            .toEntity(new ParameterizedTypeReference<List<Incident>>() {});
+        response = client.get().uri(url_start).retrieve().toEntity(new ParameterizedTypeReference<>() {});
 
         // Verify it was successful.
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -414,7 +434,7 @@ class StatusEndpointTest {
         log.debug("[StatusEndpointTest::testGetIncidentsTo] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+        String url = "http://localhost:" + port + "/api/v1/status/incidents?limit=1000";
 
         // Perform the GET /incidents operation.
         RestClient client = RestClient.create();
@@ -438,7 +458,7 @@ class StatusEndpointTest {
             .toList();
 
         // Now we want to compare this to a similar list returned from a query.
-        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?to=2025-06-28T06:04:25.275Z";
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?to=2025-06-28T06:04:25.275Z&limit=1000";
 
         // Perform the GET /resources operation.
         response = client.get().uri(url_start).retrieve()
@@ -476,7 +496,7 @@ class StatusEndpointTest {
         log.debug("[StatusEndpointTest::testGetIncidentsToFrom] start test.");
 
         // Build the target URL.
-        String url = "http://localhost:" + port + "/api/v1/status/incidents";
+        String url = "http://localhost:" + port + "/api/v1/status/incidents?limit=1000";
 
         // Perform the GET /incidents operation.
         RestClient client = RestClient.create();
@@ -500,7 +520,7 @@ class StatusEndpointTest {
             .toList();
 
         // Now we want to compare this to a similar list returned from a query.
-        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z&to=2025-06-28T06:04:25.275Z";
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?from=2025-06-27T06:04:25.275Z&to=2025-06-28T06:04:25.275Z&limit=1000";
 
         // Perform the GET /incidents operation.
         response = client.get().uri(url_start).retrieve().toEntity(new ParameterizedTypeReference<>() {});
@@ -528,6 +548,155 @@ class StatusEndpointTest {
     }
 
     /**
+     * Test the getIncidents API for "time" query parameter.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsTime() throws Exception {
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] start test.");
+
+        // Build the target URL.
+        String url = "http://localhost:" + port + "/api/v1/status/incidents?limit=1000";
+
+        // Perform the GET /incidents operation.
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] incidents = {}", incidents.size());
+
+        // Filter incidents where the start time is equal to or after the specified startTime
+        List<Incident> filteredIncidents = incidents.stream()
+            .filter(incident -> incident.isOverlap("2025-06-27T06:04:25.275Z"))
+            .sorted(Comparator.comparing((Incident i) -> Optional.ofNullable(i.getStart()).orElse(OffsetDateTime.MIN)))
+            .toList();
+
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] incidents = {}, filteredIncidents = {}",
+            incidents.size(), filteredIncidents.size());
+
+        // Now we want to compare this to a similar list returned from a query.
+        String url_start = "http://localhost:" + port + "/api/v1/status/incidents?time=2025-06-27T06:04:25.275Z&limit=1000";
+
+        // Perform the GET /incidents operation.
+        response = client.get().uri(url_start).retrieve().toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidentsTime = response.getBody();
+        assertNotNull(incidentsTime);
+
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] incidents = {}, filteredIncidents = {}",
+            incidents.size(), filteredIncidents.size());
+
+        List<Incident> sortedIncidents = incidentsTime.stream()
+            .sorted(Comparator.comparing(Incident::getStart))
+            .toList();
+
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] incidents = {}, sortedIncidents = {}, filteredIncidents = {}",
+            incidents.size(), sortedIncidents.size(), filteredIncidents.size());
+
+        assertEquals(filteredIncidents.size(), sortedIncidents.size());
+        assertEquals(filteredIncidents, sortedIncidents);
+
+        log.debug("[StatusEndpointTest::testGetIncidentsTime] ending test.");
+    }
+
+    /**
+     * Test the getIncidents API for "offset" and "limit" query parameters.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsLimit() throws Exception {
+        log.debug("[StatusEndpointTest::testGetIncidentsLimit] start test.");
+
+        // Build the target URL.
+        String url_default = "http://localhost:" + port + "/api/v1/status/incidents";
+        String url_10 = "http://localhost:" + port + "/api/v1/status/incidents?limit=10";
+        String url_100 = "http://localhost:" + port + "/api/v1/status/incidents?limit=100";
+        String url_400 = "http://localhost:" + port + "/api/v1/status/incidents?limit=400";
+
+        // Perform the GET /incidents operation unrestricted (should return 100).
+        RestClient client = RestClient.create();
+        ResponseEntity<List<Incident>> response = client.get().uri(url_default).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        List<Incident> incidents = response.getBody();
+        assertNotNull(incidents);
+        assertEquals(100, incidents.size());
+
+        // Perform the GET /incidents?limit=10 operation unrestricted (should return 10).
+        response = client.get().uri(url_10).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        incidents = response.getBody();
+        assertNotNull(incidents);
+        assertEquals(10, incidents.size());
+
+        // Perform the GET /incidents?limit=100 operation unrestricted (should return 100).
+        response = client.get().uri(url_100).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        incidents = response.getBody();
+        assertNotNull(incidents);
+        assertEquals(100, incidents.size());
+
+        // Perform the GET /incidents?limit=400 operation unrestricted (should return 400).
+        response = client.get().uri(url_400).retrieve()
+            .toEntity(new ParameterizedTypeReference<>() {});
+
+        // Verify it was successful.
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // We have a result.
+        assertNotNull(response.getBody());
+
+        // It is the facility we were expecting.
+        incidents = response.getBody();
+        assertNotNull(incidents);
+        assertEquals(400, incidents.size());
+
+        log.debug("[StatusEndpointTest::testGetIncidentsLimit] ending test.");
+    }
+
+    /**
      * Test the getIncidents API for "resources" query parameter.
      *
      * @throws Exception When stuff gets janky.
@@ -538,7 +707,7 @@ class StatusEndpointTest {
 
         // Build the target URL.
         String url = "http://localhost:" + port +
-            "/api/v1/status/incidents?resources=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
+            "/api/v1/status/incidents?limit=1000&resources=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
 
         // Perform the GET /incidents operation.
         RestClient client = RestClient.create();

@@ -53,7 +53,7 @@ import net.es.iri.api.facility.utils.UrlTransform;
     "  It is a way to further subdivide a resource into allocatable sub-resources.  The word" +
     "  \"capability\" is also known to users as something they need for a job to run (eg. gpu).")
 public class Capability extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/account/capabilities/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/account/capabilities/%s";
 
     @JsonProperty("units")
     @Schema(description = "The list of AllocationUnit associated with this capability.", example = "node_hours")

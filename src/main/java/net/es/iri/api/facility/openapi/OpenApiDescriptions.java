@@ -20,6 +20,7 @@
 package net.es.iri.api.facility.openapi;
 
 import java.net.HttpURLConnection;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 /**
@@ -32,15 +33,15 @@ public class OpenApiDescriptions {
   /*******************************************************************************************************
    * Request header parameters.
    *******************************************************************************************************/
-  public static final String ACCEPT_NAME = "Accept";
+  public static final String ACCEPT_NAME = HttpHeaders.ACCEPT;
   public static final String ACCEPT_MSG =
       "Provides media types that are acceptable for the response. At the moment "
           + MediaType.APPLICATION_JSON_VALUE + " is the supported response encoding.";
 
-  public static final String IF_MODIFIED_SINCE_NAME = "If-Modified-Since";
-  public static final String IF_MODIFIED_SINCE_MSG =
-      "The HTTP request may contain the If-Modified-Since header requesting all models with "
-          + "creationTime after the specified date. The date must be specified in RFC 1123 format.";
+  public static final String IF_MODIFIED_SINCE_NAME = HttpHeaders.IF_MODIFIED_SINCE;
+  public static final String IF_MODIFIED_SINCE_MSG = "The HTTP request may contain the If-Modified-Since header " +
+      "requesting all models with a last modified time after the specified date. The date must be specified " +
+      "in RFC 1123 format.";
   public static final String IF_MODIFIED_SINCE_DEFAULT = "Thu, 02 Jan 1970 00:00:00 GMT";
 
   public static final String ETAG_NAME = "ETag";
@@ -77,11 +78,19 @@ public class OpenApiDescriptions {
   /*******************************************************************************************************
    * Query parameters.
    *******************************************************************************************************/
+  public static final String MODIFIED_SINCE_NAME = "modified_since";
+  public static final String MODIFIED_SINCE_MSG = "A query parameter imitating the If-Modified-Since header " +
+      "requesting all models with a last modified time after the specified date. The date must be specified " +
+      "in ISO 8601 format.";
+
   public static final String NAME_NAME = "name";
   public static final String NAME_MSG = "The name of the resource.";
 
   public static final String SHORT_NAME_NAME = "short_name";
   public static final String SHORT_NAME_MSG = "The short name of the resource.";
+
+  public static final String COUNTRY_NAME_NAME = "country_name";
+  public static final String COUNTRY_NAME_MSG = "The country name in which a resource resides.";
 
   public static final String GROUP_NAME = "group";
   public static final String GROUP_MSG =
@@ -108,7 +117,7 @@ public class OpenApiDescriptions {
   public static final String TO_MSG = "Search for incidents/events that are active before (and including) the specified 'to' time.  " +
       "The from query parameter must be in ISO 8601 format with timezone offsets.";
 
-  public static final String RESOURCE_TYPE_NAME = "type";
+  public static final String RESOURCE_TYPE_NAME = "resource_type";
   public static final String RESOURCE_TYPE_MSG = "Return only resources of this type.";
 
   public static final String RESOURCE_CAPABILITY_NAME = "capability";
@@ -122,6 +131,14 @@ public class OpenApiDescriptions {
 
   public static final String USERIDS_NAME = "user_ids";
   public static final String USERIDS_MSG = "Return only projects containing any of the listed users.";
+
+  public static final String OFFSET_NAME = "offset";
+  public static final String OFFSET_MSG = "An integer value specifying the starting number of resource to " +
+      "return, where 0 is the first resource based on identifier sorted order.";
+
+  public static final String LIMIT_NAME = "limit";
+  public static final String LIMIT_MSG = "An integer value specifying the maximum number of resources to return, " +
+      "where 100 is the default limit.  Use offset query parameter to navigate retrieval of complete set.";
 
   /*******************************************************************************************************
    * URL path parameters.

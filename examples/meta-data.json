@@ -22,6 +22,17 @@
     ]
   },
   {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1",
+        "type": "application/vnd.doe.iri.discovery+json"
+      }
+    ]
+  },
+  {
     "id": "getFacility",
     "version": "v1",
     "_links": [
@@ -62,17 +73,6 @@
         "rel": "self",
         "href": "http://localhost:8081/api/v1/facility/locations",
         "type": "application/vnd.doe.iri.location.collection+json"
-      }
-    ]
-  },
-  {
-    "id": "getMetaData",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1",
-        "type": "application/vnd.doe.iri.discovery+json"
       }
     ]
   },
@@ -176,6 +176,61 @@
     ]
   },
   {
+    "id": "getEvents",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/status/events",
+        "type": "application/vnd.doe.iri.event.collection+json"
+      }
+    ]
+  },
+  {
+    "id": "getEvents",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/facility/events",
+        "type": "application/vnd.doe.iri.event.collection+json"
+      }
+    ]
+  },
+  {
+    "id": "getEvent",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/status/events/%257Bevent_id%257D",
+        "type": "application/vnd.doe.iri.event+json"
+      }
+    ]
+  },
+  {
+    "id": "getEvent",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/facility/events/%257Bevent_id%257D",
+        "type": "application/vnd.doe.iri.event+json"
+      }
+    ]
+  },
+  {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/status",
+        "type": "application/vnd.doe.iri.discovery+json"
+      }
+    ]
+  },
+  {
     "id": "getIncidents",
     "version": "v1",
     "_links": [
@@ -220,57 +275,46 @@
     ]
   },
   {
-    "id": "getEvents",
+    "id": "getUserAllocationsByProjectAllocation",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
+        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D/user_allocations",
+        "type": "application/vnd.doe.iri.user_allocation.collection+json"
       }
     ]
   },
   {
-    "id": "getEvents",
+    "id": "getUserAllocationByProjectAllocation",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/facility/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
+        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D/user_allocations/%257Buser_allocation_id%257D",
+        "type": "application/vnd.doe.iri.user_allocation+json"
       }
     ]
   },
   {
-    "id": "getMetaData",
+    "id": "getProjectAllocationsByProject",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status",
-        "type": "application/vnd.doe.iri.discovery+json"
+        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations",
+        "type": "application/vnd.doe.iri.project_allocation.collection+json"
       }
     ]
   },
   {
-    "id": "getEvent",
+    "id": "getProjectAllocationByProject",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/events/%257Bevent_id%257D",
-        "type": "application/vnd.doe.iri.event+json"
-      }
-    ]
-  },
-  {
-    "id": "getEvent",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/facility/events/%257Bevent_id%257D",
-        "type": "application/vnd.doe.iri.event+json"
+        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D",
+        "type": "application/vnd.doe.iri.project_allocation+json"
       }
     ]
   },
@@ -330,6 +374,17 @@
     ]
   },
   {
+    "id": "getMetaData",
+    "version": "v1",
+    "_links": [
+      {
+        "rel": "self",
+        "href": "http://localhost:8081/api/v1/account",
+        "type": "application/vnd.doe.iri.discovery+json"
+      }
+    ]
+  },
+  {
     "id": "getCapability",
     "version": "v1",
     "_links": [
@@ -359,61 +414,6 @@
         "rel": "self",
         "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D",
         "type": "application/vnd.doe.iri.project+json"
-      }
-    ]
-  },
-  {
-    "id": "getMetaData",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/account",
-        "type": "application/vnd.doe.iri.discovery+json"
-      }
-    ]
-  },
-  {
-    "id": "getProjectAllocationsByProject",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations",
-        "type": "application/vnd.doe.iri.project_allocation.collection+json"
-      }
-    ]
-  },
-  {
-    "id": "getProjectAllocationByProject",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D",
-        "type": "application/vnd.doe.iri.project_allocation+json"
-      }
-    ]
-  },
-  {
-    "id": "getUserAllocationsByProjectAllocation",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D/user_allocations",
-        "type": "application/vnd.doe.iri.user_allocation.collection+json"
-      }
-    ]
-  },
-  {
-    "id": "getUserAllocationByProjectAllocation",
-    "version": "v1",
-    "_links": [
-      {
-        "rel": "self",
-        "href": "http://localhost:8081/api/v1/account/projects/%257Bproject_id%257D/project_allocations/%257Bproject_allocation_id%257D/user_allocations/%257Buser_allocation_id%257D",
-        "type": "application/vnd.doe.iri.user_allocation+json"
       }
     ]
   }

@@ -51,26 +51,25 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "A project and its list of users at a facility.")
 public class Project extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/account/projects/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/account/projects/%s";
 
     @JsonProperty("user_ids")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of user identifiers associated with this project (hasUser).",
-            example = "[\"BillyJoeBob\",\"Jane\"]"),
-        schema = @Schema(type = "string"),
-        uniqueItems = true
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        uniqueItems = true,
+        schema = @Schema(
+            description = "A user identifier associated with this project (hasUser).",
+            example = "BillyJoeBob", type = "string")
     )
     @Builder.Default
     private List<String> userIds = new ArrayList<>();
 
     @JsonProperty("project_allocation_uris")
     @ArraySchema(
-        arraySchema = @Schema(
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
             description = "A list of hyperlink reference (URI) to zero or more ProjectAllocations (hasProjectAllocation).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> projectAllocationUris = new ArrayList<>();

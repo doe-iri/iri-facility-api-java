@@ -24,7 +24,7 @@ import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,27 +43,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.IriConfig;
-import net.es.iri.api.facility.beans.ServerConfig;
 import net.es.iri.api.facility.datastore.FacilityDataRepository;
-import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.openapi.OpenApiDescriptions;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.Event;
-import net.es.iri.api.facility.schema.Facility;
-import net.es.iri.api.facility.schema.Location;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
-import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
+import net.es.iri.api.facility.schema.MediaTypes;
+import net.es.iri.api.facility.schema.NamedObject;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
-import net.es.iri.api.facility.schema.Site;
 import net.es.iri.api.facility.schema.StatusType;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.ResourceAnnotation;
 import net.es.iri.api.facility.utils.UrlTransform;
 import org.springframework.context.ApplicationContext;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -76,7 +72,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * The StatusController provides API access to the IRI Facility Status functionality.
@@ -112,16 +107,9 @@ public class StatusController {
         if (config.getServer() != null) {
             String root = Optional.ofNullable(config.getServer().getRoot()).orElse("/");
             String proxy = Optional.ofNullable(config.getServer().getProxy()).orElse(config.getServer().getRoot());
-
-            StringBuilder url = new StringBuilder("(");
-            url.append(root);
-            url.append("|");
-            url.append(proxy);
-            url.append(")");
-            this.utilities = new UrlTransform(url.toString());
-
-            log.debug("[StatusController] root = {}, proxy = {}, url = {}",
-                config.getServer().getRoot(), config.getServer().getProxy(), url);
+            this.utilities = new UrlTransform("(" + root + "|" + proxy + ")");
+            log.debug("[StatusController] root = {}, proxy = {}, urlTransform = {}",
+                config.getServer().getRoot(), config.getServer().getProxy(), this.utilities.getUriTransform());
         } else {
             this.utilities = new UrlTransform(null);
         }
@@ -324,10 +312,19 @@ public class StatusController {
     @ResponseBody
     @ResourceAnnotation(name = "getResources", version = "v1", type = MediaTypes.RESOURCES)
     public ResponseEntity<?> getResources(
-        @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
+        @RequestHeader(value = OpenApiDescriptions.ACCEPT_NAME, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
-        @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
+        @RequestHeader(value = OpenApiDescriptions.IF_MODIFIED_SINCE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.GROUP_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.GROUP_MSG) String group,
         @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
@@ -341,47 +338,54 @@ public class StatusController {
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            log.debug("[StatusController::getResources] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, group = {}, capabilities = {}",
-                location, accept, ifModifiedSince, group, capabilities);
+            log.debug("[StatusController::getResources] GET operation = {}, Accept = {}, " +
+                    "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
+                    "group = {}, type = {}, capabilities = {}, currentStatus = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit,
+                group, type, capabilities, currentStatus);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<Resource> results = repository.findAllResources();
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Resource::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
             // list of resources against the specified date.  If one is newer, we return
             // them all.
-            if (ifms != null) {
-                log.debug("[StatusController::getResources] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since the specified time.
-                    log.debug("[StatusController::getResources] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[StatusController::getResources] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
 
-                // Now compute those resources that have changed since the If-Modified-Since time.
+            // Now compute those resources that have changed since the If-Modified-Since time.
+            if (ifms != null) {
                 results = results.stream()
                     .filter(r -> r.getLastModified().isAfter(ifms))
                     .collect(Collectors.toList());
             }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources that match the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
+                    .collect(Collectors.toList());
+            }
+
+            // Resource specific attributes below.
 
             // Apply the group filter if requested.
             if (group != null && !group.isBlank()) {
@@ -421,7 +425,6 @@ public class StatusController {
                 }
             }
 
-
             // Apply the currentStatus filter if requested.
             if (currentStatus != null && !currentStatus.isEmpty()) {
                 // Filter any filter values not in the StatusType enum.
@@ -437,6 +440,14 @@ public class StatusController {
                     .filter(r -> wanted.contains(r.getCurrentStatus()))
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -569,6 +580,9 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.RID_NAME)
         @Parameter(description = OpenApiDescriptions.RID_NAME, required = true) String rid) {
 
@@ -577,7 +591,8 @@ public class StatusController {
 
         try {
             log.debug("[StatusController::getResource] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, rid);
+                    + "If-Modified-Since = {}, modifiedSince = {}, rid = {}",
+                location, accept, ifModifiedSince, modifiedSince, rid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -586,20 +601,20 @@ public class StatusController {
             // Find the resource targeted by id.
             Resource resource = repository.findResourceById(rid);
             if (resource != null) {
-                OffsetDateTime lastModified = resource.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(resource.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[StatusController::getResource] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                  // The resource has not been modified since the specified time.
+                  log.debug("[StatusController::getResource] returning NOT_MODIFIED");
+                  return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching resource.
@@ -722,6 +737,15 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
             schema = @Schema(implementation = StatusType.class)) String status,
@@ -732,11 +756,14 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.RESOLUTION_TYPE_MSG,
             schema = @Schema(implementation = ResolutionType.class)) String resolution,
         @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.TIME_MSG) OffsetDateTime time,
         @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.FROM_MSG) OffsetDateTime from,
         @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.TO_MSG) String to,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.TO_MSG) OffsetDateTime to,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
         @RequestParam(value = OpenApiDescriptions.RESOURCES_NAME, required = false)
@@ -746,47 +773,51 @@ public class StatusController {
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}, status = {}. type = {}. resolution = {}, time = {},"
-                    + "from = {}, to = {}, shortName = {}, resources = {}",
-                location, accept, ifModifiedSince, status, type, resolution, time,
-                from, to, shortName, resources);
+            log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, " +
+                    "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
+                    "status = {}. type = {}. resolution = {}, time = {}, from = {}, to = {}, shortName = {}, " +
+                    "resources = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit, status, type,
+                resolution, time, from, to, shortName, resources);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<Incident> results = repository.findAllIncidents();
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+// Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Incident::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
-
-            // Populate the Last-Modified header.
-            headers.setLastModified(latestModified.toInstant());
+            // Populate the header
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
             // list of resources against the specified date.  If one is newer, we return
             // them all.
-            if (ifms != null) {
-                log.debug("[StatusController::getIncidents] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since the specified time.
-                    log.debug("[StatusController::getIncidents] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[StatusController::getIncident] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
 
-                // Now add resources that have changed since the If-Modified-Since time.
+            // Now compute those resources that have changed since the If-Modified-Since time.
+            if (ifms != null) {
                 results = results.stream()
-                    .filter(incident -> incident.getLastModified().isAfter(ifms))
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources with the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
 
@@ -815,20 +846,34 @@ public class StatusController {
             }
 
             // The "time" query parameter is specified to return incidents overlapping with time.
-            results = results.stream()
-                .filter(incident -> incident.isOverlap(time))
-                .collect(Collectors.toList());
+            if (time != null) {
+                results = results.stream()
+                    .filter(incident -> incident.isOverlap(time))
+                    .collect(Collectors.toList());
+            }
 
             // The "from" query parameter is the start of the time the user is looking for active incidents.
             // The "to" query parameter is the end of the time the user is looking for active incidents.
             // This means we want any incidents active before this time.
-            results = results.stream()
-                .filter(incident -> incident.isConflict(from, to))
-                .collect(Collectors.toList());
+            if (from != null || to != null) {
+                results = results.stream()
+                    .filter(incident -> incident.isConflict(from, to))
+                    .collect(Collectors.toList());
+            }
 
             // Find all the remaining incidents that contain a resource from the provided list.
+            if (resources != null && !resources.isEmpty()) {
+                results = results.stream()
+                    .filter(incident -> incident.contains(resources))
+                    .collect(Collectors.toList());
+            }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
             results = results.stream()
-                .filter(incident -> incident.contains(resources))
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
                 .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
@@ -962,6 +1007,9 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.IID_NAME)
         @Parameter(description = OpenApiDescriptions.IID_NAME, required = true) String iid) {
 
@@ -970,7 +1018,8 @@ public class StatusController {
 
         try {
             log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, iid);
+                + "If-Modified-Since = {}, modifiedSince = {}, iid = {}",
+                location, accept, ifModifiedSince, modifiedSince, iid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -979,20 +1028,20 @@ public class StatusController {
             // Find the incident matching the specified id.
             Incident incident = repository.findIncidentById(iid);
             if (incident != null) {
-                OffsetDateTime lastModified = incident.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(incident.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[StatusController::getIncidents] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[StatusController::getIncidents] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching resource.
@@ -1129,6 +1178,15 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @PathVariable(OpenApiDescriptions.IID_NAME)
         @Parameter(description = OpenApiDescriptions.IID_NAME, required = true) String iid) {
 
@@ -1137,11 +1195,15 @@ public class StatusController {
 
         try {
             log.debug("[StatusController::getEventsByIncident] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, iid);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, iid = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit, iid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
 
             // Find the incident matching the specified id.
             Incident incident = repository.findIncidentById(iid);
@@ -1155,25 +1217,24 @@ public class StatusController {
                     }
                 }
 
-                // Find the latest modified timestamp among all resources
-                OffsetDateTime lastModified = events.stream()
-                    .map(Event::getLastModified)
-                    .max(OffsetDateTime::compareTo)
-                    .orElse(OffsetDateTime.now());
+                // Find the latest modified timestamp among all resources.
+                Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(events);
 
-                // Populate the Last-Modified header.
-                headers.setLastModified(lastModified.toInstant());
+                // Populate the header
+                latestModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, latestModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[StatusController::getEventsByIncident] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+                }
+
+                // Now compute those resources that have changed since the If-Modified-Since time.
                 if (ifms != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[StatusController::getEventsByIncident] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
-
-                    // Now add resources that have changed since the If-Modified-Since time.
                     events = events.stream()
                         .filter(r -> r.getLastModified().isAfter(ifms))
                         .collect(Collectors.toList());
@@ -1297,12 +1358,18 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
+        @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
             schema = @Schema(implementation = StatusType.class)) String status,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
-        @Parameter(description = OpenApiDescriptions.TIME_MSG) String time,
         @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
         @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
@@ -1312,45 +1379,48 @@ public class StatusController {
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
-            log.debug("[StatusController::getEvents] GET operation = {}, accept = {}, "
-                    + "If-Modified-Since = {}",
-                location, accept, ifModifiedSince);
+            log.debug("[StatusController::getEvents] GET operation = {}, accept = {}, " +
+                    "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
+                    "status = {}, from = {}, to = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit, status, from, to);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<Event> results = repository.findAllEvents();
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Event::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
-
-            // Populate the Last-Modified header.
-            headers.setLastModified(latestModified.toInstant());
+            // Populate the header
+            latestModified.ifPresent(l -> headers.setLastModified(l.toInstant()));
 
             // If the request contained an If-Modified-Since header we check the entire
             // list of resources against the specified date.  If one is newer, we return
             // them all.
-            if (ifms != null) {
-                log.debug("[StatusController::getEvents] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since the specified time.
-                    log.debug("[StatusController::getEvents] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getUserAllocationsByProjectAllocation] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
 
-                // Now add resources that have changed since the If-Modified-Since time.
+            // Now compute those resources that have changed since the If-Modified-Since time.
+            if (ifms != null) {
                 results = results.stream()
                     .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
+            }
+
+            // Apply the name filter if requested.
+            if (name != null && !name.isBlank()) {
+                // Filter resources with the specified name.
+                results = results.stream()
+                    .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
 
@@ -1387,6 +1457,14 @@ public class StatusController {
                     })
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -1519,6 +1597,9 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.EID_NAME)
         @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
@@ -1527,7 +1608,8 @@ public class StatusController {
 
         try {
             log.debug("[StatusController::getEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
+                + "If-Modified-Since = {}, modifiedSince = {}, id = {}",
+                location, accept, ifModifiedSince, modifiedSince, eid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -1536,20 +1618,20 @@ public class StatusController {
             // Get the event matching the specified id.
             Event event = repository.findEventById(eid);
             if (event != null) {
-                OffsetDateTime lastModified = event.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(event.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[StatusController::getEvent] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[StatusController::getEvent] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching resource.
@@ -1687,6 +1769,9 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.EID_NAME)
         @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
@@ -1707,22 +1792,23 @@ public class StatusController {
                 // Look up the resource associated with the event.
                 Resource resource = repository.findResourceByHref(event.getResourceUri());
                 if (resource != null) {
-                    OffsetDateTime lastModified = resource.getLastModified();
-                    if (lastModified != null) {
-                        // Populate the header
-                        headers.setLastModified(lastModified.toInstant());
+                    Optional<OffsetDateTime> lastModified = Optional.ofNullable(resource.getLastModified());
+                    lastModified.ifPresent(l -> 
+                        headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
+
+                    // Favor the query parameter if provided.
+                    final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                    // If the request contained an If-Modified-Since header we check the entire
+                    // list of resources against the specified date.  If one is newer, we return
+                    // them all.
+                    if (Common.notModified(ifms, lastModified.orElse(null))) {
+                        // The resource has not been modified since the specified time.
+                        log.debug("[StatusController::getResourceByEvent] returning NOT_MODIFIED");
+                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                     }
 
-                    // Parse the If-Modified-Since header if it is present.
-                    OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                    if (ifms != null && lastModified != null) {
-                        if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                            // The resource has not been modified since the specified time.
-                            log.debug("[StatusController::getResourceByEvent] returning NOT_MODIFIED");
-                            return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                        }
-                    }
-
+                    // Return the matching resource.
                     return new ResponseEntity<>(resource, headers, HttpStatus.OK);
                 }
             }
@@ -1858,6 +1944,9 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.EID_NAME)
         @Parameter(description = OpenApiDescriptions.EID_NAME, required = true) String eid) {
 
@@ -1866,7 +1955,8 @@ public class StatusController {
 
         try {
             log.debug("[StatusController::getIncidentByEvent] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
+                + "If-Modified-Since = {}, modifiedSince = {}, eid = {}",
+                location, accept, ifModifiedSince, modifiedSince, eid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -1878,20 +1968,20 @@ public class StatusController {
                 // Look up the resource associated with the event.
                 Incident incident = repository.findIncidentByHref(event.getIncidentUri());
                 if (incident != null) {
-                    OffsetDateTime lastModified = incident.getLastModified();
-                    if (lastModified != null) {
-                        // Populate the header
-                        headers.setLastModified(lastModified.toInstant());
-                    }
+                    Optional<OffsetDateTime> lastModified = Optional.ofNullable(incident.getLastModified());
+                    lastModified.ifPresent(l -> 
+                        headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                    // Parse the If-Modified-Since header if it is present.
-                    OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                    if (ifms != null && lastModified != null) {
-                        if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                            // The resource has not been modified since the specified time.
-                            log.debug("[StatusController::getIncidentByEvent] returning NOT_MODIFIED");
-                            return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                        }
+                    // Favor the query parameter if provided.
+                    final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                    // If the request contained an If-Modified-Since header we check the entire
+                    // list of resources against the specified date.  If one is newer, we return
+                    // them all.
+                    if (Common.notModified(ifms, lastModified.orElse(null))) {
+                        // The resource has not been modified since the specified time.
+                        log.debug("[StatusController::getIncidentByEvent] returning NOT_MODIFIED");
+                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                     }
 
                     return new ResponseEntity<>(incident, headers, HttpStatus.OK);

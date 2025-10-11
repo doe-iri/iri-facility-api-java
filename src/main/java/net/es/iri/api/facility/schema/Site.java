@@ -70,9 +70,11 @@ public class Site extends NamedObject {
 
     @JsonProperty("resource_uris")
     @ArraySchema(
-        arraySchema = @Schema(description = "A list of hyperlink reference (URI) to the Resources located at this Site (hasResource).",
-            example = "[\"https://example.com/api/v1/status/resources/03bdbf77-6f29-4f66-9809-7f4f77098171\",\"https://example.com/api/v1/status/resources/12345f77-6f29-4f66-9809-7f4f77098333\"]"),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Resource located at this Site (hasResource).",
+            example = "https://example.com/api/v1/status/resources/12345f77-6f29-4f66-9809-7f4f77098333",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> resourceUris = new ArrayList<>();

@@ -53,7 +53,7 @@ import net.es.iri.api.facility.utils.UrlTransform;
     + " piece of the total allocation for the capability (eg. 5% of the total node hours of Perlmutter GPU"
     + " nodes).  A project would at least have a storage and job repos, maybe more than 1 of each.")
 public class ProjectAllocation extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/account/project_allocations/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/account/project_allocations/%s";
 
     @JsonProperty("entries")
     @Schema(description = "Allocation entries associated with this user allocation (hasAllocationEntry).")
@@ -74,11 +74,10 @@ public class ProjectAllocation extends NamedObject {
 
     @JsonProperty("user_allocation_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "A list of hyperlink reference (URI) to zero or more UserAllocation (hasUserAllocation).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a UserAllocation (hasUserAllocation).",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> userAllocationUris = new ArrayList<>();

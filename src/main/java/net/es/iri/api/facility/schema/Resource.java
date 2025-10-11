@@ -57,18 +57,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class Resource extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/status/resources/%s";
 
-    @JsonProperty("type")
+    @JsonProperty("resource_type")
     @Schema(description = "The type of resource.", example = "system",
         requiredMode = Schema.RequiredMode.REQUIRED)
     private ResourceType type;
 
     @JsonProperty("capability_uris")
     @ArraySchema(
-        arraySchema = @Schema(
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
             description = "Hyperlink references (URIs) to capabilities this resource provides (hasCapability).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+            example="https://example.com/api/v1/account/capabilities/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> capabilityUris = new ArrayList<>();
@@ -93,35 +93,35 @@ public class Resource extends NamedObject {
     @JsonProperty("located_at_uri")
     @Schema(description = "A hyperlink reference (URI) to the Site containing this Resource (locatedAt).",
         format = "uri",
-        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+        example = "https://example.com/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String locatedAtUri;
 
     @JsonProperty("member_of_uri")
     @Schema(description = "A hyperlink reference (URI) to facility managing this Resource (memberOf).",
         format = "uri",
-        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
+        example = "https://example.com/api/v1/facility",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String memberOfUri;
 
     @JsonProperty("depends_on_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "Hyperlink references (URIs) a list of Resources this Resource depends on (dependsOn).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) a Resource that this Resource depends on (dependsOn).",
+            example="https://example.com/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> dependsOnUris =  new ArrayList<>();
 
     @JsonProperty("has_dependent_uris")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "Hyperlink references (URIs) to Resources that depend on this Resource (hasDependent).",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-        ),
-        schema = @Schema(type = "string", format = "uri")
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
+        schema = @Schema(
+            description = "A hyperlink reference (URI) to a Resource that depend on this Resource (hasDependent).",
+            example = "https://example.com/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
+            type = "string", format = "uri")
     )
     @Builder.Default
     private List<String> hasDependentUris =  new ArrayList<>();

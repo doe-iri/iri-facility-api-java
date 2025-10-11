@@ -51,7 +51,7 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Schema(description = "Defines a user's allocation in a project.  This allocation is a piece of the project's allocation.")
 public class UserAllocation extends NamedObject {
-    public static final String URL_TEMPLATE = "/api/v1/account/user_allocations/%s";
+    public static final String URL_TEMPLATE = "%s/api/v1/account/user_allocations/%s";
 
     @JsonProperty("user_id")
     @Schema(description = "The user identifier associated with the allocation (hasUser).")
@@ -59,10 +59,10 @@ public class UserAllocation extends NamedObject {
 
     @JsonProperty("entries")
     @ArraySchema(
-        arraySchema = @Schema(
-            description = "Allocation entries associated with this user allocation (hasAllocationEntry)."
-        ),
-        schema = @Schema(implementation = AllocationEntry.class)
+        arraySchema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED),
+        schema = @Schema(
+            description = "An AllocationEntry associated with this user allocation (hasAllocationEntry).",
+            implementation = AllocationEntry.class)
     )
     @Builder.Default
     private List<AllocationEntry> entries = new ArrayList<>();

@@ -22,6 +22,8 @@ package net.es.iri.api.facility;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,13 +48,16 @@ import net.es.iri.api.facility.schema.Capability;
 import net.es.iri.api.facility.schema.Discovery;
 import net.es.iri.api.facility.schema.Error;
 import net.es.iri.api.facility.schema.MediaTypes;
+import net.es.iri.api.facility.schema.NamedObject;
 import net.es.iri.api.facility.schema.Project;
 import net.es.iri.api.facility.schema.ProjectAllocation;
+import net.es.iri.api.facility.schema.Resource;
 import net.es.iri.api.facility.schema.UserAllocation;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.ResourceAnnotation;
 import net.es.iri.api.facility.utils.UrlTransform;
 import org.springframework.context.ApplicationContext;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -289,50 +294,58 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name) {
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[AccountController::getCapabilities] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Parse the If-Modified-Since header if it is present.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<Capability> results = repository.findAllCapabilities();
 
-            results.forEach(c ->
-                log.debug("[AccountController::getCapabilities] id = {}, object = {}", c.getId(), c));
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Capability::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
             // list of resources against the specified date.  If one is newer we return
             // them all.
+            // If the request contained an If-Modified-Since header we check the entire
+            // list of resources against the specified date.  If one is newer, we return
+            // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[StatusController::getCapabilities] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getCapabilities] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getCapabilities] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
@@ -342,6 +355,14 @@ public class AccountController {
                     .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(Capability::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -473,6 +494,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.CID_NAME)
         @Parameter(description = OpenApiDescriptions.CID_MSG, required = true) String cid) {
 
@@ -481,7 +505,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getCapability] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, cid);
+                + "If-Modified-Since = {},  modifiedSince = {}, id = {}",
+                location, accept, ifModifiedSince, modifiedSince, cid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -490,20 +515,20 @@ public class AccountController {
             // We will collect the matching resources in this list.
             Capability capability = repository.findCapabilityById(cid);
             if (capability != null) {
-                OffsetDateTime lastModified = capability.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(capability.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[AccountController::getCapability] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[AccountController::getCapability] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching site.
@@ -623,8 +648,15 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.USERIDS_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.USERIDS_MSG) List<String> userIds) {
 
@@ -633,42 +665,41 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getProjects] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
+                    "userIds = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit, userIds);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<Project> results = repository.findAllProjects();
 
-            results.forEach(c ->
-                log.debug("[AccountController::getProjects] id = {}, object = {}", c.getId(), c));
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(Project::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getProjects] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getProjects] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getProjects] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
@@ -698,6 +729,14 @@ public class AccountController {
                         .collect(Collectors.toList());
                 }
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(Project::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -829,6 +868,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.PID_NAME)
         @Parameter(description = OpenApiDescriptions.PID_MSG, required = true) String pid) {
 
@@ -837,7 +879,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getProject] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, pid);
+                + "If-Modified-Since = {},  modifiedSince = {}, pid = {}",
+                location, accept, ifModifiedSince, modifiedSince, pid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -846,20 +889,20 @@ public class AccountController {
             // We will collect the matching resources in this list.
             Project result = repository.findProjectById(pid);
             if (result != null) {
-                OffsetDateTime lastModified = result.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(result.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[AccountController::getProject] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[AccountController::getProject] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching site.
@@ -979,50 +1022,55 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name) {
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[AccountController::getProjectAllocations] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
-            List<ProjectAllocation> results = repository.findAllProjectAllocations();
+            List<Resource> results = repository.findAllResources();
 
-            results.forEach(c ->
-                log.debug("[AccountController::getProjectAllocations] id = {}, object = {}", c.getId(), c));
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(ProjectAllocation::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[StatusController::getResources] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getProjectAllocations] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getProjectAllocations] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
@@ -1032,6 +1080,14 @@ public class AccountController {
                     .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(Resource::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -1146,8 +1202,15 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @PathVariable(OpenApiDescriptions.PID_NAME)
         @Parameter(description = OpenApiDescriptions.PID_MSG, required = true) String pid) {
 
@@ -1156,58 +1219,71 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getProjectAllocationsByProject] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {},  modifiedSince = {}, pid = {}",
+                location, accept, ifModifiedSince, modifiedSince, pid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
-            // We will collect the matching resources in this list.
-            Project project = repository.findProjectById(pid);
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
 
-            List<ProjectAllocation> allocations = Optional.ofNullable(project.getProjectAllocationUris())
+            Project project = repository.findProjectById(pid);
+            if (project == null) {
+                log.error("[AccountController::getProjectAllocationsByProject] not a valid project_id {}", pid);
+                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+            }
+
+            // Filter project allocations for this project pid.
+            List<ProjectAllocation> results = Optional.ofNullable(project.getProjectAllocationUris())
                 .stream()
                 .flatMap(List::stream)
                 .map(href -> repository.findByHref(href, ProjectAllocation.class))
                 .filter(Objects::nonNull)
                 .toList();
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = allocations.stream()
-                .map(ProjectAllocation::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getProjectAllocationsByProject] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getProjectAllocationsByProject] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getProjectAllocationsByProject] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
             if (name != null && !name.isBlank()) {
                 // Filter resources with the specified name.
-                allocations = allocations.stream()
+                results = results.stream()
                     .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .toList();
             }
 
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
+
             // We have success, so return the models we have found.
-            return new ResponseEntity<>(allocations, headers, HttpStatus.OK);
+            return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getProjectAllocationsByProject] Exception caught in GET of {}", location, ex);
             return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1336,6 +1412,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.PAID_NAME)
         @Parameter(description = OpenApiDescriptions.PAID_MSG, required = true) String paid) {
 
@@ -1344,7 +1423,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getProjectAllocation] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, paid);
+                + "If-Modified-Since = {},  modifiedSince = {}, id = {}",
+                location, accept, ifModifiedSince, modifiedSince, paid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -1353,20 +1433,20 @@ public class AccountController {
             // We will collect the matching resources in this list.
             ProjectAllocation result = repository.findProjectAllocationById(paid);
             if (result != null) {
-                OffsetDateTime lastModified = result.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(result.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[AccountController::getProjectAllocation] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[AccountController::getProjectAllocation] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching site.
@@ -1505,6 +1585,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.PID_NAME)
         @Parameter(description = OpenApiDescriptions.PID_MSG, required = true) String pid,
         @PathVariable(OpenApiDescriptions.PAID_NAME)
@@ -1515,7 +1598,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getProjectAllocationByProject] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, pid = {}, paid = {}",
+                location, accept, ifModifiedSince, modifiedSince, pid, paid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -1540,23 +1624,20 @@ public class AccountController {
                 return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
             }
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
+            Optional<OffsetDateTime> lastModified = Optional.ofNullable(allocation.getLastModified());
+            lastModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-            // Populate the header.
-            headers.setLastModified(allocation.getLastModified().toInstant());
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
-            if (ifms != null) {
-                log.debug("[AccountController::getProjectAllocationByProject] ifms {}, latestModified {}",
-                    ifms, allocation.getLastModified());
-                if (ifms.isEqual(allocation.getLastModified()) || ifms.isAfter(allocation.getLastModified())) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getProjectAllocationByProject] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+            if (Common.notModified(ifms, lastModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[StatusController::getResource] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
             }
 
             // We have success, so return the models we have found.
@@ -1673,50 +1754,55 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name) {
+        @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
         try {
             log.debug("[AccountController::getUserAllocations] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
             // We will collect the matching resources in this list.
             List<UserAllocation> results = repository.findAllUserAllocations();
 
-            results.forEach(c ->
-                log.debug("[AccountController::getUserAllocations] id = {}, object = {}", c.getId(), c));
-
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(UserAllocation::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getUserAllocations] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getUserAllocations] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getUserAllocations] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
@@ -1726,6 +1812,14 @@ public class AccountController {
                     .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -1840,8 +1934,15 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
+        @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @PathVariable(OpenApiDescriptions.PID_NAME)
         @Parameter(description = OpenApiDescriptions.PID_MSG, required = true) String pid,
         @PathVariable(OpenApiDescriptions.PAID_NAME)
@@ -1852,11 +1953,15 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getUserAllocationsByProjectAllocation] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}", location, accept, ifModifiedSince);
+                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
+                location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
 
             // Although we can look up project_allocation_id directly since it is unique system-wide,
             // we need to make sure project_id exists, and that project_allocation_id is a member
@@ -1885,30 +1990,27 @@ public class AccountController {
                 .map(href -> repository.findByHref(href, UserAllocation.class))
                 .toList();
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-
-            // Find the latest modified timestamp among all resources
-            OffsetDateTime latestModified = results.stream()
-                .map(UserAllocation::getLastModified)
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(OffsetDateTime.now());
+            // Find the latest modified timestamp among all resources.
+            Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
-            headers.setLastModified(latestModified.toInstant());
+            latestModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
             // If the request contained an If-Modified-Since header we check the entire
-            // list of resources against the specified date.  If one is newer we return
+            // list of resources against the specified date.  If one is newer, we return
             // them all.
+            if (Common.notModified(ifms, latestModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getUserAllocationsByProjectAllocation] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+            }
+
+            // Now compute those resources that have changed since the If-Modified-Since time.
             if (ifms != null) {
-                log.debug("[AccountController::getUserAllocationsByProjectAllocation] ifms {}, latestModified {}",
-                    ifms, latestModified);
-                if (ifms.isEqual(latestModified) || ifms.isAfter(latestModified)) {
-                    // The resource has not been modified since specified time.
-                    log.debug("[AccountController::getUserAllocationsByProjectAllocation] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+                results = results.stream()
+                    .filter(r -> r.getLastModified().isAfter(ifms))
+                    .collect(Collectors.toList());
             }
 
             // Apply the name filter if requested.
@@ -1918,6 +2020,14 @@ public class AccountController {
                     .filter(r -> Common.stripQuotes(name).equalsIgnoreCase(r.getName()))
                     .collect(Collectors.toList());
             }
+
+            // Lastly we apply any requested paging by first sorting these results and
+            // then processing the offset and limit.
+            results = results.stream()
+                .sorted(Comparator.comparing(NamedObject::getId))
+                .skip((offset == null ? 0 : Math.max(0, offset)))
+                .limit((limit == null ? 100 : Math.max(0, limit)))
+                .collect(Collectors.toList());
 
             // We have success, so return the models we have found.
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
@@ -2049,6 +2159,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.UAID_NAME)
         @Parameter(description = OpenApiDescriptions.UAID_MSG, required = true) String uaid) {
 
@@ -2057,7 +2170,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getUserAllocation] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, uaid);
+                + "If-Modified-Since = {}, modifiedSince = {}, uaid = {}",
+                location, accept, ifModifiedSince, modifiedSince, uaid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -2066,20 +2180,20 @@ public class AccountController {
             // We will collect the matching resources in this list.
             UserAllocation result = repository.findUserAllocationById(uaid);
             if (result != null) {
-                OffsetDateTime lastModified = result.getLastModified();
-                if (lastModified != null) {
-                    // Populate the header
-                    headers.setLastModified(lastModified.toInstant());
-                }
+                Optional<OffsetDateTime> lastModified = Optional.ofNullable(result.getLastModified());
+                lastModified.ifPresent(l -> 
+                    headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-                // Parse the If-Modified-Since header if it is present.
-                OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-                if (ifms != null && lastModified != null) {
-                    if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                        // The resource has not been modified since the specified time.
-                        log.debug("[AccountController::getUserAllocation] returning NOT_MODIFIED");
-                        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                    }
+                // Favor the query parameter if provided.
+                final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+                // If the request contained an If-Modified-Since header we check the entire
+                // list of resources against the specified date.  If one is newer, we return
+                // them all.
+                if (Common.notModified(ifms, lastModified.orElse(null))) {
+                    // The resource has not been modified since the specified time.
+                    log.debug("[AccountController::getUserAllocation] returning NOT_MODIFIED");
+                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Return the matching site.
@@ -2220,6 +2334,9 @@ public class AccountController {
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
         @Parameter(description = OpenApiDescriptions.IF_MODIFIED_SINCE_MSG) String ifModifiedSince,
+        @RequestParam(value = OpenApiDescriptions.MODIFIED_SINCE_NAME, required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Parameter(description = OpenApiDescriptions.MODIFIED_SINCE_MSG) OffsetDateTime modifiedSince,
         @PathVariable(OpenApiDescriptions.PID_NAME)
         @Parameter(description = OpenApiDescriptions.PID_MSG, required = true) String pid,
         @PathVariable(OpenApiDescriptions.PAID_NAME)
@@ -2232,7 +2349,8 @@ public class AccountController {
 
         try {
             log.debug("[AccountController::getUserAllocationByProjectAllocation] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, uaid);
+                + "If-Modified-Since = {}, modifiedSince = {}, pid = {}, paid = {}, uaid = {}",
+                location, accept, ifModifiedSince, modifiedSince, pid, paid, uaid);
 
             // Populate the content location header with our URL location.
             final HttpHeaders headers = new HttpHeaders();
@@ -2271,20 +2389,21 @@ public class AccountController {
                 return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
             }
 
-            OffsetDateTime lastModified = userAllocation.getLastModified();
-            if (lastModified != null) {
-                // Populate the header
-                headers.setLastModified(lastModified.toInstant());
-            }
+            // Process last modified behaviour.
+            Optional<OffsetDateTime> lastModified = Optional.ofNullable(userAllocation.getLastModified());
+            lastModified.ifPresent(l -> 
+                headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
-            // Parse the If-Modified-Since header if it is present.
-            OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince);
-            if (ifms != null && lastModified != null) {
-                if (ifms.isEqual(lastModified) || ifms.isAfter(lastModified)) {
-                    // The resource has not been modified since the specified time.
-                    log.debug("[AccountController::getUserAllocationByProjectAllocation] returning NOT_MODIFIED");
-                    return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-                }
+            // Favor the query parameter if provided.
+            final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
+
+            // If the request contained an If-Modified-Since header we check the entire
+            // list of resources against the specified date.  If one is newer, we return
+            // them all.
+            if (Common.notModified(ifms, lastModified.orElse(null))) {
+                // The resource has not been modified since the specified time.
+                log.debug("[AccountController::getUserAllocationByProjectAllocation] returning NOT_MODIFIED");
+                return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
             }
 
             // Return the matching site.
