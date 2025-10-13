@@ -50,7 +50,12 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "A location models the geographical location or region with which resources are associated.")
+@Schema(description = """
+    A Location models the geographic, geopolitical, or spatial context associated with a Site that may \
+    contain zero or more Resources. It serves as a foundational concept for expressing where resources \
+    physically exist, are operated, or are logically grouped, enabling meaningful organization and \
+    visualization.  Locations are reusable entities that may be shared across multiple Sites or \
+    Facilities.""")
 public class Location extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/facility/locations/%s";
 

@@ -50,7 +50,11 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "A DoE laboratory or production facility that offers resources for programmatic consumption.")
+@Schema(description = """
+    A specialized research facility funded and operated by the U.S. Department of Energy that provides \
+    unique scientific tools, expertise, and infrastructure for researchers from across academia, industry, \
+    and government.  In a more general definition, a Facility offers Resources to scientific workflows for \
+    programmatic consumption.""")
 public class Facility extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/facility/%s";
 

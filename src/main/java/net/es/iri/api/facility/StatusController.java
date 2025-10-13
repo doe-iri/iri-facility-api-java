@@ -82,7 +82,22 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  */
 @Slf4j
 @RestController
-@Tag(name = "IRI Status API", description = "Integrated Research Infrastructure Status API endpoint")
+@Tag(name = "IRI Status API",
+    description = """
+        The Status API offers users programmatic access to information on the operational status \
+        of various resources within a facility, scheduled maintenance/outage events, and a limited historical \
+        record of these events. Designed for quick and efficient status checks of current and future \
+        (scheduled) operational status, this API allows developers to integrate facility information into \
+        applications or workflows, providing a streamlined way to programmatically access data without manual \
+        intervention.
+        
+        It should be noted that the operational status of a resource is not an indication of a commitment to \
+        provide service, only that the resource is in the described operational state.
+        
+        The Facility Status API is not intended for reporting or monitoring purposes; it does not support \
+        asynchronous logging or alerting capabilities, and should not be used to derive any type of up or \
+        downtime metrics. Instead, its primary focus is on delivering simple, on-demand access to facility \
+        resource status, and scheduled maintenance events.""")
 public class StatusController {
     // Spring application context.
     private final ApplicationContext context;

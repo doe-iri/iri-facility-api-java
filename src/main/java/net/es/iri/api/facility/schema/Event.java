@@ -47,7 +47,11 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Defines a resource impacting event and provides status log functionality.")
+@Schema(description = """
+    An Event represents a discrete, timestamped occurrence that reflects a change in state, condition, \
+    or behavior of a Resource, typically within the context of an ongoing Incident. Events provide \
+    the fine-grained details necessary to understand the progression and impact of an Incident, \
+    serving as both diagnostic data and a lightweight status log of relevant activity.""")
 public class Event extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/status/events/%s";
 

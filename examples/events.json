@@ -53,6 +53,16 @@
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/a86b3277-1c18-461a-859a-75842f515749"
   },
   {
+    "id": "00897980-c1ad-4b4a-8b8a-12b3bca4e9c1",
+    "self_uri": "http://localhost:8081/api/v1/status/events/00897980-c1ad-4b4a-8b8a-12b3bca4e9c1",
+    "name": "Global Common is up",
+    "description": "Up event for resource 097c3750-4ba1-4b51-accf-b160be683d55",
+    "last_modified": "2025-10-13T01:49:56.000Z",
+    "status": "up",
+    "resource_uri": "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
+    "incident_uri": "http://localhost:8081/api/v1/status/incidents/dc4dd4eb-c915-4394-973e-34d4e09b2230"
+  },
+  {
     "id": "0095ed57-7d98-49ea-82b6-046f8b91b7c2",
     "self_uri": "http://localhost:8081/api/v1/status/events/0095ed57-7d98-49ea-82b6-046f8b91b7c2",
     "name": "cfs is down",
@@ -842,16 +852,6 @@
     "status": "down",
     "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "incident_uri": "http://localhost:8081/api/v1/status/incidents/f88f6ddc-6612-4372-b74c-500a45816f93"
-  },
-  {
-    "id": "057f0392-e127-40f2-8655-43997e95b3ef",
-    "self_uri": "http://localhost:8081/api/v1/status/events/057f0392-e127-40f2-8655-43997e95b3ef",
-    "name": "help.nersc.gov is up",
-    "description": "Up event for resource 289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "last_modified": "2025-10-11T02:43:28.000Z",
-    "status": "up",
-    "resource_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
-    "incident_uri": "http://localhost:8081/api/v1/status/incidents/b6c188cd-7c13-42fb-bac9-434130c32f6e"
   },
   {
     "id": "058c022d-dd4e-4ef5-91a6-f8eecce8b586",

@@ -50,7 +50,13 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "The location of a resource that has an associated physical location and an operating organization.")
+@Schema(description = """
+    A Site represents the physical and administrative context in which a Resource is deployed and operated. \
+    It is associated with a geographic or network location where one or more resources reside and serves as \
+    the anchor point for associating these resources with their broader infrastructure and organizational \
+    relationships.
+    
+    The location of a resource that has an associated physical location and an operating organization.""")
 public class Site extends NamedObject {
     public static final String URL_TEMPLATE = "/api/v1/facility/sites/%s";
 

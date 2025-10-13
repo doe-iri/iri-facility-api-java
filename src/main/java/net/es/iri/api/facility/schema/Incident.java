@@ -56,7 +56,11 @@ import net.es.iri.api.facility.utils.UrlTransform;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "An incident groups events in time and across resources.")
+@Schema(description = """
+    An Incident represents a discrete occurrence, planned or unplanned, that actually or potentially affects \
+    the availability, performance, integrity, or security of one or more Resources at a given Facility. It \
+    serves as a high-level grouping construct for aggregating and tracking related Events over time and \
+    across multiple system components.""")
 public class Incident extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/status/incidents/%s";
 

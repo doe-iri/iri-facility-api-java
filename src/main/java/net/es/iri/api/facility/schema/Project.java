@@ -72,7 +72,7 @@ public class Project extends NamedObject {
             type = "string", format = "uri")
     )
     @Builder.Default
-    private List<String> projectAllocationUris = new ArrayList<>();
+    private List<String> projectAllocationUris = new ArrayList<>(); // TODO: Gabor removed.
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.

@@ -27,12 +27,12 @@
       "description": "Integrated Research Infrastructure Account API endpoint."
     },
     {
-      "name": "IRI Status API",
-      "description": "Integrated Research Infrastructure Status API endpoint"
-    },
-    {
       "name": "IRI Facility API",
       "description": "The Integrated Research Infrastructure Facility API endpoint."
+    },
+    {
+      "name": "IRI Status API",
+      "description": "The Status API offers users programmatic access to information on the operational status of various resources within a facility, scheduled maintenance/outage events, and a limited historical record of these events. Designed for quick and efficient status checks of current and future (scheduled) operational status, this API allows developers to integrate facility information into applications or workflows, providing a streamlined way to programmatically access data without manual intervention.\n\nIt should be noted that the operational status of a resource is not an indication of a commitment to provide service, only that the resource is in the described operational state.\n\nThe Facility Status API is not intended for reporting or monitoring purposes; it does not support asynchronous logging or alerting capabilities, and should not be used to derive any type of up or downtime metrics. Instead, its primary focus is on delivering simple, on-demand access to facility resource status, and scheduled maintenance events."
     }
   ],
   "paths": {
@@ -7836,7 +7836,7 @@
       },
       "Resource": {
         "type": "object",
-        "description": "Defines a resource that has a reportable status and its associated dependencies.",
+        "description": "A Resource is an object that either offers a service to the end user, or supports a resource that offers a service to the end user.  This resource will have an associated operational state, events, and incidents.",
         "properties": {
           "id": {
             "type": "string",
@@ -7951,7 +7951,7 @@
       },
       "Facility": {
         "type": "object",
-        "description": "A DoE laboratory or production facility that offers resources for programmatic consumption.",
+        "description": "A specialized research facility funded and operated by the U.S. Department of Energy that provides unique scientific tools, expertise, and infrastructure for researchers from across academia, industry, and government.  In a more general definition, a Facility offers Resources to scientific workflows for programmatic consumption.",
         "properties": {
           "id": {
             "type": "string",
@@ -8078,7 +8078,7 @@
       },
       "Site": {
         "type": "object",
-        "description": "The location of a resource that has an associated physical location and an operating organization.",
+        "description": "A Site represents the physical and administrative context in which a Resource is deployed and operated. It is associated with a geographic or network location where one or more resources reside and serves as the anchor point for associating these resources with their broader infrastructure and organizational relationships.\n\nThe location of a resource that has an associated physical location and an operating organization.",
         "properties": {
           "id": {
             "type": "string",
@@ -8142,7 +8142,7 @@
       },
       "Location": {
         "type": "object",
-        "description": "A location models the geographical location or region with which resources are associated.",
+        "description": "A Location models the geographic, geopolitical, or spatial context associated with a Site that may contain zero or more Resources. It serves as a foundational concept for expressing where resources physically exist, are operated, or are logically grouped, enabling meaningful organization and visualization.  Locations are reusable entities that may be shared across multiple Sites or Facilities.",
         "properties": {
           "id": {
             "type": "string",
@@ -8238,7 +8238,7 @@
       },
       "Event": {
         "type": "object",
-        "description": "Defines a resource impacting event and provides status log functionality.",
+        "description": "An Event represents a discrete, timestamped occurrence that reflects a change in state, condition, or behavior of a Resource, typically within the context of an ongoing Incident. Events provide the fine-grained details necessary to understand the progression and impact of an Incident, serving as both diagnostic data and a lightweight status log of relevant activity.",
         "properties": {
           "id": {
             "type": "string",
@@ -8306,7 +8306,7 @@
       },
       "Incident": {
         "type": "object",
-        "description": "An incident groups events in time and across resources.",
+        "description": "An Incident represents a discrete occurrence, planned or unplanned, that actually or potentially affects the availability, performance, integrity, or security of one or more Resources at a given Facility. It serves as a high-level grouping construct for aggregating and tracking related Events over time and across multiple system components.",
         "properties": {
           "id": {
             "type": "string",

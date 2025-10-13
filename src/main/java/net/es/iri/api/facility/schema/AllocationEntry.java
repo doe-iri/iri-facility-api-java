@@ -47,7 +47,7 @@ import lombok.experimental.SuperBuilder;
 public class AllocationEntry {
     @JsonProperty("id")
     @Schema(description ="Unique identifier for this allocation entry.", example = "98820b64-d3ac-4eff-8e74-80decd80b37c")
-    private String id;
+    private String id; // TODO: Gabor removed.
 
     @JsonProperty("allocation")
     @Schema(description ="How much this allocation can spend.", example = "123.45")

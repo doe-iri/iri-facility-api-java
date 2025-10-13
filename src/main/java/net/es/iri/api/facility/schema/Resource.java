@@ -53,7 +53,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Defines a resource that has a reportable status and its associated dependencies.")
+@Schema(description = """
+    A Resource is an object that either offers a service to the end user, or supports a resource that \
+    offers a service to the end user.  This resource will have an associated operational state, events, \
+    and incidents.""")
 public class Resource extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/status/resources/%s";
 

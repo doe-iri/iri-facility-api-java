@@ -4,11 +4,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "name": "Data Transfer Nodes",
     "description": "The NERSC data transfer nodes provide access to Global Homes, Global Common, the Community File System (CFS), Perlmutter Scratch, and HPSS.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "compute",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/33d0f8db-2dc2-4e6e-8e01-5674d936c110",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/979ea05a-e4cc-4119-a9a8-ba4e85adb956",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -16,11 +16,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
     "name": "Spin",
     "description": "Spin is a container-based platform at NERSC designed for you to deploy your own science gateways, workflow managers, databases, API endpoints, and other network services to support your scientific projects.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "service",
     "group": "services",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/906e6a22-2da4-4980-9b24-23308891ccb7",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/7bde5165-cad3-490e-b31c-e23c7fcc4f66",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -28,11 +28,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
     "name": "Global Common",
     "description": "The Global Common File System is a global file system available on all NERSC computational systems.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/1b286037-b860-4874-b692-842680dc41a8",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/00897980-c1ad-4b4a-8b8a-12b3bca4e9c1",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -40,11 +40,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
     "name": "Globus",
     "description": "Globus is the recommended way to move significant amounts of data between NERSC and other sites.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "services",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/282a209d-62dd-4177-b22e-793e2e9ae054",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/d8b8ed02-0938-46af-8ba8-a7d2017f95a8",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -52,11 +52,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "name": "help.nersc.gov",
     "description": "The NERSC help portal.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:50:26.000Z",
     "resource_type": "website",
     "group": "websites",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/81c95a14-1d33-4f98-b105-11893992bb9a",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/7971b23e-8043-4fb5-87fa-ccba4d7eefd6",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -64,11 +64,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "name": "iris.nersc.gov",
     "description": "Account management system.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:50:26.000Z",
     "resource_type": "website",
     "group": "websites",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/7aa482c3-285d-484a-ba38-42ee4f3bf5fe",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/e467073f-888a-4a1e-a395-698c91eabe75",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -76,11 +76,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
     "name": "Scratch",
     "description": "The Perlmutter Scratch File System is an all-flash file system.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "perlmutter",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/3a5dfd9d-fa6b-405e-aa2f-11f1b11918c8",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/2e584dcd-0980-4fb6-a302-6e35c6d44de7",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -88,11 +88,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
     "name": "HPSS Archive (User)",
     "description": "NERSC account management system.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/fbe53f15-83e9-41e7-9cfa-ad5a39c64886",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/76d49f6d-13ff-4319-a813-9f97976f0a45",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -100,11 +100,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
     "name": "Network",
     "description": "The networking infrastructure for services at NERSC.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "service",
     "group": "services",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/6a6b1f1c-f04d-43f7-9a86-1f844f5994b9",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/a57c301d-b0a8-4d36-96e2-e3d4e28edeed",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -112,11 +112,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
     "name": "HPSS Regent (Backup)",
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/e644d070-9e98-47f7-97ba-4cebc62555d8",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/3f250d3e-d0d0-4b6a-a195-d0cb8a421f5f",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -124,11 +124,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
     "name": "Gitlab",
     "description": "Gitlab is git-based code hosting service at NERSC.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "service",
     "group": "services",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/6e1096c1-9b6e-4858-bfed-b2503c6b4b1a",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/d5d9e60d-e1df-43b5-9407-a0980d75c5a5",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -136,11 +136,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
     "name": "GPU Nodes",
     "description": "GPU-based compute nodes.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "compute",
     "group": "perlmutter",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/d8bdadc6-34a6-41bc-9d3c-637cdbe9e9d3",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/42a11391-6a1f-4e60-bf8f-b2b5067d1ecb",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -148,11 +148,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "name": "Superfacility API",
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "service",
     "group": "services",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/d9d99104-988b-4bf1-953c-7ef01787a456",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/221cd996-7758-40f1-81a5-0fcfcd4e400e",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -160,11 +160,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
     "name": "CFS",
     "description": "The Community File System (CFS) is a global file system available on all NERSC computational systems.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/14424757-fd53-4eba-a2a1-d952d8979207",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/f11eb067-23af-4768-93a2-1de9c7e214f5",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -172,11 +172,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
     "name": "Login Nodes",
     "description": "In the NERSC system, login nodes are where users can log in, edit files, and submit jobs.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "compute",
     "group": "perlmutter",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/2512d090-dd62-431f-86d2-ab313ebf68f2",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/e7f18afe-3da5-42ed-953b-d269d82af26c",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -184,11 +184,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
     "name": "portal[auth].nersc.gov",
     "description": "Science gateways.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:50:26.000Z",
     "resource_type": "website",
     "group": "websites",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/56747eb7-93e4-4fc8-bc33-2eba1f280a7f",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/65cc5505-22cd-4851-bd96-586bc125baec",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -196,11 +196,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
     "name": "HPSS Regent (Backup)",
     "description": "As the backup counterpart to the primary HPSS Archive, HPSS Regent ensures data availability during maintenance or unexpected downtimes of the main system.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/db54a4ba-0551-4bd6-bb73-854b90f02078",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/932a8089-640a-4468-bfa5-f141572deb66",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -208,11 +208,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
     "name": "jupyter.nersc.gov",
     "description": "Jupyter is a literate computing software ecosystem for working with digital documents called notebooks that can contain executable code, equations, visualizations, interactive interfaces, text, and metadata.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:50:26.000Z",
     "resource_type": "website",
     "group": "websites",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/29e5cad6-b619-43de-8656-facdae929ef5",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/1a3ecc20-823e-4e6e-9c3e-fb74d2b3bd0b",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -220,11 +220,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
     "name": "CPU Nodes",
     "description": "CPU-based compute nodes.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "compute",
     "group": "perlmutter",
-    "current_status": "down",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/d5112c0a-6d49-4017-904f-8b95fe0dd040",
+    "current_status": "up",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/ed4f8f4a-725d-4bc0-bfa0-7ecddf5363dc",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   },
   {
@@ -232,11 +232,11 @@
     "self_uri": "http://localhost:8081/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
     "name": "Global Homes",
     "description": "Home directories provide a convenient means for a user to have access to files such as dotfiles, source files, and configuration files.",
-    "last_modified": "2025-10-11T02:43:28.000Z",
+    "last_modified": "2025-10-13T01:49:56.000Z",
     "resource_type": "storage",
     "group": "storage",
     "current_status": "up",
-    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/7b6aa238-ad65-42cd-a9b1-e899d927262a",
+    "impacted_by_uri": "http://localhost:8081/api/v1/status/events/c13bcd58-4f07-4440-83e5-1ccdb69207cc",
     "member_of_uri": "http://localhost:8081/api/v1/facility"
   }
 ]
