@@ -618,7 +618,7 @@ class StatusEndpointTest {
     }
 
     /**
-     * Test the getIncidents API for "offset" and "limit" query parameters.
+     * Test the getIncidents API for "limit" query parameters.
      *
      * @throws Exception When stuff gets janky.
      */
@@ -694,6 +694,73 @@ class StatusEndpointTest {
         assertEquals(400, incidents.size());
 
         log.debug("[StatusEndpointTest::testGetIncidentsLimit] ending test.");
+    }
+
+    /**
+     * Test the getIncidents API for paging using "offset" and "limit" query parameters.
+     *
+     * @throws Exception When stuff gets janky.
+     */
+    @Test
+    public void testGetIncidentsPaging() throws Exception {
+        log.debug("[StatusEndpointTest::testGetIncidentsPaging] start test.");
+
+        // Perform the GET /incidents operation unrestricted (should return 100).
+        RestClient client = RestClient.create();
+
+        // Loop until we either fail or get 5 pages for 403 incidents.
+        String url_default = "http://localhost:" + port + "/api/v1/status/incidents?offset=";
+        int offset = 0;
+        while (offset < 500) {
+            ResponseEntity<List<Incident>> response = client.get()
+                .uri(url_default + offset)
+                .retrieve().toEntity(new ParameterizedTypeReference<>() {});
+
+            // Verify it was successful.
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+
+            // We have a result.
+            assertNotNull(response.getBody());
+
+            // It is the facility we were expecting.
+            List<Incident> incidents = response.getBody();
+            assertNotNull(incidents);
+
+            if (offset < 400) {
+                assertEquals(100, incidents.size());
+            } else {
+                assertEquals(3, incidents.size());
+            }
+            offset += 100;
+        }
+
+        // Loop until we either fail or get 5 pages for 403 incidents.
+        String url_10 = "http://localhost:" + port + "/api/v1/status/incidents?limit=10&offset=";
+        offset = 0;
+        while (offset < 410) {
+            ResponseEntity<List<Incident>> response = client.get()
+                .uri(url_10 + offset)
+                .retrieve().toEntity(new ParameterizedTypeReference<>() {});
+
+            // Verify it was successful.
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+
+            // We have a result.
+            assertNotNull(response.getBody());
+
+            // It is the facility we were expecting.
+            List<Incident> incidents = response.getBody();
+            assertNotNull(incidents);
+
+            if (offset < 400) {
+                assertEquals(10, incidents.size());
+            } else {
+                assertEquals(3, incidents.size());
+            }
+            offset += 10;
+        }
+
+        log.debug("[StatusEndpointTest::testGetIncidentsPaging] ending test.");
     }
 
     /**
