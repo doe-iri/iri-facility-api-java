@@ -22,13 +22,13 @@
     ]
   },
   {
-    "id": "getEvents",
+    "id": "getMetaData",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status/events",
-        "type": "application/vnd.doe.iri.event.collection+json"
+        "href": "http://localhost:8081/api/v1/status",
+        "type": "application/vnd.doe.iri.discovery+json"
       }
     ]
   },
@@ -44,13 +44,13 @@
     ]
   },
   {
-    "id": "getMetaData",
+    "id": "getEvents",
     "version": "v1",
     "_links": [
       {
         "rel": "self",
-        "href": "http://localhost:8081/api/v1/status",
-        "type": "application/vnd.doe.iri.discovery+json"
+        "href": "http://localhost:8081/api/v1/status/events",
+        "type": "application/vnd.doe.iri.event.collection+json"
       }
     ]
   },

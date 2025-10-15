@@ -130,8 +130,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -146,34 +146,37 @@ public class FacilityController {
                 description = OpenApiDescriptions.UNAUTHORIZED_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
                 description = OpenApiDescriptions.FORBIDDEN_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
                 description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
         })
-    @RequestMapping(path = {"/api/v1"}, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(
+        path = {"/api/v1"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getMetaData", version = "v1", type = MediaTypes.DISCOVERY)
     public ResponseEntity<?> getMetaData(Locale locale) {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // We will populate some HTTP response headers.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[FacilityController::getMetaData] GET operation = {}", location);
-
-            // We will populate some HTTP response headers.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Get a list of all available methods to search for annotations.
             List<Method> methods = Stream.of(
@@ -191,7 +194,9 @@ public class FacilityController {
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getMetaData] Exception caught for {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -220,8 +225,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -257,7 +262,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -268,7 +273,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -279,7 +284,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -290,11 +295,13 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
-    @RequestMapping(path = "/api/v1/facility", method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(
+        path = "/api/v1/facility",
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getFacility", version = "v1", type = MediaTypes.FACILITY)
     public ResponseEntity<?> getFacility(
@@ -314,7 +321,7 @@ public class FacilityController {
 
         // Populate the content location header with our URL location.
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
 
         // Parse the If-Modified-Since header if it is present.
         final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -341,7 +348,9 @@ public class FacilityController {
             return new ResponseEntity<>(facility, headers, HttpStatus.OK);
         } catch (IllegalArgumentException ex) {
             log.error("[FacilityController::getFacility] getFacility failed for {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -370,8 +379,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -405,7 +414,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -416,7 +425,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -427,7 +436,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -438,11 +447,13 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/facility/sites"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(
+        path = {"/api/v1/facility/sites"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getSites", version = "v1", type = MediaTypes.SITES)
     public ResponseEntity<?> getSites(
@@ -465,14 +476,14 @@ public class FacilityController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[FacilityController::getSites] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, shortName = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, shortName);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -531,7 +542,9 @@ public class FacilityController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getSites] Exception caught in GET of /sites", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -562,8 +575,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -599,7 +612,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -610,7 +623,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -621,7 +634,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -632,7 +645,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -643,13 +656,13 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/facility/sites/{site_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getSite", version = "v1", type = MediaTypes.SITE)
     public ResponseEntity<?> getSite(
@@ -666,14 +679,15 @@ public class FacilityController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[FacilityController::getSite] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, sid = {}",
                 location, accept, ifModifiedSince, modifiedSince, sid);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Site site = repository.findSiteById(sid);
@@ -699,10 +713,13 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getSite] site not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getSite] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -733,8 +750,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -770,7 +787,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -781,7 +798,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -792,7 +809,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -803,7 +820,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -814,13 +831,13 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/facility/sites/{site_id}/location"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getLocationBySite", version = "v1", type = MediaTypes.LOCATION)
     public ResponseEntity<?> getLocationBySite(
@@ -837,14 +854,14 @@ public class FacilityController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[FacilityController::getLocationBySite] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, sid = {}",
                 location, accept, ifModifiedSince, modifiedSince, sid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Site site = repository.findSiteById(sid);
@@ -873,10 +890,13 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getLocationBySite] site not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocationBySite] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -905,8 +925,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -940,7 +960,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -951,7 +971,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -962,7 +982,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -973,11 +993,11 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/facility/locations"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getLocations", version = "v1", type = MediaTypes.LOCATIONS)
     public ResponseEntity<?> getLocations(
@@ -991,9 +1011,11 @@ public class FacilityController {
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
         @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
-        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG,
+            schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
-        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
+            schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
         @RequestParam(value = OpenApiDescriptions.COUNTRY_NAME_NAME, required = false)
@@ -1002,14 +1024,14 @@ public class FacilityController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
              log.debug("[FacilityController::getLocations] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, shortName = {}",
                  location, accept, ifModifiedSince, modifiedSince, name, offset, limit,  shortName);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1076,7 +1098,9 @@ public class FacilityController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocations] Exception caught in GET of /locations", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1107,8 +1131,8 @@ public class FacilityController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1144,7 +1168,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1155,7 +1179,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1166,7 +1190,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1177,7 +1201,7 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1188,13 +1212,13 @@ public class FacilityController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/facility/locations/{location_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getLocation", version = "v1", type = MediaTypes.LOCATION)
     public ResponseEntity<?> getLocation(
@@ -1211,13 +1235,13 @@ public class FacilityController {
         // We need the request URL to build fully qualified resource URLs.
         final URI loc = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LOCATION, loc.toASCIIString());
+
         try {
             log.debug("[FacilityController::getLocation] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, id = {}", loc, accept, ifModifiedSince, lid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, loc.toASCIIString());
 
             // Find the resource targeted by id.
             Location location = repository.findLocationById(lid);
@@ -1243,10 +1267,13 @@ public class FacilityController {
             }
 
             log.error("[FacilityController::getLocation] location not found {}", loc);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(loc), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[FacilityController::getLocation] Exception caught in GET of {}", loc, ex);
-            return new ResponseEntity<>(Common.internalServerError(loc, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(loc, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

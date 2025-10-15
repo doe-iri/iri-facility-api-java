@@ -24,11 +24,15 @@ import java.time.OffsetDateTime;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.schema.Error;
+import net.es.iri.api.facility.utils.Common;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * The FallbackController provides a catchall for operations targeting invalid REST API endpoint URL.
@@ -43,6 +47,14 @@ class FallbackController {
     // Catch-all for anything not matched by more specific mappings
     @RequestMapping(path = "/api/{*path}")
     public ResponseEntity<Error> fallback(@PathVariable String path) {
+        // We need the request URL to build fully qualified resource URLs.
+        final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
+
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+
         log.error("[FallbackController::fallback] entering");
         net.es.iri.api.facility.schema.Error error = Error.builder()
             .type(URI.create("about:blank"))
@@ -54,6 +66,6 @@ class FallbackController {
         error.putExtension("timestamp", OffsetDateTime.now().toString());
         log.error("[FallbackController::fallback] returning error: {}", error);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
     }
 }

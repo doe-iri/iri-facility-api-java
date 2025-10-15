@@ -20,6 +20,8 @@
 package net.es.iri.api.facility.openapi;
 
 import java.net.HttpURLConnection;
+import java.net.URI;
+import jakarta.ws.rs.GET;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
@@ -59,21 +61,28 @@ public class OpenApiDescriptions {
   /*******************************************************************************************************
    * Response header parameters.
    *******************************************************************************************************/
-  public static final String CONTENT_TYPE_NAME = "Content-Type";
+  public static final String CONTENT_TYPE_NAME = HttpHeaders.CONTENT_TYPE;
   public static final String CONTENT_TYPE_DESC =
       "Provides media type used to encode the result of the operation based on those values "
           + "provided in the Accept request header. At the moment application/json is the only "
           + "supported Content-Type encoding.";
 
-  public static final String LAST_MODIFIED_NAME = "Last-Modified";
+  public static final String LAST_MODIFIED_NAME = HttpHeaders.LAST_MODIFIED;
   public static final String LAST_MODIFIED_DESC =
       "The HTTP response should contain the Last-Modified header with the date set to the "
           + "RFC 1123 format of the resource's last modified time.";
 
+  public static final String LOCATION_TYPE_NAME = HttpHeaders.LOCATION;
   public static final String LOCATION_DESC =
       "The HTTP Location header is an entity-header that gives another location for "
           + " the data that is returned and also tells how to access the resource by indicating "
           + "the direct URL.";
+
+  public static final String CONTENT_LOCATION_NAME = HttpHeaders.CONTENT_LOCATION;
+  public static final String CONTENT_LOCATION_DESC =
+      "Identifies the specific resource for the representation you just returned. It provides a "
+      + "URI that, at the time the response was generated, would return the same representation "
+      + "if dereferenced with GET.";
 
   /*******************************************************************************************************
    * Query parameters.

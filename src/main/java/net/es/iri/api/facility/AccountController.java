@@ -132,8 +132,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -148,35 +148,36 @@ public class AccountController {
                 description = OpenApiDescriptions.UNAUTHORIZED_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
                 description = OpenApiDescriptions.FORBIDDEN_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
                 description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
         })
     @RequestMapping(path = {"/api/v1/account"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getMetaData", version = "v1", type = MediaTypes.DISCOVERY)
     public ResponseEntity<?> getMetaData() {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // We will populate some HTTP response headers.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getMetaData] GET operation = {}", location);
-
-            // We will populate some HTTP response headers.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             List<Method> methods = Stream.of(AccountController.class.getMethods()).toList();
             List<Discovery> discovery = Discovery.getDiscovery(utilities, location.toASCIIString(),
@@ -185,7 +186,9 @@ public class AccountController {
             return new ResponseEntity<>(discovery, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getMetaData] Exception caught", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -214,8 +217,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -249,7 +252,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -260,7 +263,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -271,7 +274,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -282,11 +285,12 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/account/capabilities"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getCapabilities", version = "v1", type = MediaTypes.CAPABILITIES)
     public ResponseEntity<?> getCapabilities(
@@ -307,14 +311,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getCapabilities] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Parse the If-Modified-Since header if it is present.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -368,7 +372,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getCapabilities] Exception caught in GET of /capabilities", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -399,8 +405,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -436,7 +442,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -447,7 +453,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -458,7 +464,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -469,7 +475,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -480,13 +486,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/capabilities/{capability_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getCapability", version = "v1", type = MediaTypes.CAPABILITY)
     public ResponseEntity<?> getCapability(
@@ -503,14 +509,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getCapability] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {},  modifiedSince = {}, id = {}",
                 location, accept, ifModifiedSince, modifiedSince, cid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Capability capability = repository.findCapabilityById(cid);
@@ -536,10 +542,13 @@ public class AccountController {
             }
 
             log.error("[AccountController::getCapability] capability not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[AccountController::getCapability] Exception caught in GET of /capabilities/{}", cid, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -568,8 +577,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -603,7 +612,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -614,7 +623,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -625,7 +634,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -636,11 +645,12 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/account/projects"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProjects", version = "v1", type = MediaTypes.PROJECTS)
     public ResponseEntity<?> getProjects(
@@ -663,15 +673,15 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProjects] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
                     "userIds = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, userIds);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -742,7 +752,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getProjects] Exception caught in GET of /projects", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -773,8 +785,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -810,7 +822,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -821,7 +833,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -832,7 +844,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -843,7 +855,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -854,13 +866,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/projects/{project_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProject", version = "v1", type = MediaTypes.PROJECT)
     public ResponseEntity<?> getProject(
@@ -877,14 +889,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProject] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {},  modifiedSince = {}, pid = {}",
                 location, accept, ifModifiedSince, modifiedSince, pid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             Project result = repository.findProjectById(pid);
@@ -910,10 +922,13 @@ public class AccountController {
             }
 
             log.error("[AccountController::getProject] project not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[AccountController::getProject] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -942,8 +957,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -977,7 +992,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -988,7 +1003,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -999,7 +1014,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1010,11 +1025,12 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/account/project_allocations"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProjectAllocations", version = "v1", type = MediaTypes.PROJECT_ALLOCATIONS)
     public ResponseEntity<?> getProjectAllocations(
@@ -1035,14 +1051,16 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProjectAllocations] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1093,7 +1111,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getProjectAllocations] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1122,8 +1142,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1157,7 +1177,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1168,7 +1188,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1179,7 +1199,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1190,11 +1210,12 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/account/projects/{project_id}/project_allocations"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProjectAllocationsByProject", version = "v1", type = MediaTypes.PROJECT_ALLOCATIONS)
     public ResponseEntity<?> getProjectAllocationsByProject(
@@ -1217,14 +1238,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProjectAllocationsByProject] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {},  modifiedSince = {}, pid = {}",
                 location, accept, ifModifiedSince, modifiedSince, pid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1232,7 +1253,8 @@ public class AccountController {
             Project project = repository.findProjectById(pid);
             if (project == null) {
                 log.error("[AccountController::getProjectAllocationsByProject] not a valid project_id {}", pid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             // Filter project allocations for this project pid.
@@ -1286,7 +1308,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getProjectAllocationsByProject] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1317,8 +1341,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1354,7 +1378,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1365,7 +1389,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1376,7 +1400,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1387,7 +1411,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1398,13 +1422,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/project_allocations/{project_allocation_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProjectAllocation", version = "v1", type = MediaTypes.PROJECT_ALLOCATION)
     public ResponseEntity<?> getProjectAllocation(
@@ -1421,14 +1445,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProjectAllocation] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {},  modifiedSince = {}, id = {}",
                 location, accept, ifModifiedSince, modifiedSince, paid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             ProjectAllocation result = repository.findProjectAllocationById(paid);
@@ -1454,10 +1478,13 @@ public class AccountController {
             }
 
             log.error("[AccountController::getProjectAllocation] project not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[AccountController::getProjectAllocation] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1490,8 +1517,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1527,7 +1554,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1538,7 +1565,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1549,7 +1576,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1560,7 +1587,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1571,13 +1598,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/projects/{project_id}/project_allocations/{project_allocation_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getProjectAllocationByProject", version = "v1", type = MediaTypes.PROJECT_ALLOCATION)
     public ResponseEntity<?> getProjectAllocationByProject(
@@ -1596,32 +1623,35 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getProjectAllocationByProject] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, pid = {}, paid = {}",
                 location, accept, ifModifiedSince, modifiedSince, pid, paid);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
             // We will collect the matching resources in this list.
             Project project = repository.findProjectById(pid);
             if (project == null) {
                 log.error("[AccountController::getProjectAllocationByProject] not a valid project_id {}", pid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             ProjectAllocation allocation = repository.findProjectAllocationById(paid);
             if (allocation == null) {
                 log.error("[AccountController::getProjectAllocationByProject] not a valid project_allocation_id {}", paid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             if (!project.getProjectAllocationUris().contains(allocation.getSelfUri())) {
                 String reason = String.format("project_id %s does not contain project_allocation_id %s", pid, paid);
                 log.error("[AccountController::getProjectAllocationByProject] {}", reason);
-                return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.badRequestError(location, reason), headers, HttpStatus.BAD_REQUEST);
             }
 
             Optional<OffsetDateTime> lastModified = Optional.ofNullable(allocation.getLastModified());
@@ -1644,10 +1674,11 @@ public class AccountController {
             return new ResponseEntity<>(allocation, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getProjectAllocationByProject] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     /**
      * Returns the user allocations associated with this facility.
@@ -1674,8 +1705,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1709,7 +1740,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1720,7 +1751,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1731,7 +1762,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1742,11 +1773,12 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/account/user_allocations"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getUserAllocations", version = "v1", type = MediaTypes.USER_ALLOCATIONS)
     public ResponseEntity<?> getUserAllocations(
@@ -1767,14 +1799,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getUserAllocations] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1825,7 +1857,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getUserAllocations] Exception caught in GET of /user_allocations", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1854,8 +1888,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1889,7 +1923,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1900,7 +1934,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1911,7 +1945,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1922,11 +1956,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/account/projects/{project_id}/project_allocations/{project_allocation_id}/user_allocations"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(
+        path = {"/api/v1/account/projects/{project_id}/project_allocations/{project_allocation_id}/user_allocations"},
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getUserAllocationsByProjectAllocation", version = "v1", type = MediaTypes.USER_ALLOCATIONS)
     public ResponseEntity<?> getUserAllocationsByProjectAllocation(
@@ -1951,14 +1987,14 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getUserAllocationsByProjectAllocation] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1969,20 +2005,26 @@ public class AccountController {
             Project project = repository.findProjectById(pid);
             if (project == null) {
                 log.error("[AccountController::getUserAllocationsByProjectAllocation] not a valid project_id {}", pid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers,
+                    HttpStatus.NOT_FOUND);
             }
 
             ProjectAllocation projectAllocation = repository.findProjectAllocationById(paid);
             if (projectAllocation == null) {
                 log.error("[AccountController::getUserAllocationsByProjectAllocation] not a valid project_allocation_id {}", paid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers,
+                    HttpStatus.NOT_FOUND);
             }
 
             // Is the project allocation a member of the project?
             if (!project.getProjectAllocationUris().contains(projectAllocation.getSelfUri())) {
                 String reason = String.format("project allocation %s not a member of project %s", paid, pid);
                 log.error("[AccountController::getUserAllocationsByProjectAllocation] {}", reason);
-                return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.badRequestError(location, reason), headers,
+                    HttpStatus.BAD_REQUEST);
             }
 
             // We will collect the matching resources in this list.
@@ -2033,7 +2075,9 @@ public class AccountController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getUserAllocationsByProjectAllocation] Exception caught in GET of /user_allocations", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -2064,8 +2108,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2101,7 +2145,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -2112,7 +2156,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -2123,7 +2167,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -2134,7 +2178,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -2145,13 +2189,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/user_allocations/{user_allocation_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getUserAllocation", version = "v1", type = MediaTypes.USER_ALLOCATION)
     public ResponseEntity<?> getUserAllocation(
@@ -2168,14 +2212,15 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getUserAllocation] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, uaid = {}",
                 location, accept, ifModifiedSince, modifiedSince, uaid);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // We will collect the matching resources in this list.
             UserAllocation result = repository.findUserAllocationById(uaid);
@@ -2201,10 +2246,13 @@ public class AccountController {
             }
 
             log.error("[AccountController::getUserAllocation] user not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[AccountController::getUserAllocation] Exception caught in GET of /user_allocations/{}", uaid, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -2239,8 +2287,8 @@ public class AccountController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -2276,7 +2324,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -2287,7 +2335,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -2298,7 +2346,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -2309,7 +2357,7 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -2320,13 +2368,13 @@ public class AccountController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/account/projects/{project_id}/project_allocations/{project_allocation_id}/user_allocations/{user_allocation_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getUserAllocationByProjectAllocation", version = "v1", type = MediaTypes.USER_ALLOCATION)
     public ResponseEntity<?> getUserAllocationByProjectAllocation(
@@ -2347,46 +2395,51 @@ public class AccountController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[AccountController::getUserAllocationByProjectAllocation] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, pid = {}, paid = {}, uaid = {}",
                 location, accept, ifModifiedSince, modifiedSince, pid, paid, uaid);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
             Project project = repository.findProjectById(pid);
             if (project == null) {
                 log.error("[AccountController::getUserAllocationByProjectAllocation] not a valid project_id {}", pid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             ProjectAllocation projectAllocation = repository.findProjectAllocationById(paid);
             if (projectAllocation == null) {
                 log.error("[AccountController::getUserAllocationByProjectAllocation] not a valid project_allocation_id {}", paid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             // Is the project allocation a member of the project?
             if (!project.getProjectAllocationUris().contains(projectAllocation.getSelfUri())) {
                 String reason = String.format("project allocation %s not a member of project %s", paid, pid);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
                 log.error("[AccountController::getUserAllocationByProjectAllocation] {}", reason);
-                return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(Common.badRequestError(location, reason), headers, HttpStatus.BAD_REQUEST);
             }
 
             // We will collect the matching resources in this list.
             UserAllocation userAllocation = repository.findUserAllocationById(uaid);
             if (userAllocation == null) {
                 log.error("[AccountController::getUserAllocationByProjectAllocation] not a valid user_allocation_id {}", uaid);
-                return new ResponseEntity<>(Common.notFoundError(location), HttpStatus.NOT_FOUND);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
             }
 
             // Is the user allocation a member of this project allocation?
             if (!projectAllocation.getUserAllocationUris().contains(userAllocation.getSelfUri())) {
                 String reason = String.format("user allocation %s not a member of project allocation %s", uaid, paid);
                 log.error("[AccountController::getUserAllocationByProjectAllocation] {}", reason);
-                return new ResponseEntity<>(Common.badRequestError(location, reason), HttpStatus.BAD_REQUEST);
+                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                return new ResponseEntity<>(Common.badRequestError(location, reason), headers, HttpStatus.BAD_REQUEST);
             }
 
             // Process last modified behaviour.
@@ -2410,7 +2463,9 @@ public class AccountController {
             return new ResponseEntity<>(userAllocation, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[AccountController::getUserAllocationByProjectAllocation] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -49,8 +49,8 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -78,7 +78,7 @@
           "401": {
             "description": "Unauthorized - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -88,7 +88,7 @@
           "403": {
             "description": "Forbidden - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -98,7 +98,7 @@
           "500": {
             "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -121,8 +121,8 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -150,7 +150,7 @@
           "401": {
             "description": "Unauthorized - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -160,7 +160,7 @@
           "403": {
             "description": "Forbidden - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -170,7 +170,7 @@
           "500": {
             "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -295,15 +295,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -359,7 +359,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -378,7 +378,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -397,7 +397,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -416,7 +416,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -470,15 +470,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -531,7 +531,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -550,7 +550,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -569,7 +569,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -588,7 +588,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -680,15 +680,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -744,7 +744,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -763,7 +763,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -782,7 +782,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -801,7 +801,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -864,15 +864,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -925,7 +925,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -944,7 +944,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -963,7 +963,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -982,7 +982,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1001,7 +1001,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1064,15 +1064,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1125,7 +1125,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1144,7 +1144,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1163,7 +1163,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1182,7 +1182,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1201,7 +1201,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1264,15 +1264,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1325,7 +1325,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1344,7 +1344,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1363,7 +1363,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1382,7 +1382,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1401,7 +1401,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1464,15 +1464,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1525,7 +1525,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1544,7 +1544,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1563,7 +1563,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1582,7 +1582,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1601,7 +1601,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1702,15 +1702,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1766,7 +1766,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1785,7 +1785,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1804,7 +1804,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1823,7 +1823,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1886,15 +1886,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -1947,7 +1947,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1966,7 +1966,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -1985,7 +1985,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2004,7 +2004,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2023,7 +2023,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2115,15 +2115,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2179,7 +2179,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2198,7 +2198,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2217,7 +2217,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2236,7 +2236,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2255,7 +2255,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2347,15 +2347,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2411,7 +2411,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2430,7 +2430,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2449,7 +2449,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2468,7 +2468,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2487,7 +2487,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2550,15 +2550,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2611,7 +2611,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2630,7 +2630,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2649,7 +2649,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2668,7 +2668,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2687,7 +2687,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2750,15 +2750,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -2811,7 +2811,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2830,7 +2830,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2849,7 +2849,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2868,7 +2868,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -2887,7 +2887,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3069,15 +3069,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3133,7 +3133,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3152,7 +3152,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3171,7 +3171,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3190,7 +3190,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3372,15 +3372,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3436,7 +3436,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3455,7 +3455,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3474,7 +3474,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3493,7 +3493,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3556,15 +3556,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3617,7 +3617,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3636,7 +3636,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3655,7 +3655,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3674,7 +3674,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3693,7 +3693,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3756,15 +3756,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -3817,7 +3817,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3836,7 +3836,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3855,7 +3855,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3874,7 +3874,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3893,7 +3893,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -3956,15 +3956,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4017,7 +4017,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4036,7 +4036,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4055,7 +4055,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4074,7 +4074,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4093,7 +4093,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4156,15 +4156,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4217,7 +4217,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4236,7 +4236,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4255,7 +4255,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4274,7 +4274,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4293,7 +4293,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4356,15 +4356,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4417,7 +4417,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4436,7 +4436,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4455,7 +4455,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4474,7 +4474,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4493,7 +4493,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4556,15 +4556,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4617,7 +4617,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4636,7 +4636,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4655,7 +4655,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4674,7 +4674,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4693,7 +4693,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4810,15 +4810,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -4874,7 +4874,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4893,7 +4893,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4912,7 +4912,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -4931,7 +4931,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5048,15 +5048,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5112,7 +5112,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5131,7 +5131,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5150,7 +5150,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5169,7 +5169,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5192,8 +5192,8 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5221,7 +5221,7 @@
           "401": {
             "description": "Unauthorized - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5231,7 +5231,7 @@
           "403": {
             "description": "Forbidden - Requester is not authorized to access the requested resource.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5241,7 +5241,7 @@
           "500": {
             "description": "Internal Server Error - A generic error message given when an unexpected condition was encountered and a more specific message is not available.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5324,15 +5324,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5388,7 +5388,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5407,7 +5407,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5426,7 +5426,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5445,7 +5445,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5508,15 +5508,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5569,7 +5569,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5588,7 +5588,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5607,7 +5607,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5626,7 +5626,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5645,7 +5645,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5740,15 +5740,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5804,7 +5804,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5823,7 +5823,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5842,7 +5842,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5861,7 +5861,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -5924,15 +5924,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -5985,7 +5985,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6004,7 +6004,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6023,7 +6023,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6042,7 +6042,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6061,7 +6061,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6153,15 +6153,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -6217,7 +6217,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6236,7 +6236,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6255,7 +6255,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6274,7 +6274,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6346,15 +6346,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -6407,7 +6407,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6426,7 +6426,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6445,7 +6445,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6464,7 +6464,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6483,7 +6483,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6584,15 +6584,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -6648,7 +6648,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6667,7 +6667,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6686,7 +6686,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6705,7 +6705,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6786,15 +6786,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -6847,7 +6847,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6866,7 +6866,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6885,7 +6885,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6904,7 +6904,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -6923,7 +6923,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7006,15 +7006,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -7070,7 +7070,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7089,7 +7089,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7108,7 +7108,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7127,7 +7127,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7190,15 +7190,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -7251,7 +7251,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7270,7 +7270,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7289,7 +7289,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7308,7 +7308,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7327,7 +7327,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7410,15 +7410,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -7474,7 +7474,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7493,7 +7493,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7512,7 +7512,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7531,7 +7531,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7594,15 +7594,15 @@
           "200": {
             "description": "OK - Returns a list of available IRI resources matching the request criteria.",
             "headers": {
-              "Last-Modified": {
-                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
+              "Content-Location": {
+                "description": "Identifies the specific resource for the representation you just returned. It provides a URI that, at the time the response was generated, would return the same representation if dereferenced with GET.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
                 }
               },
-              "Location": {
-                "description": "The HTTP Location header is an entity-header that gives another location for  the data that is returned and also tells how to access the resource by indicating the direct URL.",
+              "Last-Modified": {
+                "description": "The HTTP response should contain the Last-Modified header with the date set to the RFC 1123 format of the resource's last modified time.",
                 "style": "simple",
                 "schema": {
                   "type": "string"
@@ -7655,7 +7655,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7674,7 +7674,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7693,7 +7693,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7712,7 +7712,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7731,7 +7731,7 @@
               }
             },
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
@@ -7942,7 +7942,9 @@
           }
         },
         "required": [
+          "current_status",
           "id",
+          "impacted_by_uri",
           "last_modified",
           "name",
           "resource_type",

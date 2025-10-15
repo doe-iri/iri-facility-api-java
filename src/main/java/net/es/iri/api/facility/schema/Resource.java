@@ -83,14 +83,14 @@ public class Resource extends NamedObject {
 
     @JsonProperty("current_status")
     @Schema(description = "The current status of this resource at time of query.", example = "up",
-        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private StatusType currentStatus;
 
     @JsonProperty("impacted_by_uri")
     @Schema(description = "A hyperlink reference (URI) to the last event impacting this Resource (impactedBy).",
         format = "uri",
         example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
-        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private String impactedByUri;
 
     @JsonProperty("located_at_uri")

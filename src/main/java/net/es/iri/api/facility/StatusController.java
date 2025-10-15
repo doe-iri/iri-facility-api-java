@@ -157,8 +157,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -173,20 +173,20 @@ public class StatusController {
                 description = OpenApiDescriptions.UNAUTHORIZED_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
                 description = OpenApiDescriptions.FORBIDDEN_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
                 description = OpenApiDescriptions.INTERNAL_ERROR_MSG,
                 content = @Content(
                     schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
         })
     @RequestMapping(path = {"/api/v1/status"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -201,7 +201,7 @@ public class StatusController {
 
             // We will populate some HTTP response headers.
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
+            headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
 
             List<Method> methods = Stream.of(StatusController.class.getMethods()).toList();
             List<Discovery> discovery = Discovery.getDiscovery(utilities, location.toASCIIString(),
@@ -251,8 +251,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -286,7 +286,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -297,7 +297,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -308,7 +308,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -319,11 +319,12 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/status/resources"},
-        method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getResources", version = "v1", type = MediaTypes.RESOURCES)
     public ResponseEntity<?> getResources(
@@ -337,9 +338,11 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
         @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
-        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG,
+            schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
-        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
+            schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.GROUP_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.GROUP_MSG) String group,
         @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
@@ -352,16 +355,16 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getResources] GET operation = {}, Accept = {}, " +
                     "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
                     "group = {}, type = {}, capabilities = {}, currentStatus = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit,
                 group, type, capabilities, currentStatus);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -468,7 +471,9 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getResources] Exception caught in GET of /resources", ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -500,8 +505,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -537,7 +542,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -548,7 +553,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -559,7 +564,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -570,7 +575,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -581,13 +586,13 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/resources/{resource_id}", "/api/v1/facility/resources/{resource_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getResource", version = "v1", type = MediaTypes.RESOURCE)
     public ResponseEntity<?> getResource(
@@ -604,14 +609,14 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getResource] GET operation = {}, accept = {}, "
                     + "If-Modified-Since = {}, modifiedSince = {}, rid = {}",
                 location, accept, ifModifiedSince, modifiedSince, rid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the resource targeted by id.
             Resource resource = repository.findResourceById(rid);
@@ -637,10 +642,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getResource] resource not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getResource] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -670,8 +678,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -705,7 +713,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -716,7 +724,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -727,7 +735,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -738,7 +746,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
@@ -758,9 +766,11 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
         @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
-        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG,
+            schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
-        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
+            schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
             schema = @Schema(implementation = StatusType.class)) String status,
@@ -787,6 +797,10 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, " +
                     "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
@@ -795,17 +809,13 @@ public class StatusController {
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, status, type,
                 resolution, time, from, to, shortName, resources);
 
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
-
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
 
             // We will collect the matching resources in this list.
             List<Incident> results = repository.findAllIncidents();
 
-// Find the latest modified timestamp among all resources.
+            // Find the latest modified timestamp among all resources.
             Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(results);
 
             // Populate the header
@@ -840,7 +850,8 @@ public class StatusController {
             if (status != null && !status.isBlank()) {
                 // Filter resources from the specified group.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(status).equalsIgnoreCase(incident.getStatus().getValue()))
+                    .filter(incident -> Common.stripQuotes(status)
+                        .equalsIgnoreCase(incident.getStatus().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -848,7 +859,8 @@ public class StatusController {
             if (type != null && !type.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(type).equalsIgnoreCase(incident.getType().getValue()))
+                    .filter(incident -> Common.stripQuotes(type)
+                        .equalsIgnoreCase(incident.getType().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -856,7 +868,8 @@ public class StatusController {
             if (resolution != null && !resolution.isBlank()) {
                 // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(resolution).equalsIgnoreCase(incident.getResolution().getValue()))
+                    .filter(incident -> Common.stripQuotes(resolution)
+                        .equalsIgnoreCase(incident.getResolution().getValue()))
                     .collect(Collectors.toList());
             }
 
@@ -895,7 +908,9 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidents] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -927,8 +942,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -964,7 +979,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -975,7 +990,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -986,7 +1001,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -997,7 +1012,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1008,13 +1023,13 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/incidents/{incident_id}", "/api/v1/facility/incidents/{incident_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getIncident", version = "v1", type = MediaTypes.INCIDENT)
     public ResponseEntity<?> getIncident(
@@ -1031,14 +1046,14 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, iid = {}",
                 location, accept, ifModifiedSince, modifiedSince, iid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the incident matching the specified id.
             Incident incident = repository.findIncidentById(iid);
@@ -1064,10 +1079,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getIncidents] incident not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidents] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1099,8 +1117,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1134,7 +1152,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1145,7 +1163,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1156,7 +1174,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1167,7 +1185,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1178,14 +1196,14 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/incidents/{incident_id}/events",
             "/api/v1/facility/incidents/{incident_id}/events"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getEventsByIncident", version = "v1", type = MediaTypes.EVENTS)
     public ResponseEntity<?> getEventsByIncident(
@@ -1199,23 +1217,25 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
         @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
-        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG,
+            schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
-        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
+            schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @PathVariable(OpenApiDescriptions.IID_NAME)
         @Parameter(description = OpenApiDescriptions.IID_NAME, required = true) String iid) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getEventsByIncident] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, iid = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, iid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1260,10 +1280,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getEventsByIncident] event not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getEventsByIncident] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1293,8 +1316,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1328,7 +1351,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1339,7 +1362,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1350,7 +1373,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1361,7 +1384,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(path = {"/api/v1/status/events", "/api/v1/facility/events"},
@@ -1379,9 +1402,11 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.NAME_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.NAME_MSG) String name,
         @RequestParam(value = OpenApiDescriptions.OFFSET_NAME, required = false, defaultValue = "0")
-        @Parameter(description = OpenApiDescriptions.OFFSET_MSG, schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
+        @Parameter(description = OpenApiDescriptions.OFFSET_MSG,
+            schema = @Schema(type = "integer", defaultValue = "0")) Integer offset,
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
-        @Parameter(description = OpenApiDescriptions.LIMIT_MSG, schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
+        @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
+            schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
             schema = @Schema(implementation = StatusType.class)) String status,
@@ -1393,15 +1418,15 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getEvents] GET operation = {}, accept = {}, " +
                     "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
                     "status = {}, from = {}, to = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, status, from, to);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -1452,7 +1477,8 @@ public class StatusController {
 
                 results = results.stream()
                     .filter(event -> {
-                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MIN);
+                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt())
+                            .orElse(OffsetDateTime.MIN);
                         log.debug("[StatusController::getEvents] from = {}, occurredAt = {}",
                             from, occurredAt);
                         return (occurredAt.isAfter(timeFilter) || occurredAt.isEqual(timeFilter));
@@ -1465,7 +1491,8 @@ public class StatusController {
 
                 results = results.stream()
                     .filter(event -> {
-                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt()).orElse(OffsetDateTime.MAX);
+                        OffsetDateTime occurredAt = Optional.ofNullable(event.getOccurredAt())
+                            .orElse(OffsetDateTime.MAX);
                         log.debug("[StatusController::getEvents] from = {}, getOccurredAt = {}",
                             from, occurredAt);
                         return (occurredAt.isBefore(timeFilter) || occurredAt.isEqual(timeFilter));
@@ -1485,7 +1512,9 @@ public class StatusController {
             return new ResponseEntity<>(results, headers, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("[StatusController::getEvents] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1517,8 +1546,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1554,7 +1583,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1565,7 +1594,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1576,7 +1605,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1587,7 +1616,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1598,13 +1627,13 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/events/{event_id}", "/api/v1/facility/events/{event_id}"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getEvent", version = "v1", type = MediaTypes.EVENT)
     public ResponseEntity<?> getEvent(
@@ -1621,14 +1650,14 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getEvent] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, id = {}",
                 location, accept, ifModifiedSince, modifiedSince, eid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Get the event matching the specified id.
             Event event = repository.findEventById(eid);
@@ -1654,10 +1683,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getEvent] event not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getEvent] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1689,8 +1721,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1726,7 +1758,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1737,7 +1769,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1748,7 +1780,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1759,7 +1791,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1770,13 +1802,13 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/events/{event_id}/resource", "/api/v1/facility/events/{event_id}/resource"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getResourceByEvent", version = "v1", type = MediaTypes.RESOURCE)
     public ResponseEntity<?> getResourceByEvent(
@@ -1793,13 +1825,13 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getResourceByEvent] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, id = {}", location, accept, ifModifiedSince, eid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Find the specified event, then the impacted resources.
             Event event = repository.findEventById(eid);
@@ -1829,10 +1861,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getResourceByEvent] event not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getResourceByEvent] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -1864,8 +1899,8 @@ public class StatusController {
                 responseCode = OpenApiDescriptions.OK_CODE,
                 description = OpenApiDescriptions.OK_MSG,
                 headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                        description = OpenApiDescriptions.LOCATION_DESC,
+                    @Header(name = HttpHeaders.CONTENT_LOCATION,
+                        description = OpenApiDescriptions.CONTENT_LOCATION_DESC,
                         schema = @Schema(implementation = String.class)),
                     @Header(name = HttpHeaders.CONTENT_TYPE,
                         description = OpenApiDescriptions.CONTENT_TYPE_DESC,
@@ -1901,7 +1936,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.BAD_REQUEST_CODE,
@@ -1912,7 +1947,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.UNAUTHORIZED_CODE,
@@ -1923,7 +1958,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.FORBIDDEN_CODE,
@@ -1934,7 +1969,7 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             ),
             @ApiResponse(
                 responseCode = OpenApiDescriptions.INTERNAL_ERROR_CODE,
@@ -1945,13 +1980,13 @@ public class StatusController {
                         schema = @Schema(implementation = String.class))
                 },
                 content = @Content(schema = @Schema(implementation = Error.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
     @RequestMapping(
         path = {"/api/v1/status/events/{event_id}/incident", "/api/v1/facility/events/{event_id}/incident"},
         method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getIncidentByEvent", version = "v1", type = MediaTypes.INCIDENT)
     public ResponseEntity<?> getIncidentByEvent(
@@ -1968,14 +2003,14 @@ public class StatusController {
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
 
+        // Populate the content location header with our URL location.
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
+
         try {
             log.debug("[StatusController::getIncidentByEvent] GET operation = {}, accept = {}, "
                 + "If-Modified-Since = {}, modifiedSince = {}, eid = {}",
                 location, accept, ifModifiedSince, modifiedSince, eid);
-
-            // Populate the content location header with our URL location.
-            final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, location.toASCIIString());
 
             // Locate the specified event, then find the generatedBy relationship to identify Incident.
             Event event = repository.findEventById(eid);
@@ -2004,10 +2039,13 @@ public class StatusController {
             }
 
             log.error("[StatusController::getIncidentByEvent] incident not found {}", location);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("[StatusController::getIncidentByEvent] Exception caught in GET of {}", location, ex);
-            return new ResponseEntity<>(Common.internalServerError(location, ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

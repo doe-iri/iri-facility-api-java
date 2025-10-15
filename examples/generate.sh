@@ -25,15 +25,15 @@ ENDPOINTS=(
     "http://localhost:8081/api/v1 meta-data.json"
     "http://localhost:8081/api/v1/status status-meta-data.json"
     "http://localhost:8081/api/v1/facility facility.json"
-    "http://localhost:8081/api/v1/facility/sites sites.json"
-    "http://localhost:8081/api/v1/facility/locations locations.json"
-    "http://localhost:8081/api/v1/status/resources resources.json"
-    "http://localhost:8081/api/v1/status/incidents incidents.json"
-    "http://localhost:8081/api/v1/status/events events.json"
-    "http://localhost:8081/api/v1/account/projects projects.json"
-    "http://localhost:8081/api/v1/account/user_allocations user_allocations.json"
-    "http://localhost:8081/api/v1/account/project_allocations project_allocations.json"
-    "http://localhost:8081/api/v1/account/capabilities capabilities.json"
+    "http://localhost:8081/api/v1/facility/sites?limit=1000 sites.json"
+    "http://localhost:8081/api/v1/facility/locations?limit=1000 locations.json"
+    "http://localhost:8081/api/v1/status/resources?limit=1000 resources.json"
+    "http://localhost:8081/api/v1/status/incidents?limit=1000 incidents.json"
+    "http://localhost:8081/api/v1/status/events?limit=1000 events.json"
+    "http://localhost:8081/api/v1/account/projects?limit=1000 projects.json"
+    "http://localhost:8081/api/v1/account/user_allocations?limit=1000 user_allocations.json"
+    "http://localhost:8081/api/v1/account/project_allocations?limit=1000 project_allocations.json"
+    "http://localhost:8081/api/v1/account/capabilities?limit=1000 capabilities.json"
 )
 
 # Function to fetch data
@@ -53,4 +53,7 @@ fetch_data() {
 # Loop through each endpoint and fetch data
 for entry in "${ENDPOINTS[@]}"; do
     fetch_data $(echo "$entry")
+
+curl -s "http://localhost:8081/v3/api-docs.yaml" > openapi_iri_facility_api_v1.yaml
+
 done
