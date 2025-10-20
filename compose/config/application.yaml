@@ -50,17 +50,20 @@ iri:
     root: "http://localhost:8443"
     proxy: "https://iri.es.net"
 
-  status:
-    facility: /iri/config/facility.json
-    sites: /iri/config/sites.json
-    locations: /iri/config/locations.json
-    incidents: /iri/config/incidents.json
-    events: /iri/config/events.json
-    resources: /iri/config/resources.json
+  simulation:
+    history_size: 20
 
-  account:
-    capabilities: /iri/config/capabilities.json
-    projects: /iri/config/projects.json
-    project_allocations: /iri/config/project_allocations.json
-    user_allocations: /iri/config/user_allocations.json
+    status:
+      facility: /iri/config/facility.json
+      sites: /iri/config/sites.json
+      locations: /iri/config/locations.json
+      incidents: /iri/config/incidents.json
+      events: /iri/config/events.json
+      resources: /iri/config/resources.json
+
+    account:
+      capabilities: /iri/config/capabilities.json
+      projects: /iri/config/projects.json
+      project_allocations: /iri/config/project_allocations.json
+      user_allocations: /iri/config/user_allocations.json
 

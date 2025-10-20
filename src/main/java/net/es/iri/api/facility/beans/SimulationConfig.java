@@ -23,22 +23,36 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * ServerConfig bean contains properties for manipulating the URL of
- * resources returned through the API.
+ * SimulationConfig bean contains properties for loading simulation related resources.
  *
  * @author hacksaw
  */
 @Data
 @NoArgsConstructor
-public class ServerConfig {
-  private String root;
-  private String proxy;
+public class SimulationConfig {
+    private int historySize;
 
-  public String getRootOrProxy() {
-    if (proxy != null && !proxy.isEmpty()) {
-      return proxy;
+    private Status status;
+
+    private Account account;
+
+    @Data
+    @NoArgsConstructor
+    public static class Status {
+        private String facility;
+        private String incidents;
+        private String events;
+        private String locations;
+        private String sites;
+        private String resources;
     }
-    return root;
-  }
 
+    @Data
+    @NoArgsConstructor
+    public static class Account {
+        private String capabilities;
+        private String projects;
+        private String projectAllocations;
+        private String userAllocations;
+    }
 }

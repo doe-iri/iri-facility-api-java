@@ -76,22 +76,10 @@ public class Resource extends NamedObject {
     @Builder.Default
     private List<String> capabilityUris = new ArrayList<>();
 
-    @JsonProperty("group")
-    @Schema(description = "The member resource group.", example = "PERLMUTTER",
-        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String group;
-
     @JsonProperty("current_status")
     @Schema(description = "The current status of this resource at time of query.", example = "up",
         requiredMode = Schema.RequiredMode.REQUIRED)
     private StatusType currentStatus;
-
-    @JsonProperty("impacted_by_uri")
-    @Schema(description = "A hyperlink reference (URI) to the last event impacting this Resource (impactedBy).",
-        format = "uri",
-        example = "https://example.com/api/v1/status/events/03bdbf77-6f29-4f66-9809-7f4f77098171",
-        requiredMode = Schema.RequiredMode.REQUIRED)
-    private String impactedByUri;
 
     @JsonProperty("located_at_uri")
     @Schema(description = "A hyperlink reference (URI) to the Site containing this Resource (locatedAt).",
@@ -106,28 +94,6 @@ public class Resource extends NamedObject {
         example = "https://example.com/api/v1/facility",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String memberOfUri;
-
-    @JsonProperty("depends_on_uris")
-    @ArraySchema(
-        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
-        schema = @Schema(
-            description = "A hyperlink reference (URI) a Resource that this Resource depends on (dependsOn).",
-            example="https://example.com/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
-            type = "string", format = "uri")
-    )
-    @Builder.Default
-    private List<String> dependsOnUris =  new ArrayList<>();
-
-    @JsonProperty("has_dependent_uris")
-    @ArraySchema(
-        arraySchema = @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED),
-        schema = @Schema(
-            description = "A hyperlink reference (URI) to a Resource that depend on this Resource (hasDependent).",
-            example = "https://example.com/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
-            type = "string", format = "uri")
-    )
-    @Builder.Default
-    private List<String> hasDependentUris =  new ArrayList<>();
 
     /**
      * Returns the URL template for use by the parent class for exposing the Self URL.
@@ -146,10 +112,7 @@ public class Resource extends NamedObject {
     @Override
     public void transformUri(UrlTransform transform) {
         this.setSelfUri(transform(transform, this.getSelfUri()));
-        this.setImpactedByUri(transform(transform, this.getImpactedByUri()));
         this.setLocatedAtUri(transform(transform, this.getLocatedAtUri()));
         this.setMemberOfUri(transform(transform, this.getMemberOfUri()));
-        this.setDependsOnUris(transformList(transform, this.getDependsOnUris()));
-        this.setHasDependentUris(transformList(transform, this.getHasDependentUris()));
     }
 }

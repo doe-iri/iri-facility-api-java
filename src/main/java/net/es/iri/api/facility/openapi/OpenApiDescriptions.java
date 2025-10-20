@@ -135,8 +135,12 @@ public class OpenApiDescriptions {
   public static final String CURRENT_STATUS_NAME = "current_status";
   public static final String CURRENT_STATUS_MSG = "Return only resources with these status values.";
 
-  public static final String RESOURCES_NAME = "resources";
+  public static final String RESOURCES_NAME = "resource_uris";
   public static final String RESOURCES_MSG = "A list of resources to match.";
+
+  public static final String EVENTS_NAME = "event_uris";
+  public static final String EVENTS_MSG = "A list of event to match.";
+
 
   public static final String USERIDS_NAME = "user_ids";
   public static final String USERIDS_MSG = "Return only projects containing any of the listed users.";

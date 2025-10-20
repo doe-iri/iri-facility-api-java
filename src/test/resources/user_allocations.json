@@ -6,7 +6,6 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "3778d313-213d-4af4-b468-c66c5c29d8ab_gtorok",
         "allocation": 59.41315315712641,
         "usage": 15.385205137465656,
         "unit": "node_hours"
@@ -21,7 +20,6 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "0e0dae51-45b9-44a2-a4c4-2280fd2a3c02_gtorok",
         "allocation": 91.12396373652595,
         "usage": 14.096590956908736,
         "unit": "node_hours"
@@ -36,13 +34,11 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "6e988323-a9b4-4dee-bd97-2c1187888938_gtorok",
         "allocation": 91.30069218685705,
         "usage": 12.088578799441411,
         "unit": "bytes"
       },
       {
-        "id": "11ba6ab8-b0f0-4547-a3b1-0d49ffb9415b_gtorok",
         "allocation": 79.82342395440843,
         "usage": 17.945442718038922,
         "unit": "inodes"
@@ -57,13 +53,11 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "90f9e4e0-29cc-48eb-958a-c937342e9b4f_gtorok",
         "allocation": 88.28998279170693,
         "usage": 18.69158023109438,
         "unit": "bytes"
       },
       {
-        "id": "6518756c-809e-411d-ab2d-64b5323da888_gtorok",
         "allocation": 58.02152820442791,
         "usage": 10.306524764853869,
         "unit": "inodes"
@@ -78,7 +72,6 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "367ec122-2a15-4a9c-b740-e2d5c55c0695_gtorok",
         "allocation": 77.13407039956905,
         "usage": 13.483053584262217,
         "unit": "node_hours"
@@ -93,7 +86,6 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "15b73a7c-108a-4ee2-be68-6a37740fc70e_gtorok",
         "allocation": 53.86849424533953,
         "usage": 13.503884235506646,
         "unit": "node_hours"
@@ -108,13 +100,11 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "93b70285-c691-45b8-95f8-4d2421c4c577_gtorok",
         "allocation": 92.89771371161751,
         "usage": 14.00914685223143,
         "unit": "bytes"
       },
       {
-        "id": "8c25ff72-6357-4589-9798-799e99e42707_gtorok",
         "allocation": 74.73951694732725,
         "usage": 17.419914589052553,
         "unit": "inodes"
@@ -129,13 +119,11 @@
     "user_id": "gtorok",
     "entries": [
       {
-        "id": "a54c6b55-039a-412d-a559-503856fbb802_gtorok",
         "allocation": 80.02683366563474,
         "usage": 19.23073357750356,
         "unit": "bytes"
       },
       {
-        "id": "12f15599-8440-4c41-b035-9da674cb02d7_gtorok",
         "allocation": 61.19122627693694,
         "usage": 17.43804731794477,
         "unit": "inodes"

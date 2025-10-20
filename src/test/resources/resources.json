@@ -4,12 +4,11 @@
     "name": "iris.nersc.gov",
     "description": "Account management system.",
     "last_modified": "2025-07-24T02:31:08.000Z",
-    "group": "websites",
     "current_status": "up",
     "resource_type": "website",
     "self_uri": "/api/v1/status/resources/29989783-bc70-4cc8-880f-f2176d6cec20",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/19fa838f-b51b-421b-ae0b-8dff0ec82ccb"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "f8a06086-b79b-4f45-beec-abb8bee38fa1",
@@ -17,11 +16,10 @@
     "description": "CPU-based compute nodes.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "compute",
-    "group": "perlmutter",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/f8a06086-b79b-4f45-beec-abb8bee38fa1",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/ff6663b6-d3d7-4167-8c4c-91c5dc7f6999"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "72c11ef6-ff6b-409e-adfd-2f3763daac4f",
@@ -29,11 +27,10 @@
     "description": "Gitlab is git-based code hosting service at NERSC.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "service",
-    "group": "services",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/72c11ef6-ff6b-409e-adfd-2f3763daac4f",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/805ee514-2bb8-4f68-92c8-1c8103ddf43f"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "303a692d-c52b-47f0-8699-045f962650e2",
@@ -41,11 +38,10 @@
     "description": "NERSC account management system.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/303a692d-c52b-47f0-8699-045f962650e2",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/0108be78-8771-4507-abfd-5823f265708d"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "057c3750-4ba1-4b51-accf-b160be683d80",
@@ -53,11 +49,10 @@
     "description": "The NERSC data transfer nodes provide access to Global Homes, Global Common, the Community File System (CFS), Perlmutter Scratch, and HPSS.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "compute",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/057c3750-4ba1-4b51-accf-b160be683d80",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/7449fa2f-a039-4cf5-9ea3-5c0319defe5c"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
@@ -65,11 +60,10 @@
     "description": "Spin is a container-based platform at NERSC designed for you to deploy your own science gateways, workflow managers, databases, API endpoints, and other network services to support your scientific projects.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "service",
-    "group": "services",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/0918ad2e-b318-4fd1-ac8f-56a55abf8e8d",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/e84ece59-2c1e-4410-9df0-1632490aa569"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
@@ -77,11 +71,10 @@
     "description": "As the backup counterpart to the primary HPSS Archive, HPSS Regent ensures data availability during maintenance or unexpected downtimes of the main system.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/be85a1f4-292e-44d7-804d-68a7ca3e0a1e",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/0f698072-8b77-4f9e-a963-38997def00e7"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "29ea05ad-86de-4df8-b208-f0691aafbaa2",
@@ -89,11 +82,10 @@
     "description": "The Perlmutter Scratch File System is an all-flash file system.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "storage",
-    "group": "perlmutter",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/29ea05ad-86de-4df8-b208-f0691aafbaa2",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/747985fe-3177-4aba-842c-12516629226e"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
@@ -101,11 +93,10 @@
     "description": "Globus is the recommended way to move significant amounts of data between NERSC and other sites.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "storage",
-    "group": "services",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/13f886ac-6cc2-47c0-a5d4-d82daf3cf5c6",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/a8b1c94d-93ad-408f-a3ae-e92a3c6612df"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
@@ -113,11 +104,10 @@
     "description": "In the NERSC system, login nodes are where users can log in, edit files, and submit jobs.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "compute",
-    "group": "perlmutter",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/b1ce8cd1-e8b8-4f77-b2ab-152084c70281",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/bacb43b8-59b6-4b85-b980-42fcca052344"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "b06f8043-f96b-4279-8f0a-0e128a73cc32",
@@ -125,11 +115,10 @@
     "description": "The Community File System (CFS) is a global file system available on all NERSC computational systems.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/b06f8043-f96b-4279-8f0a-0e128a73cc32",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/fd83882f-757d-4647-b117-da2a988d0c11"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "8b61b346-b53c-4a8e-83b4-776eaa14cc67",
@@ -137,11 +126,10 @@
     "description": "GPU-based compute nodes.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "compute",
-    "group": "perlmutter",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/8b61b346-b53c-4a8e-83b4-776eaa14cc67",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/c270c8b2-3107-4b32-bc54-40b8507445aa"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "b951a092-7f0a-4263-bc9a-700c7ceed415",
@@ -149,11 +137,10 @@
     "description": "Science gateways.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "website",
-    "group": "websites",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/b951a092-7f0a-4263-bc9a-700c7ceed415",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/eac8337e-1116-4220-bfb3-61b885f74903"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "289d38f2-e93c-4840-b037-8b78d8ec36cc",
@@ -161,11 +148,10 @@
     "description": "The NERSC help portal.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "website",
-    "group": "websites",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/289d38f2-e93c-4840-b037-8b78d8ec36cc",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/1cf3f535-c379-4785-87d8-36f5ef379946"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "a0d96526-6fd3-413e-8f9e-ff12d602539e",
@@ -173,23 +159,21 @@
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "service",
-    "group": "services",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/a0d96526-6fd3-413e-8f9e-ff12d602539e",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/6493546d-6136-4e16-96a4-48885365bb0e"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "3594b493-f811-43b9-9c14-a3dd23542ffc",
     "name": "Network",
     "description": "The networking infrastructure for services at NERSC.",
     "last_modified": "2025-07-24T02:31:08.000Z",
-    "resource_type": "service",
-    "group": "services",
+    "resource_type": "network",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/3594b493-f811-43b9-9c14-a3dd23542ffc",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/c1f9185a-a0b4-4224-ac26-ebdafe988ba0"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "ff415c87-6596-41c7-93fd-b772994a92d4",
@@ -197,11 +181,10 @@
     "description": "Home directories provide a convenient means for a user to have access to files such as dotfiles, source files, and configuration files.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/ff415c87-6596-41c7-93fd-b772994a92d4",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/6062adad-4f0e-4d8b-bb92-790b07f29a8a"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
@@ -209,11 +192,10 @@
     "description": "The Superfacility API aims to enable the use of all NERSC resources through purely automated means using popular development tools and techniques.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/43b698c6-ed4a-4c1c-90b6-f8829daa9e96",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/3dbb25d7-3739-4cf6-85ba-4a34b8656285"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
@@ -221,11 +203,10 @@
     "description": "Jupyter is a literate computing software ecosystem for working with digital documents called notebooks that can contain executable code, equations, visualizations, interactive interfaces, text, and metadata.",
     "last_modified": "2025-07-24T02:31:08.000Z",
     "resource_type": "website",
-    "group": "websites",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/d3c52e3c-dd2a-47a4-91e7-f06e00cf486d",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/67088606-cd57-4607-a0f5-b83a0aff65f0"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   },
   {
     "id": "097c3750-4ba1-4b51-accf-b160be683d55",
@@ -233,10 +214,9 @@
     "description": "The Global Common File System is a global file system available on all NERSC computational systems.",
     "last_modified": "2025-07-24T02:31:13.000Z",
     "resource_type": "storage",
-    "group": "storage",
     "current_status": "up",
     "self_uri": "/api/v1/status/resources/097c3750-4ba1-4b51-accf-b160be683d55",
     "member_of_uri": "/api/v1/facility",
-    "impacted_by_uri": "/api/v1/status/events/c606595d-f4f5-4bbe-9600-4aab0eebd931"
+    "located_at_uri": "/api/v1/facility/sites/ce2bbc49-ba63-4711-8f36-43b74ec2fe45"
   }
 ]

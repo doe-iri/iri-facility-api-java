@@ -88,16 +88,17 @@ iri:
     root: "http://localhost:8081"
     #proxy: "https://iri.es.net"
 
-  status:
-    facility: src/test/resources/facility.json
-    sites: src/test/resources/sites.json
-    locations: src/test/resources/locations.json
-    incidents: src/test/resources/incidents.json
-    events: src/test/resources/events.json
-    resources: src/test/resources/resources.json
-
-  account:
-    capabilities: src/test/resources/capabilities.json
-    projects: src/test/resources/projects.json
-    project_allocations: src/test/resources/project_allocations.json
-    user_allocations: src/test/resources/user_allocations.json
+  simulation:
+    history_size: 20
+    status:
+      facility: src/test/resources/facility.json
+      sites: src/test/resources/sites.json
+      locations: src/test/resources/locations.json
+      incidents: src/test/resources/incidents.json
+      events: src/test/resources/events.json
+      resources: src/test/resources/resources.json
+    account:
+      capabilities: src/test/resources/capabilities.json
+      projects: src/test/resources/projects.json
+      project_allocations: src/test/resources/project_allocations.json
+      user_allocations: src/test/resources/user_allocations.json

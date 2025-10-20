@@ -774,7 +774,7 @@ class StatusEndpointTest {
 
         // Build the target URL.
         String url = "http://localhost:" + port +
-            "/api/v1/status/incidents?limit=1000&resources=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
+            "/api/v1/status/incidents?limit=1000&resource_uris=29989783-bc70-4cc8-880f-f2176d6cec20,057c3750-4ba1-4b51-accf-b160be683d80";
 
         // Perform the GET /incidents operation.
         RestClient client = RestClient.create();

@@ -226,7 +226,6 @@ public class StatusController {
      * Returns the resources associated with this facility.
      * <p>
      * Operation: GET /api/v1/status/resources
-     *            GET /api/v1/facility/resources
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -234,9 +233,6 @@ public class StatusController {
      * @param ifModifiedSince The HTTP request may contain the If-Modified-Since
      *    header requesting all models with lastModified after the specified
      *    date. The date must be specified in RFC 1123 format.
-     *
-     * @param group An optional query parameter that will filter resources base
-     *              on a group string.
      *
      * @return A RESTful response.
      */
@@ -343,8 +339,6 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.LIMIT_NAME, required = false, defaultValue = "100")
         @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
             schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
-        @RequestParam(value = OpenApiDescriptions.GROUP_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.GROUP_MSG) String group,
         @RequestParam(value = OpenApiDescriptions.RESOURCE_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.RESOURCE_TYPE_MSG) String type,
         @RequestParam(value = OpenApiDescriptions.RESOURCE_CAPABILITY_NAME, required = false)
@@ -362,9 +356,9 @@ public class StatusController {
         try {
             log.debug("[StatusController::getResources] GET operation = {}, Accept = {}, " +
                     "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
-                    "group = {}, type = {}, capabilities = {}, currentStatus = {}",
+                    "type = {}, capabilities = {}, currentStatus = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit,
-                group, type, capabilities, currentStatus);
+                type, capabilities, currentStatus);
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -404,14 +398,6 @@ public class StatusController {
             }
 
             // Resource specific attributes below.
-
-            // Apply the group filter if requested.
-            if (group != null && !group.isBlank()) {
-                // Filter resources from the specified group.
-                results = results.stream()
-                    .filter(r -> Common.stripQuotes(group).equalsIgnoreCase(r.getGroup()))
-                    .collect(Collectors.toList());
-            }
 
             // Apply the type filter if requested.
             if (type != null && !type.isBlank()) {
@@ -481,7 +467,6 @@ public class StatusController {
      * Returns the resource associated with the specified id.
      * <p>
      * Operation: GET /api/v1/status/resources/{resource_id}
-     *            GET /api/v1/facility/resources/{resource_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -590,7 +575,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/resources/{resource_id}", "/api/v1/facility/resources/{resource_id}"},
+        path = {"/api/v1/status/resources/{resource_id}",},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
@@ -656,7 +641,6 @@ public class StatusController {
      * Returns a list of "incident" resources.
      * <p>
      * Operation: GET /api/v1/status/incidents
-     *            GET /api/v1/facility/incidents
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -750,7 +734,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents", "/api/v1/facility/incidents"},
+        path = {"/api/v1/status/incidents"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -773,13 +757,13 @@ public class StatusController {
             schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
-            schema = @Schema(implementation = StatusType.class)) String status,
+            schema = @Schema(implementation = StatusType.class)) List<String> status,
         @RequestParam(value = OpenApiDescriptions.INCIDENT_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.INCIDENT_TYPE_MSG,
-            schema = @Schema(implementation = IncidentType.class)) String type,
+            schema = @Schema(implementation = IncidentType.class)) List<String> type,
         @RequestParam(value = OpenApiDescriptions.RESOLUTION_TYPE_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.RESOLUTION_TYPE_MSG,
-            schema = @Schema(implementation = ResolutionType.class)) String resolution,
+            schema = @Schema(implementation = ResolutionType.class)) List<String> resolution,
         @RequestParam(value = OpenApiDescriptions.TIME_NAME, required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         @Parameter(description = OpenApiDescriptions.TIME_MSG) OffsetDateTime time,
@@ -789,10 +773,10 @@ public class StatusController {
         @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         @Parameter(description = OpenApiDescriptions.TO_MSG) OffsetDateTime to,
-        @RequestParam(value = OpenApiDescriptions.SHORT_NAME_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.SHORT_NAME_MSG) String shortName,
         @RequestParam(value = OpenApiDescriptions.RESOURCES_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.RESOURCES_MSG) List<String> resources) {
+        @Parameter(description = OpenApiDescriptions.RESOURCES_MSG) List<String> resourceUris,
+        @RequestParam(value = OpenApiDescriptions.EVENTS_NAME, required = false)
+        @Parameter(description = OpenApiDescriptions.EVENTS_MSG) List<String> eventUris) {
 
         // We need the request URL to build fully qualified resource URLs.
         final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUri();
@@ -804,10 +788,10 @@ public class StatusController {
         try {
             log.debug("[StatusController::getIncidents] GET operation = {}, accept = {}, " +
                     "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, " +
-                    "status = {}. type = {}. resolution = {}, time = {}, from = {}, to = {}, shortName = {}, " +
+                    "status = {}. type = {}. resolution = {}, time = {}, from = {}, to = {}, " +
                     "resources = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, status, type,
-                resolution, time, from, to, shortName, resources);
+                resolution, time, from, to, resourceUris);
 
             // Favor the query parameter if provided.
             final OffsetDateTime ifms = Common.parseIfModifiedSince(ifModifiedSince, modifiedSince);
@@ -846,30 +830,51 @@ public class StatusController {
                     .collect(Collectors.toList());
             }
 
-            // Apply the status filter is requested.
-            if (status != null && !status.isBlank()) {
-                // Filter resources from the specified group.
+            // Apply the status filter if requested.
+            if (status != null && !status.isEmpty()) {
+                // Filter any filter values not in the StatusType enum.
+                Set<StatusType> wanted = status.stream()
+                    .map(String::toUpperCase)
+                    .map(Common::stripQuotes)
+                    .filter(StatusType.validValues()::contains)
+                    .map(StatusType::valueOf)
+                    .collect(Collectors.toSet());
+
+                // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(status)
-                        .equalsIgnoreCase(incident.getStatus().getValue()))
+                    .filter(r -> wanted.contains(r.getStatus()))
                     .collect(Collectors.toList());
             }
 
             // Apply the type filter requested.
-            if (type != null && !type.isBlank()) {
-                // Filter resources from the specified type.
+            if (type != null && !type.isEmpty()) {
+                // Filter any filter values not in the IncidentType enum.
+                Set<IncidentType> wanted = type.stream()
+                    .map(String::toUpperCase)
+                    .map(Common::stripQuotes)
+                    .filter(IncidentType.validValues()::contains)
+                    .map(IncidentType::valueOf)
+                    .collect(Collectors.toSet());
+
+                // Filter incidents from the specified type.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(type)
-                        .equalsIgnoreCase(incident.getType().getValue()))
+                    .filter(r -> wanted.contains(r.getType()))
                     .collect(Collectors.toList());
             }
 
-            // Apply the type filter requested.
-            if (resolution != null && !resolution.isBlank()) {
-                // Filter resources from the specified type.
+            // Apply the ResolutionType filter requested.
+            if (resolution != null && !resolution.isEmpty()) {
+                // Filter any filter values not in the ResolutionType enum.
+                Set<ResolutionType> wanted = resolution.stream()
+                    .map(String::toUpperCase)
+                    .map(Common::stripQuotes)
+                    .filter(ResolutionType.validValues()::contains)
+                    .map(ResolutionType::valueOf)
+                    .collect(Collectors.toSet());
+
+                // Filter incidents from the specified type.
                 results = results.stream()
-                    .filter(incident -> Common.stripQuotes(resolution)
-                        .equalsIgnoreCase(incident.getResolution().getValue()))
+                    .filter(r -> wanted.contains(r.getResolution()))
                     .collect(Collectors.toList());
             }
 
@@ -890,9 +895,16 @@ public class StatusController {
             }
 
             // Find all the remaining incidents that contain a resource from the provided list.
-            if (resources != null && !resources.isEmpty()) {
+            if (resourceUris != null && !resourceUris.isEmpty()) {
                 results = results.stream()
-                    .filter(incident -> incident.contains(resources))
+                    .filter(incident -> incident.containsResourceUris(resourceUris))
+                    .collect(Collectors.toList());
+            }
+
+            // Find all the remaining incidents that contain an event from the provided list.
+            if (eventUris != null && !eventUris.isEmpty()) {
+                results = results.stream()
+                    .filter(incident -> incident.containsEventUris(eventUris))
                     .collect(Collectors.toList());
             }
 
@@ -918,7 +930,6 @@ public class StatusController {
      * Returns the incident resource associated with the specified id.
      * <p>
      * Operation: GET /api/v1/status/incident/{incident_id}
-     *            GET /api/v1/facility/incident/{incident_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -1027,7 +1038,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{incident_id}", "/api/v1/facility/incidents/{incident_id}"},
+        path = {"/api/v1/status/incidents/{incident_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
@@ -1089,11 +1100,11 @@ public class StatusController {
         }
     }
 
+
     /**
-     * Returns the events associated with the specified incident.
+     * Returns the resources associated with the specified incident.
      * <p>
-     * Operation: GET /api/v1/status/incident/{incident_id}/events
-     *            GET /api/v1/facility/incident/{incident_id}/events
+     * Operation: GET /api/v1/status/incident/{incident_id}/resources
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment, 'application/json' is the supported response encoding.
@@ -1107,9 +1118,9 @@ public class StatusController {
      * @return A RESTful response.
      */
     @Operation(
-        summary = "Get the events associated with the specified incident.",
-        description = "RReturns the events associated with the specified incident.",
-        tags = {"getEventsByIncident"},
+        summary = "Get the resources associated with the specified incident.",
+        description = "Returns the resources associated with the specified incident.",
+        tags = {"getResourcesByIncident"},
         method = "GET")
     @ApiResponses(
         value = {
@@ -1127,7 +1138,7 @@ public class StatusController {
                         description = OpenApiDescriptions.LAST_MODIFIED_DESC,
                         schema = @Schema(implementation = String.class))
                 },
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Event.class)),
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Resource.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)
             ),
             @ApiResponse(
@@ -1200,13 +1211,12 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/incidents/{incident_id}/events",
-            "/api/v1/facility/incidents/{incident_id}/events"},
+        path = {"/api/v1/status/incidents/{incident_id}/resources"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
-    @ResourceAnnotation(name = "getEventsByIncident", version = "v1", type = MediaTypes.EVENTS)
-    public ResponseEntity<?> getEventsByIncident(
+    @ResourceAnnotation(name = "getResourcesByIncident", version = "v1", type = MediaTypes.EVENTS)
+    public ResponseEntity<?> getResourceByIncident(
         @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = MediaType.APPLICATION_JSON_VALUE)
         @Parameter(description = OpenApiDescriptions.ACCEPT_MSG) String accept,
         @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false)
@@ -1233,8 +1243,8 @@ public class StatusController {
         headers.add(HttpHeaders.CONTENT_LOCATION, location.toASCIIString());
 
         try {
-            log.debug("[StatusController::getEventsByIncident] GET operation = {}, accept = {}, "
-                + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, iid = {}",
+            log.debug("[StatusController::getResourceByIncident] GET operation = {}, accept = {}, "
+                    + "If-Modified-Since = {}, modifiedSince = {}, name = {}, offset = {}, limit = {}, iid = {}",
                 location, accept, ifModifiedSince, modifiedSince, name, offset, limit, iid);
 
             // Favor the query parameter if provided.
@@ -1244,19 +1254,19 @@ public class StatusController {
             Incident incident = repository.findIncidentById(iid);
             if (incident != null) {
                 // Look up the resource associated with the event.
-                List<Event> events = new ArrayList<>();
-                for (String uri : incident.getEventUris()) {
-                    Event event = repository.findEventByHref(uri);
-                    if (event != null) {
-                        events.add(event);
+                List<Resource> resources = new ArrayList<>();
+                for (String uri : incident.getResourceUris()) {
+                    Resource resource = repository.findResourceByHref(uri);
+                    if (resource != null) {
+                        resources.add(resource);
                     }
                 }
 
                 // Find the latest modified timestamp among all resources.
-                Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(events);
+                Optional<OffsetDateTime> latestModified = Common.mostRecentTimestamp(resources);
 
                 // Populate the header
-                latestModified.ifPresent(l -> 
+                latestModified.ifPresent(l ->
                     headers.setLastModified(l.toInstant().truncatedTo(ChronoUnit.SECONDS)));
 
                 // If the request contained an If-Modified-Since header we check the entire
@@ -1264,26 +1274,26 @@ public class StatusController {
                 // them all.
                 if (Common.notModified(ifms, latestModified.orElse(null))) {
                     // The resource has not been modified since the specified time.
-                    log.debug("[StatusController::getEventsByIncident] returning NOT_MODIFIED");
+                    log.debug("[StatusController::getResourceByIncident] returning NOT_MODIFIED");
                     return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
                 }
 
                 // Now compute those resources that have changed since the If-Modified-Since time.
                 if (ifms != null) {
-                    events = events.stream()
+                    resources = resources.stream()
                         .filter(r -> r.getLastModified().isAfter(ifms))
                         .collect(Collectors.toList());
                 }
 
                 // Return the matching resource.
-                return new ResponseEntity<>(events, headers, HttpStatus.OK);
+                return new ResponseEntity<>(resources, headers, HttpStatus.OK);
             }
 
-            log.error("[StatusController::getEventsByIncident] event not found {}", location);
+            log.error("[StatusController::getResourceByIncident] resource not found {}", location);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.notFoundError(location), headers, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            log.error("[StatusController::getEventsByIncident] Exception caught in GET of {}", location, ex);
+            log.error("[StatusController::getResourceByIncident] Exception caught in GET of {}", location, ex);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             return new ResponseEntity<>(Common.internalServerError(location, ex), headers,
                 HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1294,7 +1304,6 @@ public class StatusController {
      * Returns a list of events.
      * <p>
      * Operation: GET /api/v1/status/events
-     *            GET /api/v1/facility/events
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1387,7 +1396,7 @@ public class StatusController {
                     mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE)
             )
         })
-    @RequestMapping(path = {"/api/v1/status/events", "/api/v1/facility/events"},
+    @RequestMapping(path = {"/api/v1/status/events"},
         method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ResourceAnnotation(name = "getEvents", version = "v1", type = MediaTypes.EVENTS)
@@ -1408,8 +1417,7 @@ public class StatusController {
         @Parameter(description = OpenApiDescriptions.LIMIT_MSG,
             schema = @Schema(type = "integer", defaultValue = "100")) Integer limit,
         @RequestParam(value = OpenApiDescriptions.STATUS_TYPE_NAME, required = false)
-        @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG,
-            schema = @Schema(implementation = StatusType.class)) String status,
+        @Parameter(description = OpenApiDescriptions.STATUS_TYPE_MSG) List<String> status,
         @RequestParam(value = OpenApiDescriptions.FROM_NAME, required = false)
         @Parameter(description = OpenApiDescriptions.FROM_MSG) String from,
         @RequestParam(value = OpenApiDescriptions.TO_NAME, required = false)
@@ -1464,11 +1472,19 @@ public class StatusController {
                     .collect(Collectors.toList());
             }
 
-            // Apply the status filter is requested.
-            if (status != null && !status.isBlank()) {
-                // Filter resources from the specified group.
+            // Apply the currentStatus filter if requested.
+            if (status != null && !status.isEmpty()) {
+                // Filter any filter values not in the StatusType enum.
+                Set<StatusType> wanted = status.stream()
+                    .map(String::toUpperCase)
+                    .map(Common::stripQuotes)
+                    .filter(StatusType.validValues()::contains)
+                    .map(StatusType::valueOf)
+                    .collect(Collectors.toSet());
+
+                // Filter resources from the specified type.
                 results = results.stream()
-                    .filter(r -> Common.stripQuotes(status).equalsIgnoreCase(r.getStatus().getValue()))
+                    .filter(r -> wanted.contains(r.getStatus()))
                     .collect(Collectors.toList());
             }
 
@@ -1522,7 +1538,6 @@ public class StatusController {
      *
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}
-     *            GET /api/v1/facility/events/{event_id}
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1631,7 +1646,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}", "/api/v1/facility/events/{event_id}"},
+        path = {"/api/v1/status/events/{event_id}"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
@@ -1697,7 +1712,6 @@ public class StatusController {
      * Returns the resource impacted by the specified event.
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}/resource
-     *            GET "/api/v1/facility/events/{event_id}/resource"
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1806,7 +1820,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}/resource", "/api/v1/facility/events/{event_id}/resource"},
+        path = {"/api/v1/status/events/{event_id}/resource"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody
@@ -1875,7 +1889,6 @@ public class StatusController {
      * Returns the incident related to the specified event.
      * <p>
      * Operation: GET /api/v1/status/events/{event_id}/incident
-     *            GET /api/v1/facility/events/{event_id}/incident
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
@@ -1984,7 +1997,7 @@ public class StatusController {
             )
         })
     @RequestMapping(
-        path = {"/api/v1/status/events/{event_id}/incident", "/api/v1/facility/events/{event_id}/incident"},
+        path = {"/api/v1/status/events/{event_id}/incident"},
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE})
     @ResponseBody

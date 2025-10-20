@@ -19,12 +19,10 @@
  */
 package net.es.iri.api.facility.schema;
 
-import java.net.MalformedURLException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,6 +39,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.utils.Common;
 import net.es.iri.api.facility.utils.UrlTransform;
+import net.es.iri.api.facility.utils.UuidExtractor;
 
 /**
  * An incident resource groups events in time and across resources.
@@ -65,25 +64,33 @@ public class Incident extends NamedObject {
     public static final String URL_TEMPLATE = "%s/api/v1/status/incidents/%s";
 
     @JsonProperty("status")
-    @Schema(description = "The status of the resource associated with this incident.", example = "down")
+    @Schema(description = "The status of the Resource associated with this Incident.",
+        example = "down",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private StatusType status;
 
     @JsonProperty("type")
-    @Schema(description = "The type of incident.", example = "planned")
+    @Schema(description = "The type of Incident.",
+        example = "planned",
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private IncidentType type;
 
     @JsonProperty("start")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this incident started, or is predicted to start. Format follows the ISO 8601 standard with timezone offsets.", example = "2023-10-17T11:02:31.690-00:00")
+    @Schema(description = "The date this Incident started, or is predicted to start. Format follows the ISO 8601 standard with timezone offsets.",
+        example = "2023-10-17T11:02:31.690-00:00",
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private OffsetDateTime start;
 
     @JsonProperty("end")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-    @Schema(description = "The date this incident ended, or is predicted to end.  Format follows the ISO 8601 standard with timezone offsets.", example = "2023-10-19T11:02:31.690-00:00")
+    @Schema(description = "The date this Incident ended, or is predicted to end.  Format follows the ISO 8601 standard with timezone offsets.",
+        example = "2023-10-19T11:02:31.690-00:00",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private OffsetDateTime end;
 
     @JsonProperty("resolution")
-    @Schema(description = "The resolution for this incident.", example = "pending", defaultValue = "pending")
+    @Schema(description = "The resolution for this Incident.", example = "pending", defaultValue = "pending")
     @Builder.Default
     private ResolutionType resolution = ResolutionType.PENDING;
 
@@ -209,25 +216,53 @@ public class Incident extends NamedObject {
     }
 
     /**
-     * Determines if a resource identifier listed in the resources query parameter is
+     * Determines if a resource identifier listed in the resource_uris query parameter is
      * present in the resources_uris list.
      *
-     * @param resources The list of resources to match.
+     * @param resourceUris The list of resources to match.
      * @return True if this incident contains a resource from the list.
      */
-    public boolean contains(List<String> resources) {
-        if (resources == null || resources.isEmpty()) {
-            return true;
-        }
-        for (String resource : resources) {
-            for (String uri : this.getResourceUris()) {
-                if (uri.contains("/resources/" + resource)) {
-                    return true;
-                }
-            }
+    public boolean containsResourceUris(List<String> resourceUris) {
+        // No resources list provided.
+        if (resourceUris == null || resourceUris.isEmpty()) {
+            return false;
         }
 
-        return false;
+        // Can't match anything if there are no resources to check.
+        if (this.getResourceUris() == null ||this.getResourceUris().isEmpty()) {
+            return false;
+        }
+
+        // Convert the incoming list of resource links to UUID strings.
+        List<String> _that = UuidExtractor.extractUuids(resourceUris);
+        List<String> _this = UuidExtractor.extractUuids(this.getResourceUris());
+
+        return !java.util.Collections.disjoint(_that, _this);
+    }
+
+    /**
+     * Determines if an event identifier listed in the event_uris query parameter is
+     * present in the event_uris list.
+     *
+     * @param eventUris The list of resources to match.
+     * @return True if this incident contains an event from the list.
+     */
+    public boolean containsEventUris(List<String> eventUris) {
+        // No resources list provided.
+        if (eventUris == null || eventUris.isEmpty()) {
+            return false;
+        }
+
+        // Can't match anything if there are no resources to check.
+        if (this.getEventUris() == null ||this.getEventUris().isEmpty()) {
+            return false;
+        }
+
+        // Convert the incoming list of event links to UUID strings.
+        List<String> _that = UuidExtractor.extractUuids(eventUris);
+        List<String> _this = UuidExtractor.extractUuids(this.getEventUris());
+
+        return !java.util.Collections.disjoint(_that, _this);
     }
 
     @Override

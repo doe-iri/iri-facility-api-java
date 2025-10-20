@@ -21,7 +21,6 @@ package net.es.iri.api.facility.beans;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -39,34 +38,5 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class IriConfig {
     private ServerConfig server;
-
-    @Value("${iri.status.facility}")
-    private String facility;
-
-    @Value("${iri.status.incidents}")
-    private String incidents;
-
-    @Value("${iri.status.events}")
-    private String events;
-
-    @Value("${iri.status.locations}")
-    private String locations;
-
-    @Value("${iri.status.sites}")
-    private String sites;
-
-    @Value("${iri.status.resources}")
-    private String resources;
-
-    @Value("${iri.account.capabilities}")
-    private String capabilities;
-
-    @Value("${iri.account.projects}")
-    private String projects;
-
-    @Value("${iri.account.project_allocations}")
-    private String projectAllocations;
-
-    @Value("${iri.account.user_allocations}")
-    private String userAllocations;
+    private SimulationConfig simulation;
 }

@@ -22,7 +22,9 @@ package net.es.iri.api.facility.beans;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import io.micrometer.core.instrument.config.InvalidConfigurationException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.schema.Capability;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
@@ -42,6 +44,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author hacksaw
  */
+@Slf4j
 @Data
 @Component
 @Validated
@@ -61,45 +64,53 @@ public class FacilityData {
     private List<UserAllocation> userAllocations = new CopyOnWriteArrayList<>();
 
     public FacilityData(IriConfig iriConfig) {
+        if (iriConfig == null || iriConfig.getSimulation() == null) {
+            throw new InvalidConfigurationException("Invalid FacilityData configuration");
+        }
+
+        final SimulationConfig simulation = iriConfig.getSimulation();
+
+        log.debug("[FacilityData] {}", simulation);
+
         // Load Status API data from individual files.
-        Optional.ofNullable(iriConfig.getFacility()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getFacility()).ifPresent(file ->
             this.facilities.add(JsonParser.fromFile(file, Facility.class))
         );
 
-        Optional.ofNullable(iriConfig.getLocations()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getLocations()).ifPresent(file ->
             this.locations.addAll(JsonParser.listFromFile(file, Location.class))
         );
 
-        Optional.ofNullable(iriConfig.getSites()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getSites()).ifPresent(file ->
             this.sites.addAll(JsonParser.listFromFile(file, Site.class))
         );
 
-        Optional.ofNullable(iriConfig.getResources()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getResources()).ifPresent(file ->
             this.resources.addAll(JsonParser.listFromFile(file, Resource.class))
         );
 
-        Optional.ofNullable(iriConfig.getIncidents()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getIncidents()).ifPresent(file ->
             this.incidents.addAll(JsonParser.listFromFile(file, Incident.class))
         );
 
-        Optional.ofNullable(iriConfig.getEvents()).ifPresent(file ->
+        Optional.ofNullable(simulation.getStatus().getEvents()).ifPresent(file ->
             this.events.addAll(JsonParser.listFromFile(file, Event.class))
         );
 
         // Load Account API data from individual files.
-        Optional.ofNullable(iriConfig.getCapabilities()).ifPresent(file ->
+        Optional.ofNullable(simulation.getAccount().getCapabilities()).ifPresent(file ->
             this.capabilities.addAll(JsonParser.listFromFile(file, Capability.class))
         );
 
-        Optional.ofNullable(iriConfig.getProjects()).ifPresent(file ->
+        Optional.ofNullable(simulation.getAccount().getProjects()).ifPresent(file ->
             this.projects.addAll(JsonParser.listFromFile(file, Project.class))
         );
 
-        Optional.ofNullable(iriConfig.getProjectAllocations()).ifPresent(file ->
+        Optional.ofNullable(simulation.getAccount().getProjectAllocations()).ifPresent(file ->
             this.projectAllocations.addAll(JsonParser.listFromFile(file, ProjectAllocation.class))
         );
 
-        Optional.ofNullable(iriConfig.getUserAllocations()).ifPresent(file ->
+        Optional.ofNullable(simulation.getAccount().getUserAllocations()).ifPresent(file ->
             this.userAllocations.addAll(JsonParser.listFromFile(file, UserAllocation.class))
         );
     }

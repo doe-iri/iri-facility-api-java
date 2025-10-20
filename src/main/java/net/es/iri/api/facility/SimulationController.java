@@ -19,7 +19,12 @@
  */
 package net.es.iri.api.facility;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsFirst;
+import static java.util.Comparator.reverseOrder;
+
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,15 +38,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.es.iri.api.facility.beans.IriConfig;
 import net.es.iri.api.facility.datastore.FacilityDataRepository;
-import net.es.iri.api.facility.schema.MediaTypes;
 import net.es.iri.api.facility.schema.Event;
 import net.es.iri.api.facility.schema.Facility;
 import net.es.iri.api.facility.schema.Incident;
 import net.es.iri.api.facility.schema.IncidentType;
-import net.es.iri.api.facility.schema.Link;
-import net.es.iri.api.facility.schema.Relationships;
 import net.es.iri.api.facility.schema.ResolutionType;
 import net.es.iri.api.facility.schema.Resource;
+import net.es.iri.api.facility.schema.ResourceType;
 import net.es.iri.api.facility.schema.StatusType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -60,11 +63,13 @@ public class SimulationController {
     // The data store containing facility status information.
     private final FacilityDataRepository repository;
 
-    // Map tracking if a resource group is being used for an incident.
-    private final Map<String, Boolean> groupBeingUsed = new ConcurrentHashMap<>();
+    // Map tracking if a resource is being used for an incident.
+    private final Map<ResourceType, Boolean> resourceTypeBeingUsed = new ConcurrentHashMap<>();
 
     // The root of our absolute URL.
     private final String root;
+
+    private final int historySize;
 
     /**
      * Constructor of the component.
@@ -78,6 +83,8 @@ public class SimulationController {
         } else {
             this.root = "https://example.com";
         }
+
+        this.historySize = iriConfig.getSimulation().getHistorySize();
     }
 
     /**
@@ -87,19 +94,20 @@ public class SimulationController {
     public void init() {
         log.debug("[SimulationController::init] Initializing");
 
-        // Initialize the map tracking if a resource group is being used for an incident.
-        repository.findAllResources().stream()
-            .map(Resource::getGroup)
-            .collect(Collectors.toSet())
-            .forEach(g -> groupBeingUsed.put(g, false));
+        // Clean up old Incidents.
+        pruneIncident();
+
+        // Initialize the map tracking if a resource type is being used for an incident.
+        Arrays.stream(ResourceType.values())
+            .forEach(t -> resourceTypeBeingUsed.put(t, false));
 
         // If the resource is not UP then tag the resource group as in use.
         repository.findAllResources().stream()
-            .filter(r -> r.getCurrentStatus() != StatusType.UP && r.getGroup() != null && !r.getGroup().isEmpty())
-            .forEach(r -> groupBeingUsed.put(r.getGroup(), true));
+            .filter(r -> r.getCurrentStatus() != StatusType.UP && r.getType() != null)
+            .forEach(r -> resourceTypeBeingUsed.put(r.getType(), true));
 
         // Dump the initial status.
-        groupBeingUsed.forEach((key, value) -> {
+        resourceTypeBeingUsed.forEach((key, value) -> {
             log.debug("[SimulationController::init] {} : {}", key, value);
         });
 
@@ -107,7 +115,7 @@ public class SimulationController {
         createStartupIncident();
 
         // Populate a planned incident.
-        getRandomGroup().ifPresent(g -> {
+        getRandomResourceType().ifPresent(g -> {
             OffsetDateTime now = OffsetDateTime.now();
             OffsetDateTime startTime = now.plusHours((long) (24 * Math.random()));
             OffsetDateTime endTime = startTime.plusHours((long) (10 * Math.random()));
@@ -142,7 +150,7 @@ public class SimulationController {
         facility.getIncidentUris().add(incidentSelf);
         facility.setLastModified(now);
 
-        // The incident will impact the group's resources.
+        // The incident will impact the types resources.
         List<Resource> resources = repository.findAllResources();
         for (Resource r : resources) {
             log.debug("[SimulationController::createStartupIncident] {} : {}", r.getId(), r.getName());
@@ -187,23 +195,23 @@ public class SimulationController {
         if (random < 0.10) {
             log.debug("[SimulationController::generateIncident] creating an incident.");
 
-            // Pick a group to be impacted.
-            getRandomGroup().ifPresentOrElse(g -> {
-                    log.debug("[SimulationController::generateIncident] random selection of group: {}", g);
+            // Pick a resource type to be impacted.
+            getRandomResourceType().ifPresentOrElse(t -> {
+                    log.debug("[SimulationController::generateIncident] random selection of resourceType: {}", t);
 
                     // Now we choose between a now incident (90%) and a scheduled maintenance (10%).
                     OffsetDateTime now = OffsetDateTime.now();
                     if (Math.random() < 0.90) {
                         // Generate a unplanned incident.
-                        createIncident(IncidentType.UNPLANNED, g, now, now.plusHours((long) (10 * Math.random())));
+                        createIncident(IncidentType.UNPLANNED, t, now, now.plusHours((long) (10 * Math.random())));
                     } else {
                         // Generate a scheduled incident.
                         OffsetDateTime startTime = now.plusHours((long) (24 * Math.random()));
                         OffsetDateTime endTime = startTime.plusHours((long) (10 * Math.random()));
-                        createIncident(IncidentType.PLANNED, g, startTime, endTime);
+                        createIncident(IncidentType.PLANNED, t, startTime, endTime);
                     }
-                    groupBeingUsed.put(g, true);
-                }, () -> log.debug("[SimulationController::generateIncident] no groups available."));
+                    resourceTypeBeingUsed.put(t, true);
+                }, () -> log.debug("[SimulationController::generateIncident] no resource types available."));
         }
     }
 
@@ -211,11 +219,12 @@ public class SimulationController {
      * Create an incident.
      *
      * @param type The type of incident.
-     * @param group The group of resources the incident applies to.
+     * @param resourceType The resourceType of resources the incident applies to.
      * @param startTime The startTime of the incident.
      * @param endTime The endTime of the incident.
      */
-    private void createIncident(IncidentType type, String group, OffsetDateTime startTime, OffsetDateTime endTime) {
+    private void createIncident(IncidentType type, ResourceType resourceType, OffsetDateTime startTime,
+                                OffsetDateTime endTime) {
         OffsetDateTime now = OffsetDateTime.now();
 
         // Create a new incident.
@@ -225,7 +234,7 @@ public class SimulationController {
         incident.setLastModified(now);
         incident.setStart(startTime);
         incident.setEnd(endTime);
-        incident.setName(type + " outage on group " + group);
+        incident.setName(type + " outage on resourceType " + resourceType);
         incident.setDescription("Auto-generated incident of type " + type);
         incident.setStatus(StatusType.DOWN);
 
@@ -237,9 +246,9 @@ public class SimulationController {
         facility.getIncidentUris().add(incident.self(this.root));
         facility.setLastModified(now);
 
-        // The incident mayImpact resources from group.
+        // The incident mayImpact resources from this type.
         repository.findAllResources().stream()
-            .filter(r -> group.equalsIgnoreCase(r.getGroup()))
+            .filter(r -> resourceType ==r.getType())
             .forEach(r -> {
                 // Incident mayImpact the Resource.
                 incident.getResourceUris().add(r.self(this.root));
@@ -247,11 +256,11 @@ public class SimulationController {
 
         // Handling is a little different for planned and unplanned events.
         if (type == IncidentType.UNPLANNED) {
-            // This is a new event to create events for each resource in the impacted group.
+            // This is a new event to create events for each resource of the impacted type.
             incident.setResolution(ResolutionType.UNRESOLVED);
 
             List<Resource> resources = repository.findAllResources().stream()
-                .filter(r -> group.equalsIgnoreCase(r.getGroup()))
+                .filter(r -> resourceType == r.getType())
                 .toList();
 
             for (Resource r :  resources) {
@@ -374,7 +383,7 @@ public class SimulationController {
         repository.saveAndFlush(incident);
 
         // Remember to reset group status.
-        getImpactedGroups(incident).forEach(g -> groupBeingUsed.put(g, false));
+        getImpactedGroups(incident).forEach(g -> resourceTypeBeingUsed.put(g, false));
     }
 
     /**
@@ -448,9 +457,6 @@ public class SimulationController {
         // Link the event to the resource.
         event.setResourceUri(resource.self(this.root));
 
-        // Add this new impactedBy Event.
-        resource.setImpactedByUri(event.self(this.root));
-
         // Link the incident to the event.
         incident.getEventUris().add(event.self(this.root));
 
@@ -491,34 +497,105 @@ public class SimulationController {
     }
 
     /**
-     * Get the set of groups associated with the impacted resources from the incident.
+     * Get the set of resourceTypes associated with the impacted resources from the incident.
      *
      * @param incident The impacting incident.
-     * @return A set of group names associated with the impacted resources.
+     * @return A set of ResourceType associated with the impacted resources.
      */
-    private Set<String> getImpactedGroups(Incident incident) {
+    private Set<ResourceType> getImpactedGroups(Incident incident) {
         return Optional.ofNullable(incident.getResourceUris()).stream()
             .flatMap(List::stream)
             .filter(Objects::nonNull) // href
             .map(url -> url.substring(url.lastIndexOf("/") + 1)) // uuid
             .map(repository::findResourceById)
-            .map(Resource::getGroup)
+            .map(Resource::getType)
             .collect(Collectors.toSet());
     }
 
     /**
-     * Get a random group from the list of available resource groups.
+     * Get a random resourceType from the list of available resource types.
      *
-     * @return A resource group name.
+     * @return A ResourceType.
      */
-    private Optional<String> getRandomGroup() {
-        return groupBeingUsed.entrySet().stream()
+    private Optional<ResourceType> getRandomResourceType() {
+        return resourceTypeBeingUsed.entrySet().stream()
             .filter(entry -> !entry.getValue()) // only entries with value = false
             .map(Map.Entry::getKey) // extract the key
             .collect(Collectors.collectingAndThen(
                 Collectors.toList(),
                 list -> list.isEmpty() ? Optional.empty() :
-                    Optional.of(list.get(new Random().nextInt(list.size())))))
-            .map(Object::toString);
+                    Optional.of(list.get(new Random().nextInt(list.size())))));
+    }
+
+    /**
+     * Prune old incidents that have ended and exceed the maximum history size.
+     * Incidents with null end times are treated as ongoing (OffsetDateTime.MAX) and kept.
+     * Incidents are sorted by start time (newest first) and pruned to historySize.
+     */
+    @Scheduled(fixedRate = 1800000)     // Runs every 30 minutes.
+    public void pruneIncident() {
+        log.debug("[SimulationController::pruneIncident] historySize: {}, pruning at: {}",
+            this.historySize, java.time.LocalDateTime.now());
+
+        OffsetDateTime now = OffsetDateTime.now();
+        Facility facility = repository.findAllFacilities().getFirst();
+
+        // Get all incidents that have ended (end time is in the past)
+        // Null end times are treated as MAX (ongoing incidents that should be kept).
+        List<Incident> endedIncidents = repository.findAllIncidents().stream()
+            .filter(incident -> incident.getEnd() != null && incident.getEnd().isBefore(now))
+            .sorted(comparing(Incident::getStart, nullsFirst(reverseOrder())))
+            .toList();
+
+        log.debug("[SimulationController::pruneIncident] total incidents: {}, ended incidents: {}",
+            repository.findAllIncidents().size(), endedIncidents.size());
+
+        // If we have more ended incidents than historySize, prune the excess.
+        if (endedIncidents.size() > this.historySize) {
+            // Keep the most recent historySize incidents, delete the rest
+            List<Incident> incidentsToDelete = endedIncidents.stream()
+                .skip(this.historySize)
+                .toList();
+
+            log.debug("[SimulationController::pruneIncident] pruning {} incidents",
+                incidentsToDelete.size());
+
+            for (Incident incident : incidentsToDelete) {
+                log.debug("[SimulationController::pruneIncident] deleting incident: {} ({})",
+                    incident.getId(), incident.getName());
+
+                // Remove incident URI from facility
+                String incidentUri = incident.self(this.root);
+                facility.getIncidentUris().remove(incidentUri);
+
+                // Delete associated events
+                List<String> eventUris = Optional.ofNullable(incident.getEventUris())
+                    .orElse(List.of());
+                
+                for (String eventUri : eventUris) {
+                    Event event = repository.findEventByHref(eventUri);
+                    if (event != null) {
+                        // Remove event URI from facility
+                        facility.getEventUris().remove(event.getSelfUri());
+
+                        // Delete the event
+                        repository.delete(event);
+                        log.debug("[SimulationController::pruneIncident] deleted event: {}", event.getId());
+                    }
+                }
+
+                // Delete the incident
+                repository.delete(incident);
+            }
+
+            // Save the updated facility
+            facility.setLastModified(now);
+            repository.saveAndFlush(facility);
+
+            log.debug("[SimulationController::pruneIncident] pruning complete. Remaining incidents: {}",
+                repository.findAllIncidents().size());
+        } else {
+            log.debug("[SimulationController::pruneIncident] no pruning needed");
+        }
     }
 }

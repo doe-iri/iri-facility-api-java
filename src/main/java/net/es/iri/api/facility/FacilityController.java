@@ -726,7 +726,7 @@ public class FacilityController {
     /**
      * Returns the location related to the specified site.
      * <p>
-     * Operation: GET /api/v1/status/sites/{site_id}/location
+     * Operation: GET /api/v1/facility/sites/{site_id}/location
      *
      * @param accept Provides media types that are acceptable for the response.
      *    At the moment 'application/json' is the supported response encoding.
