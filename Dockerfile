@@ -6,7 +6,7 @@ WORKDIR $HOME
 ADD . $HOME
 RUN mvn -f $HOME/pom.xml clean install -Ddocker.nocache
 
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jdk
 
 ENV HOME=/iri
 ENV LOGBACK="file:$HOME/config/logback.xml"
